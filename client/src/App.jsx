@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { Fragment } from 'react';
 
 import styles from './App.module.css';
 
+import { Signup } from './features/signup/Signup';
+
 const App = () => {
   return (
-    <div>
-      Hello, World!
-    </div>
+    <Fragment>
+      <Signup />
+    </Fragment>
   )
 };
 

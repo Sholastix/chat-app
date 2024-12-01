@@ -13,9 +13,11 @@ const PORT = process.env.PORT;
 // Initialize the middleware.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-  origin: ['http://127.0.0.1:5173']
-}));
+// app.use(cors({
+//   origin: ['http://127.0.0.1:5173']
+// }));
+// Сross-origin resource sharing permission.
+app.use(cors());
 
 // Handle all routes in one file 'index.js' for import convinience.
 const routes = require('./src/routes/api/index');
