@@ -1,8 +1,8 @@
+import { Link } from 'react-router-dom';
 // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
 import { useSelector, useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-
 import styles from './Signup.module.css';
 
 import Spinner from '../../components/Spinner/Spinner';
@@ -156,6 +156,7 @@ export const Signup = () => {
                 <button type='submit' className={styles.button}>Sign Up</button>
               </div>
             </form>
+            <p className={styles.footer}>Already have an account?&nbsp;&nbsp;<Link to='/signin' className={styles.link}>SignIn</Link></p>
           </div>
         ) : <Spinner />
       }
