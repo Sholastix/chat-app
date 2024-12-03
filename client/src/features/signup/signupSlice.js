@@ -16,7 +16,8 @@ export const registerUser = createAsyncThunk('signup/registerUser', async (props
   const user = await axios.post('http://localhost:5000/api/signup', {
     username: props.username,
     email: props.email,
-    password: props.password
+    password: props.password,
+    confirmPassword: props.confirmPassword
   });
 
   return user.data;

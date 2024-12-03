@@ -3,10 +3,12 @@ const { Router } = require('express');
 const router = Router();
 
 const { signup } = require('../../controllers/userController');
+const { signupSchema } = require('../../validation/userValidation');
+const yupMdw = require('../../middleware/yupMdw');
 
 // @route: POST /api/signup
 // @desc: Register new user.
 // @access: Public.
-router.post('/signup', signup);
+router.post('/signup', yupMdw(signupSchema), signup);
 
 module.exports = router;

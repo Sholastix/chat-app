@@ -10,6 +10,7 @@ export const Signup = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const signupState = useSelector((state) => {
@@ -23,7 +24,7 @@ export const Signup = () => {
     try {
       event.preventDefault();
 
-      dispatch(registerUser({ username, email, password }));
+      dispatch(registerUser({ username, email, password, confirmPassword }));
     } catch (err) {
       console.error(err);
     };
@@ -58,6 +59,15 @@ export const Signup = () => {
               value={password}
               onChange={(event) => { setPassword(event.target.value) }}
               placeholder='Enter the password...'
+            />
+            <br />
+            <br />
+            <input
+              type='password'
+              name='confirmPassword'
+              value={confirmPassword}
+              onChange={(event) => { setConfirmPassword(event.target.value) }}
+              placeholder='Confirm the password...'
             />
             <br />
             <br />
