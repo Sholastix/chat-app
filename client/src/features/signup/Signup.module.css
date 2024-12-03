@@ -1,0 +1,123 @@
+.container {
+  align-items: center;
+  background-color: rgb(93, 109, 126);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  width: 100vw;
+}
+
+.header {
+  color: white;
+  cursor: default;
+  font-size: 4.5rem;
+  margin: 5rem 0rem;
+}
+
+.info {
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  font-size: 2.5rem;
+  margin: 5rem 2rem;
+}
+
+.infoIcon {
+  font-size: 4rem;
+}
+
+.info p {
+  margin-bottom: 1rem;
+}
+
+.inputOuter {
+  align-items: center;
+  background-color: white;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-left: 1rem;
+  width: 40vw;
+}
+
+.inputOuter:hover {
+  box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3);
+}
+
+.inputError {
+  align-items: center;
+  background-color: white;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  outline: 0.2rem solid red;
+  padding-left: 1rem;
+  width: 40vw;
+}
+
+.errorMessage {
+  color: red;
+  font-size: 1.6rem;
+  margin-top: 1rem;
+}
+
+.inputIcon {
+  font-size: 2rem;
+}
+
+.input {
+  border: none;
+  border-radius: 0rem 1rem 1rem 0rem;
+  font-size: 1.8rem;
+  margin-left: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.input:focus {
+  background-color: aliceblue;
+  box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3);
+  outline: none;
+}
+
+.button {
+  /* align-self: flex-end; */
+  border: none;
+  background-color: white;
+  border-radius: 5rem;
+  font-size: 1.8rem;
+  margin: 4rem 0rem;
+  padding: 1rem;
+  width: 40vw;
+}
+
+.button:hover {
+  background-color: aliceblue;
+  box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.footer {
+  color: white;
+  cursor: default;
+  font-size: 1.8rem;
+  margin: 3rem 0rem 10rem 0rem;
+}
+
+.link {
+  text-decoration: none;
+  color: gold;
+}
+
+.link:hover {
+  border-bottom: 0.2rem solid white;
+}
+
+.link:visited {
+  color: black;
+}

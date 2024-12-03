@@ -40,6 +40,30 @@ const signup = async (req, res) => {
   };
 };
 
+// Check if username is available.
+const usernameCheck = async (req, res) => {
+  try {
+    const username = req.params.username;
+    const user = await UserModel.findOne({ username });
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check if email is available.
+const emailCheck = async (req, res) => {
+  try {
+    const email = req.params.email;
+    const user = await UserModel.findOne({ email });
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+  };
+};
+
 module.exports = {
+  emailCheck,
   signup,
+  usernameCheck
 };
