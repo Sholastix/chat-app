@@ -5,6 +5,8 @@ import * as yup from 'yup';
 
 import styles from './Signup.module.css';
 
+import Spinner from '../../components/Spinner/Spinner';
+
 import { registerUser } from './signupSlice';
 import { usernameCheck, emailCheck } from '../../validation/userValidation';
 
@@ -155,7 +157,7 @@ export const Signup = () => {
               </div>
             </form>
           </div>
-        ) : <div>Loading...</div>
+        ) : <Spinner />
       }
     </div>
   )
