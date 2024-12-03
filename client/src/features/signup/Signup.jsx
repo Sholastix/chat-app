@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import styles from './Signup.module.css';
 
 import { registerUser } from './signupSlice';
-import { usernameCheck, signupEmailCheck } from '../../validation/userValidation';
+import { usernameCheck, emailCheck } from '../../validation/userValidation';
 
 // Password must contain minimum five characters. At least one of them must be letter and another one - number.
 const passwordRules = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
@@ -37,7 +37,7 @@ export const Signup = () => {
       .email('Please enter a valid email.')
       // If function 'emailCheck' return 'true' - test passed successfully, if 'false' - message 'This email is already taken.' will be displayed.
       .test('Unique email.', 'This email is already taken.', () => {
-        return signupEmailCheck(formik.values.email);
+        return emailCheck(formik.values.email);
       }),
     password: yup
       .string()

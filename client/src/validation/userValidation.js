@@ -12,7 +12,7 @@ export const usernameCheck = async (username) => {
 };
 
 // Check if email is available.
-export const signupEmailCheck = async (email) => {
+export const emailCheck = async (email) => {
   try {
     const user = await axios.get(`http://localhost:5000/api/user/email/${email}`);
 
