@@ -1,17 +1,26 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
 import { useSelector, useDispatch } from 'react-redux';
-import { useFormik } from 'formik';
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+// ONLY FOR DEVELOPMENT.
+import { DevTool } from '@hookform/devtools';
+
+// Styles.
 import styles from './Signup.module.css';
 
+// Components.
 import Spinner from '../../components/Spinner/Spinner';
 
+// Functions.
 import { registerUser } from './signupSlice';
 import { usernameCheck, emailCheck } from '../../validation/userValidation';
+import { passwordRules } from '../../helpers/passwordRules';
 
-// Password must contain minimum five characters. At least one of them must be letter and another one - number.
-const passwordRules = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+// ONLY FOR DEVELOPMENT (re-renders counter).
+let componentRenderCount = 0;
 
 export const Signup = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -31,7 +40,11 @@ export const Signup = () => {
       .max(30, 'Username must be at most 30 characters long.')
       // If function 'usernameCheck' return 'true' - test passed successfully, if 'false' - message 'This username is already taken.' will be displayed.
       .test('Unique username.', 'This username is already taken.', () => {
-        return usernameCheck(formik.values.username);
+        const username = form.getValues('username');
+
+        if (username && username !== '') {
+          return usernameCheck(username);
+        };
       }),
     email: yup
       .string()
@@ -39,49 +52,61 @@ export const Signup = () => {
       .email('Please enter a valid email.')
       // If function 'emailCheck' return 'true' - test passed successfully, if 'false' - message 'This email is already taken.' will be displayed.
       .test('Unique email.', 'This email is already taken.', () => {
-        return emailCheck(formik.values.email);
+        const email = form.getValues('email');
+
+        if (email && email !== '') {
+          return emailCheck(email);
+        };
       }),
     password: yup
       .string()
       .required('Password is required.')
       .min(5, 'Password must be at least 5 characters long.')
       .matches(passwordRules, { message: 'Password must contain letters and numbers.' }),
-    confirmPassword: yup.string()
+    confirmPassword: yup
+      .string()
       .required('Password confirmation is required.')
       .oneOf([yup.ref('password'), null], 'Passwords don\'t match!'),
   });
 
-  // useFormik() hook with initial form values, validation schema from YUP and submit function, which will be called when the form is submitted.
-  const formik = useFormik({
-    initialValues: {
+  const form = useForm({
+    defaultValues: {
       username: '',
       email: '',
       password: '',
       confirmPassword: ''
     },
 
-    validationSchema: signupSchema,
-    // Disable 'onBlur' validation.
-    validateOnBlur: false,
-    // Disable real-time validation.
-    validateOnChange: false,
-
-    onSubmit: (values, actions) => {
-      try {
-        dispatch(registerUser({
-          username: values.username,
-          email: values.email,
-          password: values.password,
-          confirmPassword: values.confirmPassword
-        }));
-
-        // Clear input fields after submitting the form.
-        actions.resetForm();
-      } catch (err) {
-        console.error(err);
-      };
-    },
+    // Connect Yup schema.
+    resolver: yupResolver(signupSchema)
   });
+
+  const { register, handleSubmit, formState, reset, control } = form;
+  const { errors, isSubmitSuccessful } = formState;
+
+  const onSubmit = (formData) => {
+    try {
+      dispatch(registerUser({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
+      }));
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  const onError = (errors) => {
+    console.log('FORM_ERRORS:', errors);
+  };
+
+  useEffect(() => {
+    isSubmitSuccessful && reset();
+  }, [isSubmitSuccessful]);
+
+  // Increase count with each re-render.
+  componentRenderCount++;
 
   return (
     <div>
@@ -89,74 +114,70 @@ export const Signup = () => {
         !signupState.loading ? (
           <div className={styles.container}>
             <div className={styles.header}>
-              Chitchat App
+              Chitchat App: {componentRenderCount}
             </div>
+
             <div className={styles.info}>
               <p className={styles.infoIcon}>&#x1F512;</p>
               <p>Create a new account</p>
             </div>
-            <form onSubmit={formik.handleSubmit}>
-              <div className={formik.errors.username && formik.touched.username ? styles.inputError : styles.inputOuter}>
+
+            <form onSubmit={handleSubmit(onSubmit, onError)}>
+              <div className={styles.inputOuter}>
                 <div className={styles.inputIcon}>&#x1F465;</div>
                 <input
                   className={styles.input}
                   type='text'
                   name='username'
-                  value={formik.values.username}
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
                   placeholder='Enter the username...'
+                  {...register('username')}
                 />
               </div>
-              {formik.errors.username && formik.touched.username && <p className={styles.errorMessage}>{formik.errors.username}</p>}
+              {errors.username?.message && <p className={styles.errorMessage}>{errors.username?.message}</p>}
 
-              <div className={formik.errors.email && formik.touched.email ? styles.inputError : styles.inputOuter}>
+              <div className={styles.inputOuter}>
                 <div className={styles.inputIcon}>&#x1F4E7;</div>
                 <input
                   className={styles.input}
                   type='email'
                   name='email'
-                  value={formik.values.email}
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
                   placeholder='Enter the email...'
+                  {...register('email')}
                 />
               </div>
-              {formik.errors.email && formik.touched.email && <p className={styles.errorMessage}>{formik.errors.email}</p>}
+              {errors.email?.message && <p className={styles.errorMessage}>{errors.email?.message}</p>}
 
-              <div className={formik.errors.password && formik.touched.password ? styles.inputError : styles.inputOuter}>
+              <div className={styles.inputOuter}>
                 <div className={styles.inputIcon}>&#x1F511;</div>
                 <input
                   className={styles.input}
                   type='password'
                   name='password'
-                  value={formik.values.password}
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
                   placeholder='Enter the password...'
+                  {...register('password')}
                 />
               </div>
-              {formik.errors.password && formik.touched.password && <p className={styles.errorMessage}>{formik.errors.password}</p>}
+              {errors.password?.message && <p className={styles.errorMessage}>{errors.password?.message}</p>}
 
-              <div className={formik.errors.confirmPassword && formik.touched.confirmPassword ? styles.inputError : styles.inputOuter}>
+              <div className={styles.inputOuter}>
                 <div className={styles.inputIcon}>&#x1F511;</div>
                 <input
                   className={styles.input}
                   type='password'
                   name='confirmPassword'
-                  value={formik.values.confirmPassword}
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
                   placeholder='Confirm the password...'
+                  {...register('confirmPassword')}
                 />
               </div>
-              {formik.errors.confirmPassword && formik.touched.confirmPassword && <p className={styles.errorMessage}>{formik.errors.confirmPassword}</p>}
+              {errors.confirmPassword?.message && <p className={styles.errorMessage}>{errors.confirmPassword?.message}</p>}
 
               <div>
                 <button type='submit' className={styles.button}>Sign Up</button>
               </div>
             </form>
+
             <p className={styles.footer}>Already have an account?&nbsp;&nbsp;<Link to='/signin' className={styles.link}>SignIn</Link></p>
+            <DevTool control={control} />
           </div>
         ) : <Spinner />
       }
