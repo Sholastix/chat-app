@@ -40,6 +40,36 @@ const signup = async (req, res) => {
   };
 };
 
+// User login.
+const signin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Check if user with this email exists in database.
+    const user = await UserModel.findOne({ email });
+
+    // If user not found then show error message.
+    if (!user) {
+      console.error(`\nERROR: User with email '${email}' not found.`);
+      return res.status(400).json({ errors: [{ message: `User with email '${email}' not found.` }] });
+    };
+
+    // Compare input password and password from database.
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    // If passwords doesn't match then show error message.
+    if (!isMatch) {
+      console.error('\nERROR: Passwords does not match.');
+      return res.status(401).json({ errors: [{ message: 'Passwords does not match.' }] });
+    };
+
+    res.status(201).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
+
 // Check if username is available.
 const usernameCheck = async (req, res) => {
   try {
@@ -64,6 +94,7 @@ const emailCheck = async (req, res) => {
 
 module.exports = {
   emailCheck,
+  signin,
   signup,
   usernameCheck
 };

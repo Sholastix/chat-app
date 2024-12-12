@@ -2,14 +2,19 @@
 const { Router } = require('express');
 const router = Router();
 
-const { signup, usernameCheck, emailCheck } = require('../../controllers/userController');
-const { signupSchema } = require('../../validation/userValidation');
+const { signup, signin, usernameCheck, emailCheck } = require('../../controllers/userController');
+const { signupSchema, signinSchema } = require('../../validation/userValidation');
 const yupMdw = require('../../middleware/yupMdw');
 
 // @route: POST /api/signup
 // @desc: Register new user.
 // @access: Public.
 router.post('/signup', yupMdw(signupSchema), signup);
+
+// @route: POST /api/signin
+// @desc: User login.
+// @access: Public.
+router.post('/signin', yupMdw(signinSchema), signin);
 
 // @route: GET /api/user/username/:username
 // @desc: Check if username is available.

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import styles from './App.module.css';
 
+import { Signin } from './features/signin/Signin';
 import { Signup } from './features/signup/Signup';
 import ErrorPage from './components/ErrorPage/ErrorPage';
 
@@ -12,6 +13,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Navigate replace to='/signup' />} />
+          <Route path='/signin' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />
           <Route path='*' element={<ErrorPage />} />
         </Routes>
