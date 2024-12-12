@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const UserModel = require('../models/UserModel');
 
@@ -30,10 +31,24 @@ const signup = async (req, res) => {
     user = await UserModel.create({
       username: username,
       email: email,
-      password: hashedPassword,
+      password: hashedPassword
     });
 
-    res.status(201).json(user);
+    // Create jsonwebtoken for user.
+    const jwtPayload = {
+      id: user._id,
+    };
+    const jwtSecret = process.env.JWT_SECRET;
+    const jwtLifespan = '10h';
+
+    jwt.sign(jwtPayload, jwtSecret, { expiresIn: jwtLifespan, algorithm: 'HS256' }, (err, token) => {
+      if (err) {
+        throw err;
+      } else {
+        console.log('\nRegistration completed successfully: ', { user, token });
+        res.status(201).json({ user, token });
+      };
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
@@ -63,7 +78,21 @@ const signin = async (req, res) => {
       return res.status(401).json({ errors: [{ message: 'Passwords does not match.' }] });
     };
 
-    res.status(201).json(user);
+    // Create jsonwebtoken for user.
+    const jwtPayload = {
+      id: user._id,
+    };
+    const jwtSecret = process.env.JWT_SECRET;
+    const jwtLifespan = '10h';
+
+    jwt.sign(jwtPayload, jwtSecret, { expiresIn: jwtLifespan, algorithm: 'HS256' }, (err, token) => {
+      if (err) {
+        throw err;
+      } else {
+        console.log('\nUser logged in successfully: ', { user, token });
+        res.status(200).json({ user, token });
+      };
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
