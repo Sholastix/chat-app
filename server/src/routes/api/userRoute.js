@@ -1,9 +1,9 @@
-// const router = require('express').Router();
 const { Router } = require('express');
 const router = Router();
 
 const { signup, signin, usernameCheck, emailCheck } = require('../../controllers/userController');
 const { signupSchema, signinSchema } = require('../../validation/userValidation');
+const authMdw = require('../../middleware/authMdw');
 const yupMdw = require('../../middleware/yupMdw');
 
 // @route: POST /api/signup
