@@ -1,8 +1,10 @@
 const { Router } = require('express');
 const router = Router();
 
-const { signup, signin, usernameCheck, emailCheck } = require('../../controllers/userController');
+const { signup, signin } = require('../../controllers/userController');
 const { signupSchema, signinSchema } = require('../../validation/userValidation');
+const { emailCheck } = require('../../helpers/emailCheck');
+const { usernameCheck } = require('../../helpers/usernameCheck');
 const authMdw = require('../../middleware/authMdw');
 const yupMdw = require('../../middleware/yupMdw');
 

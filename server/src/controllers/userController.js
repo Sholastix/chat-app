@@ -74,8 +74,8 @@ const signin = async (req, res) => {
 
     // If passwords doesn't match then show error message.
     if (!isMatch) {
-      console.error('\nERROR: Passwords does not match.');
-      return res.status(401).json({ errors: [{ message: 'Passwords does not match.' }] });
+      console.error('\nERROR: Incorrect password.');
+      return res.status(401).json({ errors: [{ message: 'Incorrect password.' }] });
     };
 
     // Create jsonwebtoken for user.
@@ -99,31 +99,7 @@ const signin = async (req, res) => {
   };
 };
 
-// Check if username is available.
-const usernameCheck = async (req, res) => {
-  try {
-    const username = req.params.username;
-    const user = await UserModel.findOne({ username });
-    res.json(user);
-  } catch (err) {
-    console.error(err);
-  };
-};
-
-// Check if email is available.
-const emailCheck = async (req, res) => {
-  try {
-    const email = req.params.email;
-    const user = await UserModel.findOne({ email });
-    res.json(user);
-  } catch (err) {
-    console.error(err);
-  };
-};
-
 module.exports = {
-  emailCheck,
   signin,
-  signup,
-  usernameCheck
+  signup
 };

@@ -16,7 +16,7 @@ import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
 import { authUser } from './signinSlice';
-import { emailCheck } from '../../validation/userValidation';
+import { emailCheck } from '../../helpers/emailCheck';
 import { passwordRules } from '../../helpers/passwordRules';
 
 export const Signin = () => {
@@ -64,7 +64,7 @@ export const Signin = () => {
   const { register, handleSubmit, formState, reset, control } = form;
   const { errors, isSubmitSuccessful } = formState;
 
-  const onSubmit = (formData) => {
+  const onSubmit = async (formData) => {
     try {
       dispatch(authUser({
         email: formData.email,
@@ -121,6 +121,7 @@ export const Signin = () => {
                 />
               </div>
               {errors.password?.message && <p className={styles.errorMessage}>{errors.password?.message}</p>}
+              {signinState.error === 'Request failed with status code 401' && !errors.password?.message && !isSubmitSuccessful ? <p className={styles.errorMessage}>Incorrect password.</p> : null}
 
               <div>
                 <button type='submit' className={styles.button}>Sign In</button>

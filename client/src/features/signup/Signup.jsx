@@ -16,7 +16,8 @@ import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
 import { registerUser } from './signupSlice';
-import { usernameCheck, emailCheck } from '../../validation/userValidation';
+import { usernameCheck } from '../../helpers/usernameCheck';
+import { emailCheck } from '../../helpers/emailCheck';
 import { passwordRules } from '../../helpers/passwordRules';
 
 // ONLY FOR DEVELOPMENT (re-renders counter).

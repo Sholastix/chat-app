@@ -4,7 +4,7 @@ import axios from 'axios';
 // Initial STATE for 'User'.
 const initialState = {
   loading: false,
-  error: {},
+  error: '',
   user: {}
 };
 

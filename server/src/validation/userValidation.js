@@ -1,7 +1,7 @@
 const yup = require('yup');
 
-// Password must contain minimum five characters. At least one of them must be letter and another one - number.
-const passwordRules = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+// Import RegEx for password validation.
+const { passwordRules } = require('../helpers/passwordRules');
 
 // Signup validation
 const signupSchema = yup.object({
