@@ -5,7 +5,9 @@ import axios from 'axios';
 const initialState = {
   loading: false,
   error: '',
-  user: {}
+  isAuthenticated: false,
+  token: localStorage.getItem('token'),
+  user: null
 };
 
 // This function accepts two arguments: 1st is the ACTION type, 2nd is the callback function that creates the payload (Promise).
@@ -37,6 +39,8 @@ const signinSlice = createSlice({
       state.loading = false,
       state.error = '',
       state.user = action.payload,
+      state.isAuthenticated = true,
+      state.token = action.payload.token,
       // Put token in local storage.
       localStorage.setItem('token', action.payload.token)
     });
@@ -44,7 +48,11 @@ const signinSlice = createSlice({
     builder.addCase(authUser.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message,
-      state.user = {}
+      state.user = null,
+      state.isAuthenticated = false,
+      state.token = null,
+      // Remove token from local storage.
+      localStorage.removeItem('token')
     });
   },
 });
