@@ -35,8 +35,10 @@ const signinSlice = createSlice({
 
     builder.addCase(authUser.fulfilled, (state, action) => {
       state.loading = false,
-      state.error = {},
-      state.user = action.payload
+      state.error = '',
+      state.user = action.payload,
+      // Put token in local storage.
+      localStorage.setItem('token', action.payload.token)
     });
 
     builder.addCase(authUser.rejected, (state, action) => {

@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 const cors = require('cors');
 const express = require('express');
 const app = express();
@@ -13,9 +13,7 @@ const PORT = process.env.PORT;
 // Initialize the middleware.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(cors({
-//   origin: ['http://127.0.0.1:5173']
-// }));
+
 // Сross-origin resource sharing permission.
 app.use(cors());
 
