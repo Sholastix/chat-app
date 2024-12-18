@@ -21,6 +21,7 @@ app.use(cors());
 const routes = require('./src/routes/api/index');
 
 // Set the routes.
+app.use('/api/', routes.authRoute);
 app.use('/api/', routes.userRoute);
 
 // Starting the server.
