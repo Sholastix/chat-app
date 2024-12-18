@@ -15,7 +15,7 @@ import styles from './Signin.module.css';
 import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
-import { authUser } from './signinSlice';
+import { loginUser } from './signinSlice';
 import { emailCheck } from '../../helpers/emailCheck';
 import { passwordRules } from '../../helpers/passwordRules';
 
@@ -68,14 +68,14 @@ const Signin = () => {
     isSubmitSuccessful && reset();
   }, [isSubmitSuccessful]);
 
-  // Redirect if user signed up.
+  // Redirect if user signed in.
   if (!signinState.loading && signinState.isAuthenticated) {
     return <Navigate to='/chat' replace={true} />
   };
 
   const onSubmit = async (formData) => {
     try {
-      dispatch(authUser({
+      dispatch(loginUser({
         email: formData.email,
         password: formData.password
       }));

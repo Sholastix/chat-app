@@ -14,7 +14,7 @@ const initialState = {
 // 'createAsyncThunk()' automatically dispatch lifecycle ACTIONS based on the returned Promise. Promise will be 'pending', 'fullfilled' or 'rejected'.
 // So, basically, 'createAsyncThunk()' generates 'pending', 'fullfilled' or 'rejected' ACTION types.
 // We can listen to this ACTION types with an EXTRA_REDUCER and performes the necessary STATE transitions.
-export const authUser = createAsyncThunk('signin/authUser', async (props) => {
+export const loginUser = createAsyncThunk('signin/loginUser', async (props) => {
   const user = await axios.post('http://localhost:5000/api/signin', {
     email: props.email,
     password: props.password
@@ -31,11 +31,11 @@ const signinSlice = createSlice({
   initialState,
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
-    builder.addCase(authUser.pending, (state, action) => {
+    builder.addCase(loginUser.pending, (state, action) => {
       state.loading = true
     });
 
-    builder.addCase(authUser.fulfilled, (state, action) => {
+    builder.addCase(loginUser.fulfilled, (state, action) => {
       state.loading = false,
       state.error = '',
       state.user = action.payload,
@@ -45,7 +45,7 @@ const signinSlice = createSlice({
       localStorage.setItem('token', action.payload.token)
     });
 
-    builder.addCase(authUser.rejected, (state, action) => {
+    builder.addCase(loginUser.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message,
       state.user = null,
