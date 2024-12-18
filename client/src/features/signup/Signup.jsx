@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
 import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from "react-hook-form";
@@ -85,6 +85,15 @@ const Signup = () => {
   const { register, handleSubmit, formState, reset, control } = form;
   const { errors, isSubmitSuccessful } = formState;
 
+  useEffect(() => {
+    isSubmitSuccessful && reset();
+  }, [isSubmitSuccessful]);
+
+  // Redirect if user signed up.
+  if (!signupState.loading && signupState.isAuthenticated) {
+    return <Navigate to='/chat' replace={true} />
+  };
+
   const onSubmit = (formData) => {
     try {
       dispatch(registerUser({
@@ -97,14 +106,10 @@ const Signup = () => {
       console.error(err);
     };
   };
-
+  
   const onError = (errors) => {
     console.log('FORM_ERRORS:', errors);
   };
-
-  useEffect(() => {
-    isSubmitSuccessful && reset();
-  }, [isSubmitSuccessful]);
 
   // Increase count with each re-render.
   componentRenderCount++;
