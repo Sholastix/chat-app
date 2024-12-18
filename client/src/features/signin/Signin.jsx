@@ -19,7 +19,7 @@ import { authUser } from './signinSlice';
 import { emailCheck } from '../../helpers/emailCheck';
 import { passwordRules } from '../../helpers/passwordRules';
 
-export const Signin = () => {
+const Signin = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const signinState = useSelector((state) => {
     return state.signinReducer
@@ -136,3 +136,5 @@ export const Signin = () => {
     </div>
   )
 };
+
+export default Signin;

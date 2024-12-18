@@ -23,7 +23,7 @@ import { passwordRules } from '../../helpers/passwordRules';
 // ONLY FOR DEVELOPMENT (re-renders counter).
 let componentRenderCount = 0;
 
-export const Signup = () => {
+const Signup = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const signupState = useSelector((state) => {
     return state.signupReducer
@@ -185,3 +185,5 @@ export const Signup = () => {
     </div>
   )
 };
+
+export default Signup;
