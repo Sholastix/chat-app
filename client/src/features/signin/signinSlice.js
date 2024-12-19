@@ -50,7 +50,7 @@ const signinSlice = createSlice({
       state.error = action.error.message,
       state.user = null,
       state.isAuthenticated = false,
-      state.token = null,
+      state.token = null
       // Remove token from local storage.
       localStorage.removeItem('token')
     });
