@@ -7,8 +7,7 @@ const jwtSecret = process.env.JWT_SECRET;
 const authMdw = async (req, res, next) => {
   // Get the token (if it exists) from the header.
   const authHeader = req.header('Authorization');
-  console.log('AUTH_HEADER: ', authHeader);
-  
+
   // Check token availability.
   if (!authHeader) {
     console.log('\nERROR: Token not provided, authorization denied!');
@@ -20,7 +19,6 @@ const authMdw = async (req, res, next) => {
   // 1. We can add this prefix when we creating JWT in 'signin' and 'signup' functions ( ex.: res.status(200).json({ user, 'Bearer ' + token }); )
   // 2. We can set a simple check for the presence of a prefix 'Bearer ' in the JWT. And in our case we do exactly this.
   authHeader.includes('Bearer') ? token = authHeader.split(' ')[1] : token = authHeader;
-  console.log('TOKEN: ', token);
 
   // Verify token.
   try {
