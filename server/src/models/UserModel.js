@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
 
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: false },
+    timestamps: { createdAt: true, updatedAt: false }
   },
 );
 
