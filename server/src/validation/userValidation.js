@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 // Import RegEx for password validation.
-const { passwordRules } = require('../helpers/passwordRules');
+const { checkPassword } = require('../helpers/checkCredentials');
 
 // Signup validation
 const signupSchema = yup.object({
@@ -18,7 +18,7 @@ const signupSchema = yup.object({
     .string()
     .required('Password is required.')
     .min(5, 'Password must be at least 5 characters long.')
-    .matches(passwordRules, { message: 'Password must contain letters and numbers.' }),
+    .matches(checkPassword, { message: 'Password must contain letters and numbers.' }),
   confirmPassword: yup
     .string()
     .required('Password confirmation is required.')
@@ -35,7 +35,7 @@ const signinSchema = yup.object({
     .string()
     .required('Password is required.')
     .min(5, 'Password must be at least 5 characters long.')
-    .matches(passwordRules, { message: 'Password must contain letters and numbers.' })
+    .matches(checkPassword, { message: 'Password must contain letters and numbers.' })
 });
 
 module.exports = {

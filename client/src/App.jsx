@@ -14,7 +14,7 @@ const App = () => {
     <Fragment>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Navigate replace to='/signup' />} />
+          <Route path='/' element={<Navigate replace to='/chat' />} />
           <Route element={<ProtectedRoutes />}>
             <Route path='/chat' element={<Chat />} />
           </Route>
