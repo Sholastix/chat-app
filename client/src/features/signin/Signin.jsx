@@ -16,8 +16,7 @@ import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
 import { loginUser } from './signinSlice';
-import { emailCheck } from '../../helpers/emailCheck';
-import { passwordRules } from '../../helpers/passwordRules';
+import { checkEmail, checkPassword } from '../../helpers/checkCredentials';
 
 const Signin = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -34,12 +33,12 @@ const Signin = () => {
       .string()
       .required('Email is required.')
       .email('Please enter a valid email.')
-      // If function 'emailCheck' return 'true' - test passed successfully, if 'false' - message 'This email is already taken.' will be displayed.
+      // If function 'checkEmail' return 'true' - test passed successfully, if 'false' - message 'This email is already taken.' will be displayed.
       .test('Unique email.', 'User with this email not found.', async () => {
         const email = form.getValues('email');
 
         if (email && email !== '') {
-          const result = await emailCheck(email);
+          const result = await checkEmail(email);
 
           return result === false ? true : false;
         };
@@ -48,7 +47,7 @@ const Signin = () => {
       .string()
       .required('Password is required.')
       .min(5, 'Password must be at least 5 characters long.')
-      .matches(passwordRules, { message: 'Password must contain letters and numbers.' }),
+      .matches(checkPassword, { message: 'Password must contain letters and numbers.' }),
   });
 
   const form = useForm({
@@ -99,7 +98,7 @@ const Signin = () => {
 
             <div className={styles.info}>
               <p className={styles.infoIcon}>&#x1F512;</p>
-              <p>Enter</p>
+              <p>Log into Chitchat</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit, onError)}>

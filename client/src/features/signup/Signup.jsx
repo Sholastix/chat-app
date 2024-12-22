@@ -16,12 +16,7 @@ import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
 import { registerUser } from './signupSlice';
-import { usernameCheck } from '../../helpers/usernameCheck';
-import { emailCheck } from '../../helpers/emailCheck';
-import { passwordRules } from '../../helpers/passwordRules';
-
-// ONLY FOR DEVELOPMENT (re-renders counter).
-let componentRenderCount = 0;
+import { checkEmail, checkPassword, checkUsername } from '../../helpers/checkCredentials';
 
 const Signup = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -39,31 +34,31 @@ const Signup = () => {
       .required('Username is required.')
       .min(3, 'Username must be at least 3 characters long.')
       .max(30, 'Username must be at most 30 characters long.')
-      // If function 'usernameCheck' return 'true' - test passed successfully, if 'false' - message 'This username is already taken.' will be displayed.
+      // If function 'checkUsername' return 'true' - test passed successfully, if 'false' - message 'This username is already taken.' will be displayed.
       .test('Unique username.', 'This username is already taken.', () => {
         const username = form.getValues('username');
 
         if (username && username !== '') {
-          return usernameCheck(username);
+          return checkUsername(username);
         };
       }),
     email: yup
       .string()
       .required('Email is required.')
       .email('Please enter a valid email.')
-      // If function 'emailCheck' return 'true' - test passed successfully, if 'false' - message 'This email is already taken.' will be displayed.
+      // If function 'checkEmail' return 'true' - test passed successfully, if 'false' - message 'This email is already taken.' will be displayed.
       .test('Unique email.', 'This email is already taken.', () => {
         const email = form.getValues('email');
 
         if (email && email !== '') {
-          return emailCheck(email);
+          return checkEmail(email);
         };
       }),
     password: yup
       .string()
       .required('Password is required.')
       .min(5, 'Password must be at least 5 characters long.')
-      .matches(passwordRules, { message: 'Password must contain letters and numbers.' }),
+      .matches(checkPassword, { message: 'Password must contain letters and numbers.' }),
     confirmPassword: yup
       .string()
       .required('Password confirmation is required.')
@@ -106,13 +101,10 @@ const Signup = () => {
       console.error(err);
     };
   };
-  
+
   const onError = (errors) => {
     console.log('FORM_ERRORS:', errors);
   };
-
-  // Increase count with each re-render.
-  componentRenderCount++;
 
   return (
     <div>
@@ -120,7 +112,7 @@ const Signup = () => {
         !signupState.loading ? (
           <div className={styles.container}>
             <div className={styles.header}>
-              Chitchat App: {componentRenderCount}
+              Chitchat App
             </div>
 
             <div className={styles.info}>
