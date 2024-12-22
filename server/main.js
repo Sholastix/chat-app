@@ -3,17 +3,16 @@ require('dotenv').config({ path: '.env.local' });
 const cors = require('cors');
 const express = require('express');
 const { createServer } = require('node:http');
-// const { Server } = require('socket.io');
+const { Server } = require('socket.io');
 
 const app = express();
 const server = createServer(app);
-// const io = new Server(server);
-// const io = new Server(server, {
-//   cors: {
-//     origin: 'http://127.0.0.1:5173',
-//     methods: ['GET', 'POST']
-//   }
-// });
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST']
+  }
+});
 
 // Imports.
 const dbConnection = require('./src/config/dbConnection');
@@ -26,10 +25,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Сross-origin resource sharing permission.
-app.use(cors());
-// app.use(cors({
-//   origin: ['http://127.0.0.1:5173']
-// }));
+app.use(cors({
+  origin: ['http://localhost:5173']
+}));
 
 // Handle all routes in one file 'index.js' for import convinience.
 const routes = require('./src/routes/api/index');
@@ -38,9 +36,9 @@ const routes = require('./src/routes/api/index');
 app.use('/api/', routes.authRoute);
 app.use('/api/', routes.userRoute);
 
-// io.on('connection', (socket) => {
-//   console.log(`User with ${socket.id} connected`);
-// });
+io.on('connection', (socket) => {
+  console.log(`User with socketId '${socket.id}' connected.`);
+});
 
 // Starting the server.
 server.listen(PORT, () => {
