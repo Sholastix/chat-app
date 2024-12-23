@@ -22,6 +22,18 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
+    avatar: {
+      type: String,
+      required: true,
+      default: '../assets/defaultAvatar'
+    },
+
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false
+    }
   },
 
   {
