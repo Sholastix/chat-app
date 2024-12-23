@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 // Import REDUCERS from slices.
 import { authReducer } from '../features/auth/authSlice';
 import { signinReducer } from '../features/signin/signinSlice';
+import { signoutReducer } from '../features/signout/signoutSlice';
 import { signupReducer } from '../features/signup/signupSlice';
 
 const store = configureStore({
@@ -10,6 +11,7 @@ const store = configureStore({
   reducer: {
     authReducer,
     signinReducer,
+    signoutReducer,
     signupReducer
   },
 });
