@@ -5,8 +5,7 @@ import setAuthToken from '../../helpers/setAuthToken';
 
 // Initial STATE for 'User'.
 const initialState = {
-  // loading: false, // 'false' as initial value if we use extra_reducer with 'pending' case.
-  loading: true, // 'true' as initial value if we use extra_reducer without 'pending' case.
+  loading: false,
   error: '',
   isAuthenticated: false,
   token: localStorage.getItem('token'),
@@ -17,6 +16,7 @@ const initialState = {
 // 'createAsyncThunk()' automatically dispatch lifecycle ACTIONS based on the returned Promise. Promise will be 'pending', 'fullfilled' or 'rejected'.
 // So, basically, 'createAsyncThunk()' generates 'pending', 'fullfilled' or 'rejected' ACTION types.
 // We can listen to this ACTION types with an EXTRA_REDUCER and performes the necessary STATE transitions.
+// Auth check.
 export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () => {
   if (localStorage.token) {
     setAuthToken();
@@ -27,36 +27,127 @@ export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () =
   return user.data;
 });
 
+// Signup.
+export const signup = createAsyncThunk('auth/signup', async (props) => {
+  const user = await axios.post('http://localhost:5000/api/signup', {
+    username: props.username,
+    email: props.email,
+    password: props.password,
+    confirmPassword: props.confirmPassword
+  });
+
+  return user.data;
+});
+
+// Signin.
+export const signin = createAsyncThunk('auth/signin', async (props) => {
+  const user = await axios.post('http://localhost:5000/api/signin', {
+    email: props.email,
+    password: props.password
+  });
+
+  return user.data;
+});
+
 // Create slice of the STORE for 'User'.
 const authSlice = createSlice({
   // Specify the name of this slice.
   name: 'auth',
   // Specify the initial STATE for this slice.
   initialState,
+  // Specify the REDUCER for this slice.
+  reducers: {
+    // For signin out.
+    signout: (state, action) => {
+      // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
+      state.loading = false;
+      state.error = '',
+      state.user = null,
+      state.isAuthenticated = false,
+      state.token = null
+      // Remove token from local storage.
+      localStorage.removeItem('token')
+    }
+  },
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
-    // // Commented because we set initial STATE value of 'loading' to 'true'.
-    // builder.addCase(isUserSignedIn.pending, (state, action) => {
-    //   state.loading = true
-    // });
+    // -------------------------------   AUTH CHECK   -------------------------------
+
+    // Commented because we set initial STATE value of 'loading' to 'true'.
+    builder.addCase(isUserSignedIn.pending, (state, action) => {
+      state.loading = true
+    });
 
     builder.addCase(isUserSignedIn.fulfilled, (state, action) => {
       state.loading = false,
-        state.error = '',
-        state.user = action.payload,
-        state.isAuthenticated = true
+      state.error = '',
+      state.user = action.payload,
+      state.isAuthenticated = true
     });
-
+    
     builder.addCase(isUserSignedIn.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message,
-        state.user = null,
-        state.isAuthenticated = false,
-        state.token = null,
-        // Remove token from local storage.
-        localStorage.removeItem('token')
+      state.user = null,
+      state.isAuthenticated = false,
+      state.token = null,
+      // Remove token from local storage.
+      localStorage.removeItem('token')
+    });
+    
+    // -------------------------------   SIGNUP   -------------------------------
+
+    builder.addCase(signup.pending, (state, action) => {
+      state.loading = true
+    });
+
+    builder.addCase(signup.fulfilled, (state, action) => {
+      state.loading = false,
+      state.error = '',
+      state.user = action.payload,
+      state.isAuthenticated = true,
+      state.token = action.payload.token,
+      // Put token in local storage.
+      localStorage.setItem('token', action.payload.token)
+    });
+
+    builder.addCase(signup.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message,
+      state.user = null,
+      state.isAuthenticated = false,
+      state.token = null,
+      // Remove token from local storage.
+      localStorage.removeItem('token')
+    });
+
+    // -------------------------------   SIGNIN   -------------------------------
+
+    builder.addCase(signin.pending, (state, action) => {
+      state.loading = true
+    });
+
+    builder.addCase(signin.fulfilled, (state, action) => {
+      state.loading = false,
+      state.error = '',
+      state.user = action.payload,
+      state.isAuthenticated = true,
+      state.token = action.payload.token,
+      // Put token in local storage.
+      localStorage.setItem('token', action.payload.token)
+    });
+
+    builder.addCase(signin.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message,
+      state.user = null,
+      state.isAuthenticated = false,
+      state.token = null
+      // Remove token from local storage.
+      localStorage.removeItem('token')
     });
   },
 });
 
+export const { signout } = authSlice.actions;
 export const authReducer = authSlice.reducer;

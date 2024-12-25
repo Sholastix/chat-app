@@ -15,13 +15,13 @@ import styles from './Signin.module.css';
 import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
-import { loginUser } from './signinSlice';
+import { signin } from '../auth/authSlice';
 import { checkEmail, checkPassword } from '../../helpers/checkCredentials';
 
 const Signin = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
-  const signinState = useSelector((state) => {
-    return state.signinReducer
+  const authState = useSelector((state) => {
+    return state.authReducer
   });
 
   // This constant will be used to dispatch ACTIONS when we need it.
@@ -68,13 +68,13 @@ const Signin = () => {
   }, [isSubmitSuccessful]);
 
   // Redirect if user signed in.
-  if (!signinState.loading && signinState.isAuthenticated) {
+  if (!authState.loading && authState.isAuthenticated) {
     return <Navigate to='/chat' replace={true} />
   };
 
   const onSubmit = async (formData) => {
     try {
-      dispatch(loginUser({
+      dispatch(signin({
         email: formData.email,
         password: formData.password
       }));
@@ -90,7 +90,7 @@ const Signin = () => {
   return (
     <div>
       {
-        !signinState.loading ? (
+        !authState.loading ? (
           <div className={styles.container}>
             <div className={styles.header}>
               Chitchat App
@@ -125,7 +125,7 @@ const Signin = () => {
                 />
               </div>
               {errors.password?.message && <p className={styles.errorMessage}>{errors.password?.message}</p>}
-              {signinState.error === 'Request failed with status code 401' && !errors.password?.message && !isSubmitSuccessful ? <p className={styles.errorMessage}>Incorrect password.</p> : null}
+              {authState.error === 'Request failed with status code 401' && !errors.password?.message && !isSubmitSuccessful ? <p className={styles.errorMessage}>Incorrect password.</p> : null}
 
               <div>
                 <button type='submit' className={styles.button}>Sign In</button>

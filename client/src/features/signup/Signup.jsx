@@ -15,13 +15,13 @@ import styles from './Signup.module.css';
 import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
-import { registerUser } from './signupSlice';
+import { signup } from '../auth/authSlice';
 import { checkEmail, checkPassword, checkUsername } from '../../helpers/checkCredentials';
 
 const Signup = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
-  const signupState = useSelector((state) => {
-    return state.signupReducer
+  const authState = useSelector((state) => {
+    return state.authReducer
   });
 
   // This constant will be used to dispatch ACTIONS when we need it.
@@ -85,13 +85,13 @@ const Signup = () => {
   }, [isSubmitSuccessful]);
 
   // Redirect if user signed up.
-  if (!signupState.loading && signupState.isAuthenticated) {
+  if (!authState.loading && authState.isAuthenticated) {
     return <Navigate to='/chat' replace={true} />
   };
 
   const onSubmit = (formData) => {
     try {
-      dispatch(registerUser({
+      dispatch(signup({
         username: formData.username,
         email: formData.email,
         password: formData.password,
@@ -109,7 +109,7 @@ const Signup = () => {
   return (
     <div>
       {
-        !signupState.loading ? (
+        !authState.loading ? (
           <div className={styles.container}>
             <div className={styles.header}>
               Chitchat App
