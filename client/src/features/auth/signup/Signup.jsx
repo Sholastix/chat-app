@@ -12,11 +12,11 @@ import { DevTool } from '@hookform/devtools';
 import styles from './Signup.module.css';
 
 // Components.
-import Spinner from '../../components/Spinner/Spinner';
+import Spinner from '../../../components/Spinner/Spinner';
 
 // Functions.
-import { signup } from '../auth/authSlice';
-import { checkEmail, checkPassword, checkUsername } from '../../helpers/checkCredentials';
+import { signup } from '../authSlice';
+import { checkEmail, checkPassword, checkUsername } from '../../../helpers/checkCredentials';
 
 const Signup = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.

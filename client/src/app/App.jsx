@@ -3,11 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import styles from './App.module.css';
 
-import Chat from './features/chat/Chat';
-import ErrorPage from './components/ErrorPage/ErrorPage';
-import ProtectedRoutes from './components/ProtectedRoutes/ProtectedRoutes';
-import Signin from './features/signin/Signin';
-import Signup from './features/signup/Signup';
+import Chat from '../features/chat/Chat';
+import ErrorPage from '../components/ErrorPage/ErrorPage';
+import ProtectedRoutes from '../components/ProtectedRoutes/ProtectedRoutes';
+import Signin from '../features/auth/signin/Signin';
+import Signup from '../features/auth/signup/Signup';
 
 const App = () => {
   return (

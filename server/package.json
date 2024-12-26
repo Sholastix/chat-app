@@ -1,9 +1,9 @@
 {
   "name": "server",
   "version": "0.0.0",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "dev": "node --watch main.js"
+    "dev": "node --watch ./src/main.js"
   },
   "keywords": [],
   "author": "",

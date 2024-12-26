@@ -8,8 +8,8 @@ const app = express();
 const server = createServer(app);
 
 // Imports.
-const dbConnection = require('./src/config/dbConnection');
-const socket = require('./src/socket/socket');
+const dbConnection = require('./config/dbConnection');
+const socket = require('./socket/socket');
 
 // Environment variables.
 const PORT = process.env.PORT;
@@ -24,7 +24,7 @@ app.use(cors({
 }));
 
 // Handle all routes in one file 'index.js' for import convinience.
-const routes = require('./src/routes/api/index');
+const routes = require('./routes/api/index');
 
 // Set the routes.
 app.use('/api/', routes.authRoute);
