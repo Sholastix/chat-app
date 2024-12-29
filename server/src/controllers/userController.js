@@ -99,7 +99,30 @@ const signin = async (req, res) => {
   };
 };
 
+// Get all users (except currently logged in user) from database accordingly to search parameters.
+const getUsers = async (req, res) => {
+  try {
+    const keyword = req.query.search
+      ?
+      {
+        $or: [
+          { username: { $regex: req.query.search, $options: 'i' } },
+          { email: { $regex: req.query.search, $options: 'i' } },
+        ]
+      } : {};
+
+    // Find all users except currently logged in user.
+    const users = await UserModel.find(keyword).find({ _id: { $ne: req.userId } });
+
+    res.status(200).json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
+
 module.exports = {
+  getUsers,
   signin,
   signup
 };

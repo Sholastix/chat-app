@@ -6,6 +6,11 @@ const { signupSchema, signinSchema } = require('../../validation/userValidation'
 const { checkEmail, checkUsername } = require('../../helpers/checkCredentials');
 
 const yupMdw = require('../../middleware/yupMdw');
+const { authMdw } = require('../../middleware/authMdw');
+
+const { getUsers } = require('../../controllers/userController');
+
+// -------   PUBLIC   -------
 
 // @route: POST /api/signup
 // @desc: Register new user.
@@ -26,5 +31,12 @@ router.get('/user/username/:username', checkUsername);
 // @desc: Check if email is available.
 // @access: Public.
 router.get('/user/email/:email', checkEmail);
+
+// -------   PRIVATE   -------
+
+// @route: GET /api/users
+// @desc: Get all users (accordingly to search request) from database.
+// @access: Private.
+router.get('/users', authMdw, getUsers);
 
 module.exports = router;
