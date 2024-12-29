@@ -1,9 +1,11 @@
 const { Router } = require('express');
 const router = Router();
 
-const { auth } = require('../../controllers/authController');
+// Middleware.
+const authMdw = require('../../middleware/authMdw');
 
-const { authMdw } = require('../../middleware/authMdw');
+// Functions.
+const { auth } = require('../../controllers/authController');
 
 // @route: GET /api/auth
 // @desc: User auth check.

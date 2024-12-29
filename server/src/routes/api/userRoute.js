@@ -1,14 +1,14 @@
 const { Router } = require('express');
 const router = Router();
 
-const { signup, signin } = require('../../controllers/userController');
+// Middleware.
+const authMdw = require('../../middleware/authMdw');
+const yupMdw = require('../../middleware/yupMdw');
+
+// Functions.
+const { signup, signin, getUsers } = require('../../controllers/userController');
 const { signupSchema, signinSchema } = require('../../validation/userValidation');
 const { checkEmail, checkUsername } = require('../../helpers/checkCredentials');
-
-const yupMdw = require('../../middleware/yupMdw');
-const { authMdw } = require('../../middleware/authMdw');
-
-const { getUsers } = require('../../controllers/userController');
 
 // -------   PUBLIC   -------
 

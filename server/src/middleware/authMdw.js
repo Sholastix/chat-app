@@ -32,6 +32,4 @@ const authMdw = async (req, res, next) => {
   };
 };
 
-module.exports = {
-  authMdw
-};
+module.exports = authMdw;
