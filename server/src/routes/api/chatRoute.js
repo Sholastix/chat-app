@@ -8,7 +8,7 @@ const authMdw = require('../../middleware/authMdw');
 const {
   chat,
   // addToGroup,
-  // createGroupChat,
+  createGroupChat,
   fetchChats,
   // removeFromGroup,
   // renameGroupChat
@@ -24,10 +24,10 @@ router.post('/chat', authMdw, chat);
 // @access: Private.
 router.get('/chat', authMdw, fetchChats);
 
-// // @route: POST /api/chat/group
-// // @desc: Create group chat.
-// // @access: Private.
-// router.post('/chat/group', authMdw, createGroupChat);
+// @route: POST /api/chat/group
+// @desc: Create group chat.
+// @access: Private.
+router.post('/chat/group', authMdw, createGroupChat);
 
 // // @route: PUT /api/chat/group/rename
 // // @desc: Rename existed group chat.

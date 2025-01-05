@@ -74,22 +74,54 @@ const fetchChats = async (req, res) => {
       select: 'username email avatar'
     });
 
-    res.status(201).json(fullChats);
+    res.status(200).json(fullChats);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
   };
 };
 
-// // Create group chat.
-// const createGroupChat = async (req, res) => {
-//   try {
+// Create group chat.
+const createGroupChat = async (req, res) => {
+  try {
+    const chatName = req.body.chatName;
+    // Current logged in user's ID.
+    const userId = req.userId;
+    // We get 'users' value from frontend as a string but we need to convert it to object. We can't parse 'undefined' so we must do the additional check.
+    let users = req.body.users ? JSON.parse(req.body.users) : req.body.users;
 
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json(`Server error: ${err.message}`);
-//   };
-// };
+    if (!chatName || !users) {
+      console.log('Please fill all the fields.');
+      return res.status(400).json({ message: 'Please fill all the fields.' });
+    };
+
+    if (users.length < 2) {
+      console.log('Group chat requires 2 or more users.');
+      return res.status(400).json({ message: 'Group chat requires 2 or more users.' });
+    };
+
+    // Also we need to add current logged in user to array.
+    users.push(userId);
+
+    // Create group chat.
+    const groupChat = await ChatModel.create({
+      chatName: chatName,
+      groupAdmin: userId,
+      isGroupChat: true,
+      users: users
+    });
+
+    // Populate created group chat wit additional info.
+    const fullGroupChat = await ChatModel.findOne({ _id: groupChat._id })
+      .populate('users', '-password')
+      .populate('groupAdmin', '-password');
+
+    res.status(201).json(fullGroupChat);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
 
 // // Rename group chat.
 // const renameGroupChat = async (req, res) => {
@@ -124,7 +156,7 @@ const fetchChats = async (req, res) => {
 module.exports = {
   chat,
   // addToGroup,
-  // createGroupChat,
+  createGroupChat,
   fetchChats,
   // removeFromGroup,
   // renameGroupChat
