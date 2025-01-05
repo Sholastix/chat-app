@@ -55,15 +55,31 @@ const chat = async (req, res) => {
   };
 };
 
-// // Get all messages from database for particular user. 
-// const fetchChats = async (req, res) => {
-//   try {
+// Get all chats which currently logged in user is a part of.
+const fetchChats = async (req, res) => {
+  try {
+    // Current logged in user's ID.
+    const userId = req.userId;
 
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json(`Server error: ${err.message}`);
-//   };
-// };
+    const chats = await ChatModel.find({
+      users: { $elemMatch: { $eq: userId } }
+    })
+      .populate('users', '-password')
+      .populate('groupAdmin', '-password')
+      .populate('lastMessage')
+      .sort({ updatedAt: -1 }) // Sort from new to old chats.
+
+    const fullChats = await UserModel.populate(chats, {
+      path: 'lastMessage.sender',
+      select: 'username email avatar'
+    });
+
+    res.status(201).json(fullChats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
 
 // // Create group chat.
 // const createGroupChat = async (req, res) => {
@@ -109,7 +125,7 @@ module.exports = {
   chat,
   // addToGroup,
   // createGroupChat,
-  // fetchChats,
+  fetchChats,
   // removeFromGroup,
   // renameGroupChat
 };

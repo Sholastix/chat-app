@@ -9,7 +9,7 @@ const {
   chat,
   // addToGroup,
   // createGroupChat,
-  // fetchChats,
+  fetchChats,
   // removeFromGroup,
   // renameGroupChat
 } = require('../../controllers/chatController');
@@ -19,10 +19,10 @@ const {
 // @access: Private.
 router.post('/chat', authMdw, chat);
 
-// // @route: GET /api/chat
-// // @desc: Get all messages from database for particular user.
-// // @access: Private.
-// router.get('/chat', authMdw, fetchChats);
+// @route: GET /api/chat
+// @desc: Get all chats which currently logged in user is a part of.
+// @access: Private.
+router.get('/chat', authMdw, fetchChats);
 
 // // @route: POST /api/chat/group
 // // @desc: Create group chat.
