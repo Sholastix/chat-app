@@ -123,15 +123,25 @@ const createGroupChat = async (req, res) => {
   };
 };
 
-// // Rename group chat.
-// const renameGroupChat = async (req, res) => {
-//   try {
+// Rename group chat.
+const renameGroupChat = async (req, res) => {
+  try {
+    const { chatId, chatName } = req.body;
 
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json(`Server error: ${err.message}`);
-//   };
-// };
+    const renamedChat = await ChatModel.findByIdAndUpdate(chatId, { chatName: chatName }, { new: true })
+      .populate('users', '-password')
+      .populate('groupAdmin', '-password');
+
+    if (!renamedChat) {
+      throw new Error('Chat not found.');
+    } else {
+      res.status(200).json(renamedChat);
+    };
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
 
 // // Add someone to group.
 // const addToGroup = async (req, res) => {
@@ -159,5 +169,5 @@ module.exports = {
   createGroupChat,
   fetchChats,
   // removeFromGroup,
-  // renameGroupChat
+  renameGroupChat
 };

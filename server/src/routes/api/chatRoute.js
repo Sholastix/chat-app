@@ -11,7 +11,7 @@ const {
   createGroupChat,
   fetchChats,
   // removeFromGroup,
-  // renameGroupChat
+  renameGroupChat
 } = require('../../controllers/chatController');
 
 // @route: POST /api/chat
@@ -29,10 +29,10 @@ router.get('/chat', authMdw, fetchChats);
 // @access: Private.
 router.post('/chat/group', authMdw, createGroupChat);
 
-// // @route: PUT /api/chat/group/rename
-// // @desc: Rename existed group chat.
-// // @access: Private.
-// router.put('/chat/group/rename', authMdw, renameGroupChat);
+// @route: PUT /api/chat/group/rename
+// @desc: Rename existed group chat.
+// @access: Private.
+router.put('/chat/group/rename', authMdw, renameGroupChat);
 
 // // @route: PUT /api/chat/group/addtogroup
 // // @desc: Add someone to group.
