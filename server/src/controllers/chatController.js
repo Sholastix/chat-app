@@ -143,31 +143,51 @@ const renameGroupChat = async (req, res) => {
   };
 };
 
-// // Add someone to group.
-// const addToGroup = async (req, res) => {
-//   try {
+// Add someone to group.
+const addToGroup = async (req, res) => {
+  try {
+    const { chatId, userId } = req.body;
 
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json(`Server error: ${err.message}`);
-//   };
-// };
+    const addedUsers = await ChatModel.findByIdAndUpdate(chatId, { $push: { users: userId } }, { new: true })
+      .populate('users', '-password')
+      .populate('groupAdmin', '-password');
 
-// // Remove someone from group or leave the group.
-// const removeFromGroup = async (req, res) => {
-//   try {
+    if (!addedUsers) {
+      throw new Error('Chat not found.');
+    } else {
+      res.status(200).json(addedUsers);
+    };
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
 
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json(`Server error: ${err.message}`);
-//   };
-// };
+// Remove someone from group or leave the group.
+const removeFromGroup = async (req, res) => {
+  try {
+    const { chatId, userId } = req.body;
+
+    const removedUsers = await ChatModel.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
+      .populate('users', '-password')
+      .populate('groupAdmin', '-password');
+
+    if (!removedUsers) {
+      throw new Error('Chat not found.');
+    } else {
+      res.status(200).json(removedUsers);
+    };
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
 
 module.exports = {
   chat,
-  // addToGroup,
+  addToGroup,
   createGroupChat,
   fetchChats,
-  // removeFromGroup,
+  removeFromGroup,
   renameGroupChat
 };

@@ -7,10 +7,10 @@ const authMdw = require('../../middleware/authMdw');
 // Functions.
 const {
   chat,
-  // addToGroup,
+  addToGroup,
   createGroupChat,
   fetchChats,
-  // removeFromGroup,
+  removeFromGroup,
   renameGroupChat
 } = require('../../controllers/chatController');
 
@@ -34,14 +34,14 @@ router.post('/chat/group', authMdw, createGroupChat);
 // @access: Private.
 router.put('/chat/group/rename', authMdw, renameGroupChat);
 
-// // @route: PUT /api/chat/group/addtogroup
-// // @desc: Add someone to group.
-// // @access: Private.
-// router.put('/chat/group/add', authMdw, addToGroup);
+// @route: PUT /api/chat/group/addtogroup
+// @desc: Add someone to group.
+// @access: Private.
+router.put('/chat/group/add', authMdw, addToGroup);
 
-// // @route: PUT /api/chat/group/removefromgroup
-// // @desc: Remove someone from group or leave the group.
-// // @access: Private.
-// router.put('/chat/group/remove', authMdw, removeFromGroup);
+// @route: PUT /api/chat/group/removefromgroup
+// @desc: Remove someone from group or leave the group.
+// @access: Private.
+router.put('/chat/group/remove', authMdw, removeFromGroup);
 
 module.exports = router;
