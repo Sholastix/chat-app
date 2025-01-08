@@ -1,5 +1,12 @@
 .container {
+  width: 100vw;
+}
+
+.chatContainer {
   background-color: rgb(93, 109, 126);
+  display: flex;
+  justify-content: space-between;
   height: 100vh;
+  padding: 1rem;
   width: 100vw;
 }
