@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 
 // Styles.
@@ -12,6 +11,7 @@ const Chat = () => {
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
+  // Sign out user.
   const logOut = () => {
     try {
       dispatch(signout());
@@ -21,10 +21,9 @@ const Chat = () => {
   };
 
   return (
-    <Fragment>
-      <div className={styles.container}>Chat</div>
-      <button type='button' onClick={logOut}>Logout</button>
-    </Fragment>
+    <div className={styles.container}>
+      {/* <button type='button' onClick={logOut}>Logout</button> */}
+    </div>
   );
 };
 
