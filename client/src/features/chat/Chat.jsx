@@ -6,7 +6,7 @@ import styles from './Chat.module.css';
 // Components.
 import ChatBox from '../../components/ChatBox/ChatBox';
 import ChatsList from '../../components/ChatsList/ChatsList';
-import Navbar from '../../components/Navbar/Navbar';
+import Header from '../../components/Header/Header';
 import SideModal from '../../components/ModalWindows/SideModal/SideModal';
 
 // Functions.
@@ -28,9 +28,8 @@ const Chat = () => {
 
   return (
     <div className={styles.container}>
-      <Navbar />
+      <Header />
       <div className={styles.chatContainer}>
-        {/* <button type='button' onClick={logOut}>Logout</button> */}
         <SideModal />
         <ChatBox />
         <ChatsList />
