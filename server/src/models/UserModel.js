@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       required: true,
-      default: '../assets/defaultAvatar'
+      default: 'https://img.icons8.com/?size=100&id=114064&format=png&color=000000'
     },
 
     isAdmin: {
