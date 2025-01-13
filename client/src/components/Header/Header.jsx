@@ -106,9 +106,9 @@ const Header = () => {
             ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' }
           }}
         >
-          <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} />
+          <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user && authState.user.avatar} />
           <Typography sx={{ fontSize: '1.4rem' }}>
-            {authState.user.username}
+            {authState.user && authState.user.username}
           </Typography>
         </Button>
         <Menu
@@ -129,7 +129,7 @@ const Header = () => {
           }}
         >
           <MenuItem onClick={handleClose} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-            <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} /> Profile
+            <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user && authState.user.avatar} /> Profile
           </MenuItem>
           <Divider />
           <MenuItem onClick={handleClose} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
