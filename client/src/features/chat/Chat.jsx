@@ -8,7 +8,6 @@ import styles from './Chat.module.css';
 import ChatBox from '../../components/ChatBox/ChatBox';
 import ChatsList from '../../components/ChatsList/ChatsList';
 import Header from '../../components/Header/Header';
-import LeftDrawer from '../../components/ModalWindows/LeftDrawer/LeftDrawer';
 import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
@@ -28,7 +27,6 @@ const Chat = () => {
           <div className={styles.container}>
             <Header />
             <div className={styles.chatContainer}>
-              {/* <LeftDrawer /> */}
               <ChatBox />
               <ChatsList />
             </div>
