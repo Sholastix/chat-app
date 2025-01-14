@@ -2,8 +2,16 @@ import React from 'react';
 import { Box, Drawer, Typography } from '@mui/material';
 
 const LeftDrawer = (props) => {
+  const handleLeftDrawerClose = () => {
+    props.setIsLeftDrawerOpen(false);
+  };
+
   return (
-    <Drawer anchor='left' open={props.isLeftDrawerOpen} onClose={() => props.setIsLeftDrawerOpen(false)}>
+    <Drawer
+      anchor='left'
+      open={props.isLeftDrawerOpen}
+      onClose={handleLeftDrawerClose}
+    >
       <Box
         role='presentation'
         sx={{
