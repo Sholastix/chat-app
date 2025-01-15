@@ -2,9 +2,15 @@ import React from 'react';
 import {
   Avatar,
   Box,
-  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
   Typography
 } from '@mui/material';
+
+// MUI Icons.
+import CloseIcon from '@mui/icons-material/Close';
 
 const ProfileModal = (props) => {
   const handleProfileModalClose = () => {
@@ -12,7 +18,7 @@ const ProfileModal = (props) => {
   };
 
   return (
-    <Modal
+    <Dialog
       open={props.isProfileModalOpen}
       onClose={handleProfileModalClose}
       aria-labelledby='modal-user-menu-profile'
@@ -27,10 +33,10 @@ const ProfileModal = (props) => {
           position: 'fixed',
           top: '50vh',
           transform: 'translate(-50%, -50%)',
-          width: '40rem',
+          width: '50rem',
         }}
       >
-        <Typography
+        <DialogTitle
           id='modal-user-menu-profile'
           component='div'
           sx={{
@@ -39,34 +45,47 @@ const ProfileModal = (props) => {
           }}
         >
           {props.user.username}
-        </Typography>
-        <Typography
-          component='div'
+        </DialogTitle>
+        <IconButton
+          aria-label='close'
+          onClick={handleProfileModalClose}
           sx={{
-            display: 'flex',
-            justifyContent: 'center'
+            position: 'absolute',
+            right: 8,
+            top: 8,
           }}
         >
-          <Avatar
-            src={props.user.avatar}
+          <CloseIcon sx={{ fontSize: '2rem' }} />
+        </IconButton>
+        <DialogContent>
+          <Typography
+            component='div'
             sx={{
-              height: '10rem',
-              margin: '3rem 0rem',
-              width: '10rem'
+              display: 'flex',
+              justifyContent: 'center'
             }}
-          />
-        </Typography>
-        <Typography
-          component='div'
-          sx={{
-            fontSize: '1.6rem',
-            textAlign: 'center'
-          }}
-        >
-          Email: {props.user.email}
-        </Typography>
+          >
+            <Avatar
+              src={props.user.avatar}
+              sx={{
+                height: '15rem',
+                marginBottom: '4rem',
+                width: '15rem'
+              }}
+            />
+          </Typography>
+          <Typography
+            component='div'
+            sx={{
+              fontSize: '2rem',
+              textAlign: 'center'
+            }}
+          >
+            Email: {props.user.email}
+          </Typography>
+        </DialogContent>
       </Box>
-    </Modal>
+    </Dialog>
   );
 };
 
