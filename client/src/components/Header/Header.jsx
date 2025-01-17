@@ -76,7 +76,7 @@ const Header = () => {
         }}
       >
         <Tooltip
-          title='Search user by username or email.'
+          title='Search user by username.'
           arrow
           slotProps={{
             tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'white', color: 'black' } },

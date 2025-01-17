@@ -107,7 +107,7 @@ const getUsers = async (req, res) => {
       {
         $or: [
           { username: { $regex: req.query.search, $options: 'i' } },
-          { email: { $regex: req.query.search, $options: 'i' } },
+          // { email: { $regex: req.query.search, $options: 'i' } },
         ]
       } : {};
 
