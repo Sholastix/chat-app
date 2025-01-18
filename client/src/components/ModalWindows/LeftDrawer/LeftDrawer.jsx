@@ -11,7 +11,8 @@ import {
 } from '@mui/material';
 
 // Components.
-import Spinner from '../../Spinner/Spinner';
+import UserListItem from '../../UserListItem/UserListItem';
+import UserSearchLoading from '../../UserSearchLoading/UserSearchLoading';
 
 // MUI Icons.
 import SearchIcon from '@mui/icons-material/Search';
@@ -25,6 +26,7 @@ const LeftDrawer = (props) => {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState();
 
+  // 'Close' event for 'LeftDrawer' Component. 
   const handleLeftDrawerClose = () => {
     try {
       props.setIsLeftDrawerOpen(false);
@@ -37,11 +39,13 @@ const LeftDrawer = (props) => {
     };
   };
 
+  // Search user in database.
   const handleSearch = async () => {
     try {
       if (!search || search === '') {
         setInputError(true);
         setInputHelperText('Please enter something.');
+        setSearchResult([]);
         return;
       };
 
@@ -57,6 +61,11 @@ const LeftDrawer = (props) => {
     } catch (err) {
       console.error(err);
     };
+  };
+
+  // Access to chat.
+  const chatAccess = (userId) => {
+    console.log('CHAT ACCESS USER ID: ', userId);
   };
 
   return (
@@ -90,7 +99,8 @@ const LeftDrawer = (props) => {
           autoComplete='off'
           sx={{
             display: 'flex',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            marginBottom: '3rem'
           }}
         >
           <TextField
@@ -133,13 +143,15 @@ const LeftDrawer = (props) => {
         {
           loading
             ?
-            <Spinner />
+            <UserSearchLoading />
             :
-            searchResult.map((user) => {
-              return <div key={user._id}>
-                {user.username}
-              </div>
-            })
+            searchResult?.map((user) => (
+              <UserListItem
+                key={user._id}
+                user={user}
+                handleFunction={() => chatAccess(user._id)}
+              />
+            ))
         }
       </Box>
     </Drawer >
