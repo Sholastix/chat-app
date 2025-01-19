@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 // Components.
+import Spinner from '../../Spinner/Spinner';
 import UserListItem from '../../UserListItem/UserListItem';
 import UserSearchLoading from '../../UserSearchLoading/UserSearchLoading';
 
@@ -22,9 +23,9 @@ const LeftDrawer = (props) => {
   const [inputHelperText, setInputHelperText] = useState('');
 
   const [search, setSearch] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingChat, setLoadingChat] = useState();
+  // const [chatCreationLoading, setChatCreationLoading] = useState(false);
 
   // 'Close' event for 'LeftDrawer' Component. 
   const handleLeftDrawerClose = () => {
@@ -49,15 +50,15 @@ const LeftDrawer = (props) => {
         return;
       };
 
-      setLoading(true);
+      setSearchLoading(true);
 
       const { data } = await axios.get(`http://localhost:5000/api/users?search=${search}`);
 
-      setLoading(false);
-      setSearch('');
-      setSearchResult(data);
       setInputError(false);
       setInputHelperText('');
+      setSearchLoading(false);
+      setSearch('');
+      setSearchResult(data);
     } catch (err) {
       console.error(err);
     };
@@ -141,7 +142,7 @@ const LeftDrawer = (props) => {
           </Button>
         </Box>
         {
-          loading
+          searchLoading
             ?
             <UserSearchLoading />
             :
@@ -153,6 +154,7 @@ const LeftDrawer = (props) => {
               />
             ))
         }
+        {/* {chatCreationLoading && <Spinner />} */}
       </Box>
     </Drawer >
   );

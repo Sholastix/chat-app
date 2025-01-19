@@ -27,8 +27,8 @@ const Chat = () => {
           <div className={styles.container}>
             <Header />
             <div className={styles.chatContainer}>
-              <ChatBox />
               <ChatsList />
+              <ChatBox />
             </div>
           </div>
           :
