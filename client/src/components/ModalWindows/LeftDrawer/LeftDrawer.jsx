@@ -10,22 +10,32 @@ import {
   Typography
 } from '@mui/material';
 
+// MUI Icons.
+import SearchIcon from '@mui/icons-material/Search';
+
 // Components.
 import Spinner from '../../Spinner/Spinner';
 import UserListItem from '../../UserListItem/UserListItem';
 import UserSearchLoading from '../../UserSearchLoading/UserSearchLoading';
 
-// MUI Icons.
-import SearchIcon from '@mui/icons-material/Search';
+// Functions.
+import { createPrivateChat } from '../../../features/chat/chatSlice';
 
 const LeftDrawer = (props) => {
+  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
+  const chatState = useSelector((state) => {
+    return state.chatReducer;
+  });
+
+  // This constant will be used to dispatch ACTIONS when we need it.
+  const dispatch = useDispatch();
+
   const [inputError, setInputError] = useState(false);
   const [inputHelperText, setInputHelperText] = useState('');
 
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
-  // const [chatCreationLoading, setChatCreationLoading] = useState(false);
 
   // 'Close' event for 'LeftDrawer' Component. 
   const handleLeftDrawerClose = () => {
@@ -52,6 +62,7 @@ const LeftDrawer = (props) => {
 
       setSearchLoading(true);
 
+      // Return users from database accordingly to search parameters.
       const { data } = await axios.get(`http://localhost:5000/api/users?search=${search}`);
 
       setInputError(false);
@@ -65,8 +76,18 @@ const LeftDrawer = (props) => {
   };
 
   // Access to chat.
-  const chatAccess = (userId) => {
-    console.log('CHAT ACCESS USER ID: ', userId);
+  const chatAccess = async (userId) => {
+    try {
+      dispatch(createPrivateChat(userId));
+
+      props.setIsLeftDrawerOpen(false);
+      setInputError(false);
+      setInputHelperText('');
+      setSearch('');
+      setSearchResult([]);
+    } catch (err) {
+      console.error(err);
+    };
   };
 
   return (
@@ -154,7 +175,19 @@ const LeftDrawer = (props) => {
               />
             ))
         }
-        {/* {chatCreationLoading && <Spinner />} */}
+        {
+          chatState.loading &&
+          <Typography
+            component='div'
+            sx={{
+              position: 'fixed',
+              top: '0%',
+              left: '9%'
+            }}
+          >
+            <Spinner />
+          </Typography>
+        }
       </Box>
     </Drawer >
   );

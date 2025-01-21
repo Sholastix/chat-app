@@ -38,7 +38,7 @@ const chat = async (req, res) => {
     } else {
       // If chat not exist - create it.
       const newChat = await ChatModel.create({
-        chatName: 'sender',
+        chatName: `${Date.now()}`,
         isGroupChat: false,
         users: [userId, collocutorId]
       });
