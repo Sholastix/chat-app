@@ -31,24 +31,22 @@ export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', asyn
       allChats.data.push(createdChat.data);
     };
 
-    console.log('FETCH_CHATS_UPDATED: ', allChats.data);
     return { createdChat: createdChat.data, allChats: allChats.data };
   } catch (err) {
     console.error(err);
   };
 });
 
-// // Get all current user's chats.
-// export const fetchChats = createAsyncThunk('chat/fetchChats', async () => {
-//   try {
-//     const { data } = await axios.get('http://localhost:5000/api/chat');
-//     console.log('FETCH_CHATS: ', data);
+// Get all current user's chats.
+export const fetchChats = createAsyncThunk('chat/fetchChats', async () => {
+  try {
+    const { data } = await axios.get('http://localhost:5000/api/chat');
 
-//     return data;
-//   } catch (err) {
-//     console.error(err);
-//   };
-// });
+    return data;
+  } catch (err) {
+    console.error(err);
+  };
+});
 
 // Create slice of the STORE for 'Chat'.
 const chatSlice = createSlice({
@@ -92,23 +90,23 @@ const chatSlice = createSlice({
 
     // -------------------------------   GET ALL CURRENT USER'S CHATS   -------------------------------
 
-    // builder.addCase(fetchChats.pending, (state, action) => {
-    //   state.loading = true
-    // });
+    builder.addCase(fetchChats.pending, (state, action) => {
+      state.loading = true
+    });
 
-    // builder.addCase(fetchChats.fulfilled, (state, action) => {
-    //   state.loading = false,
-    //   state.error = '',
-    //   state.chats = action.payload,
-    //   state.selectedChat = null
-    // });
+    builder.addCase(fetchChats.fulfilled, (state, action) => {
+      state.loading = false,
+      state.error = '',
+      state.chats = action.payload,
+      state.selectedChat = null
+    });
 
-    // builder.addCase(fetchChats.rejected, (state, action) => {
-    //   state.loading = false,
-    //   state.error = action.error.message,
-    //   state.chats = [],
-    //   state.selectedChat = null
-    // });
+    builder.addCase(fetchChats.rejected, (state, action) => {
+      state.loading = false,
+      state.error = action.error.message,
+      state.chats = [],
+      state.selectedChat = null
+    });
   },
 });
 
