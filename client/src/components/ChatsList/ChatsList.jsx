@@ -124,7 +124,7 @@ const ChatsList = () => {
                 component='div'
                 key={chat._id}
                 sx={{
-                  // backgroundColor: 'white',
+                  backgroundColor: 'white',
                   border: '0.1rem solid lightgray',
                   borderRadius: '0.5rem',
                   color: 'black',
@@ -133,7 +133,6 @@ const ChatsList = () => {
                   padding: '2rem 3rem',
                   // width: '100%'
                   ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
-                  ':focus': { backgroundColor: 'red' }
                 }}
                 // Later we must add here an action which will set 'selectedChat' property from chat STATE to current mapped chat (ex.: 'onClick={() => setSelectedChat(chat)}').
                 onClick={() => console.log('Hello, World')}
