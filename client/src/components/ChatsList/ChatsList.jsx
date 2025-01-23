@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Box,
   Button,
   Stack,
-  TextField,
   Typography
 } from '@mui/material';
 
@@ -12,8 +11,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 
 // Components.
-import UserSearchLoading from '../UserSearchLoading/UserSearchLoading';
-import Spinner from '../Spinner/Spinner';
+import ListLoading from '../ListLoading/ListLoading';
 
 // Functions.
 import { fetchChats } from '../../features/chat/chatSlice';
@@ -55,7 +53,7 @@ const ChatsList = () => {
         display: 'flex',
         flexDirection: 'column',
         padding: '1rem',
-        width: '20%'
+        width: '25%'
       }}
     >
       <Box
@@ -105,7 +103,8 @@ const ChatsList = () => {
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
-          // overflowY: 'auto',
+          overflowX: 'hidden',
+          overflowY: 'auto',
           marginTop: '1rem',
           padding: '1rem',
           width: '100%'
@@ -116,7 +115,6 @@ const ChatsList = () => {
             ?
             <Stack
               sx={{
-                overflowY: 'auto',
                 width: '100%'
               }}
             >
@@ -152,7 +150,7 @@ const ChatsList = () => {
               }
             </Stack>
             :
-            <Spinner />
+            <ListLoading />
         }
       </Box>
     </Box>

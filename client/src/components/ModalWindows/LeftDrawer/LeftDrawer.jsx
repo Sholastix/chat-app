@@ -16,7 +16,7 @@ import SearchIcon from '@mui/icons-material/Search';
 // Components.
 import Spinner from '../../Spinner/Spinner';
 import UserListItem from '../../UserListItem/UserListItem';
-import UserSearchLoading from '../../UserSearchLoading/UserSearchLoading';
+import ListLoading from '../../ListLoading/ListLoading';
 
 // Functions.
 import { createPrivateChat } from '../../../features/chat/chatSlice';
@@ -98,6 +98,7 @@ const LeftDrawer = (props) => {
     >
       <Box
         role='presentation'
+        overflow='auto'
         sx={{
           padding: '2rem',
           textAlign: 'center',
@@ -162,10 +163,11 @@ const LeftDrawer = (props) => {
             />
           </Button>
         </Box>
+
         {
           searchLoading
             ?
-            <UserSearchLoading />
+            <ListLoading />
             :
             searchResult?.map((user) => (
               <UserListItem
@@ -175,6 +177,7 @@ const LeftDrawer = (props) => {
               />
             ))
         }
+
         {
           chatState.loading &&
           <Typography
