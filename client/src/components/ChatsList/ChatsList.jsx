@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Box,
@@ -11,6 +11,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 
 // Components.
+import GroupChatModal from '../ModalWindows/GroupChatModal/GroupChatModal';
 import ListLoading from '../ListLoading/ListLoading';
 
 // Functions.
@@ -18,6 +19,8 @@ import { fetchChats } from '../../features/chat/chatSlice';
 import { getSender } from '../../helpers/chatLogic';
 
 const ChatsList = () => {
+  const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
+
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -29,6 +32,10 @@ const ChatsList = () => {
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
+
+  const handleGroupChatModalOpen = () => {
+    setIsGroupChatModalOpen(true);
+  };
 
   const getAllChats = () => {
     try {
@@ -82,6 +89,7 @@ const ChatsList = () => {
             backgroundColor: 'rgb(235, 235, 235)',
             borderRadius: '0.5rem',
           }}
+          onClick={handleGroupChatModalOpen}
         >
           <Typography
             sx={{
@@ -153,6 +161,11 @@ const ChatsList = () => {
             <ListLoading />
         }
       </Box>
+
+      <GroupChatModal 
+        isGroupChatModalOpen={isGroupChatModalOpen}
+        setIsGroupChatModalOpen={setIsGroupChatModalOpen}
+      />
     </Box>
   );
 };
