@@ -15,7 +15,7 @@ import GroupChatModal from '../ModalWindows/GroupChatModal/GroupChatModal';
 import ListLoading from '../ListLoading/ListLoading';
 
 // Functions.
-import { fetchChats } from '../../features/chat/chatSlice';
+import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
 import { getSender } from '../../helpers/chatLogic';
 
 const ChatsList = () => {
@@ -40,6 +40,14 @@ const ChatsList = () => {
   const getAllChats = () => {
     try {
       dispatch(fetchChats());
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  const getOneChat = async (chatId) => {
+    try {
+      dispatch(fetchChat(chatId));
     } catch (err) {
       console.error(err);
     };
@@ -142,13 +150,12 @@ const ChatsList = () => {
                       // width: '100%'
                       ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
                     }}
-                    // Later we must add here an action which will set 'selectedChat' property from chat STATE to current mapped chat (ex.: 'onClick={() => setSelectedChat(chat)}').
-                    onClick={() => console.log('Hello, World')}
+                    onClick={() => getOneChat(chat._id)}
                   >
                     <Typography
                       sx={{
                         fontSize: '1.4rem',
-                        fontWeight: '500'
+                        fontWeight: '500',
                       }}
                     >
                       {!chat.isGroupChat ? getSender(authState.user, chat.users) : (chat.chatName)}
@@ -162,7 +169,7 @@ const ChatsList = () => {
         }
       </Box>
 
-      <GroupChatModal 
+      <GroupChatModal
         isGroupChatModalOpen={isGroupChatModalOpen}
         setIsGroupChatModalOpen={setIsGroupChatModalOpen}
       />

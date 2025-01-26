@@ -9,6 +9,7 @@ const {
   chat,
   addToGroup,
   createGroupChat,
+  fetchChat,
   fetchChats,
   removeFromGroup,
   renameGroupChat
@@ -23,6 +24,11 @@ router.post('/chat', authMdw, chat);
 // @desc: Get all chats which currently logged in user is a part of.
 // @access: Private.
 router.get('/chat', authMdw, fetchChats);
+
+// @route: GET /api/chat
+// @desc: Get one specific chat of the all chats which currently logged in user is a part of.
+// @access: Private.
+router.get('/chat/:chatId', authMdw, fetchChat);
 
 // @route: POST /api/chat/group
 // @desc: Create group chat.

@@ -1,6 +1,9 @@
+const ObjectId = require('mongoose').Types.ObjectId;
+
+// Models.
 const ChatModel = require('../models/ChatModel');
-const UserModel = require('../models/UserModel');
 const MessageModel = require('../models/MessageModel');
+const UserModel = require('../models/UserModel');
 
 // Creating or fetching 1-on-1 chat.
 const chat = async (req, res) => {
@@ -75,6 +78,21 @@ const fetchChats = async (req, res) => {
     });
 
     res.status(200).json(fullChats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
+
+// Get one specific chat of the all chats which currently logged in user is a part of.
+const fetchChat = async (req, res) => {
+  try {
+    const chatId = req.params.chatId;
+
+    const chat = await ChatModel.find({ _id: chatId })
+      .populate('users', '-password');
+
+    res.status(200).json(chat);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
@@ -187,6 +205,7 @@ module.exports = {
   chat,
   addToGroup,
   createGroupChat,
+  fetchChat,
   fetchChats,
   removeFromGroup,
   renameGroupChat
