@@ -48,6 +48,29 @@ export const fetchChats = createAsyncThunk('chat/fetchChats', async () => {
   };
 });
 
+// Create group chat.
+export const createGroupChat = createAsyncThunk('chat/createGroupChat', async (userId) => {
+  try {
+    let allChats = await axios.get('http://localhost:5000/api/chat');
+    console.log('FETCH_CHATS: ', allChats.data);
+
+    const createdGroupChat = await axios.post('http://localhost:5000/api/chat/group', { userId });
+    console.log('CREATED_GROUP_CHAT: ', createdGroupChat.data);
+
+    const isChatExists = allChats.data.find((chat) => chat._id === createdGroupChat.data._id);
+    console.log('CHECK: ', isChatExists);
+
+    // If that chat already existed in database then we don't add it to our chats list again. 
+    if (isChatExists === undefined) {
+      allChats.data.push(createdGroupChat.data);
+    };
+
+    return { createdGroupChat: createdGroupChat.data, allChats: allChats.data };
+  } catch (err) {
+    console.error(err);
+  };
+});
+
 // Create slice of the STORE for 'Chat'.
 const chatSlice = createSlice({
   // Specify the name of this slice.
@@ -102,6 +125,26 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(fetchChats.rejected, (state, action) => {
+      state.loading = false,
+      state.error = action.error.message,
+      state.chats = [],
+      state.selectedChat = null
+    });
+
+    // -------------------------------   CREATE GROUP CHAT   -------------------------------
+
+    builder.addCase(createGroupChat.pending, (state, action) => {
+      state.loading = true
+    });
+
+    builder.addCase(createGroupChat.fulfilled, (state, action) => {
+      state.loading = false,
+      state.error = '',
+      state.chats = action.payload.allChats,
+      state.selectedChat = null
+    });
+
+    builder.addCase(createGroupChat.rejected, (state, action) => {
       state.loading = false,
       state.error = action.error.message,
       state.chats = [],

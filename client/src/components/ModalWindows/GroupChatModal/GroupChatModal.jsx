@@ -17,8 +17,15 @@ import {
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
 
+// Functions.
+import { createGroupChat } from '../../../features/chat/chatSlice';
+
 const GroupChatModal = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
+  const authState = useSelector((state) => {
+    return state.authReducer
+  });
+
   const chatState = useSelector((state) => {
     return state.chatReducer;
   });
@@ -31,11 +38,16 @@ const GroupChatModal = (props) => {
 
   const [groupChatName, setGroupChatName] = useState('');
   const [groupChatUsers, setGroupChatUsers] = useState([]);
+  const [search, setSearch] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResult, setSearchResult] = useState([]);
 
   const handleGroupChatModalClose = () => {
     props.setIsGroupChatModalOpen(false);
     setGroupChatName('');
     setGroupChatUsers([]);
+    setSearch('');
+    setSearchResult([]);
   };
 
   return (
@@ -119,7 +131,7 @@ const GroupChatModal = (props) => {
               textTransform: 'none',
               ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
             }}
-            // onClick={}
+          // onClick={}
           >
             Submit
           </Button>
