@@ -60,12 +60,12 @@ export const fetchChat = createAsyncThunk('chat/fetchChat', async (chatId) => {
 });
 
 // Create group chat.
-export const createGroupChat = createAsyncThunk('chat/createGroupChat', async (userId) => {
+export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({ chatName, users }) => {
   try {
     let allChats = await axios.get('http://localhost:5000/api/chat');
     console.log('FETCH_CHATS: ', allChats.data);
 
-    const createdGroupChat = await axios.post('http://localhost:5000/api/chat/group', { userId });
+    const createdGroupChat = await axios.post('http://localhost:5000/api/chat/group', { chatName, users });
     console.log('CREATED_GROUP_CHAT: ', createdGroupChat.data);
 
     const isChatExists = allChats.data.find((chat) => chat._id === createdGroupChat.data._id);
@@ -118,7 +118,7 @@ const chatSlice = createSlice({
     builder.addCase(createPrivateChat.rejected, (state, action) => {
       state.loading = false,
         state.error = action.error.message,
-        state.chats = [],
+        state.chats = [...state.chats],
         state.selectedChat = null
     });
 
@@ -149,6 +149,7 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(createGroupChat.fulfilled, (state, action) => {
+      console.log('ACTION_PAYLOAD: ', action.payload)
       state.loading = false,
         state.error = '',
         state.chats = action.payload.allChats,
@@ -158,7 +159,7 @@ const chatSlice = createSlice({
     builder.addCase(createGroupChat.rejected, (state, action) => {
       state.loading = false,
         state.error = action.error.message,
-        state.chats = [],
+        state.chats = [...state.chats],
         state.selectedChat = null
     });
 

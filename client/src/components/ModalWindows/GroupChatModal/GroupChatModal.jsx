@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -9,13 +9,23 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  FormControlLabel,
   IconButton,
+  Input,
+  InputLabel,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
+
+// Components.
+import Spinner from '../../Spinner/Spinner';
+import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
+import UserListItem from '../../UserListItem/UserListItem';
 
 // Functions.
 import { createGroupChat } from '../../../features/chat/chatSlice';
@@ -37,7 +47,7 @@ const GroupChatModal = (props) => {
   const [inputHelperText, setInputHelperText] = useState('');
 
   const [groupChatName, setGroupChatName] = useState('');
-  const [groupChatUsers, setGroupChatUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
@@ -45,9 +55,71 @@ const GroupChatModal = (props) => {
   const handleGroupChatModalClose = () => {
     props.setIsGroupChatModalOpen(false);
     setGroupChatName('');
-    setGroupChatUsers([]);
+    setSelectedUsers([]);
     setSearch('');
+    setSearchLoading(false);
     setSearchResult([]);
+  };
+
+  const handleSearch = async (query) => {
+    try {
+      setSearch(query);
+
+      if (!query) {
+        return;
+      };
+
+      setSearchLoading(true);
+
+      const { data } = await axios.get(`http://localhost:5000/api/users?search=${search}`);
+
+      setSearchLoading(false);
+      setSearchResult(data);
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  const handleGroupUsers = (userToAdd) => {
+    try {
+      if (selectedUsers.includes(userToAdd)) {
+        console.log('USER ALREADY ADDED!');
+        return;
+      };
+
+      setSelectedUsers([...selectedUsers, userToAdd]);
+
+      console.log('SELECTED_USERS: ', selectedUsers);
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // Delete user from selected users.
+  const handleDelete = (userToDelete) => {
+    try {
+      const filteredSelectedUsers = selectedUsers.filter((user) => {
+        return user._id !== userToDelete._id;
+      });
+
+      setSelectedUsers(filteredSelectedUsers);
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  const handleSubmit = async (event) => {
+    try {
+      event.preventDefault();
+      console.log('SU: ', selectedUsers)
+
+      dispatch(createGroupChat({
+        chatName: groupChatName,
+        users: JSON.stringify(selectedUsers)
+      }));
+    } catch (err) {
+      console.error(err);
+    };
   };
 
   return (
@@ -76,6 +148,9 @@ const GroupChatModal = (props) => {
         Create Group Chat
       </DialogTitle>
       <Box
+        component='form'
+        noValidate
+        autoComplete='off'
         sx={{
           alignItems: 'center',
           display: 'flex',
@@ -93,6 +168,7 @@ const GroupChatModal = (props) => {
               inputLabel: { sx: { fontSize: '1.4rem' } }
             }}
             sx={{
+              marginBottom: '2rem',
               width: '100%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
@@ -113,10 +189,45 @@ const GroupChatModal = (props) => {
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
             }}
-            value={groupChatUsers}
-            onChange={(event) => { setGroupChatUsers(event.target.value) }}
+            value={search}
+            onChange={(event) => { handleSearch(event.target.value) }}
           />
         </DialogContent>
+
+        {
+          <Stack sx={{
+            display: 'flex',
+            flexDirection: 'row'
+          }}>
+            {
+              selectedUsers?.map((user) => (
+                <UserBadgeItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleDelete(user)}
+                />
+              ))
+            }
+          </Stack>
+        }
+
+        {
+          searchLoading
+            ?
+            <div>LOADING...</div>
+            :
+            <Stack sx={{ marginBottom: '2rem' }}>
+              {
+                searchResult?.slice(0, 5).map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroupUsers(user)}
+                  />
+                ))
+              }
+            </Stack>
+        }
         <DialogActions>
           <Button
             type='submit'
@@ -131,7 +242,7 @@ const GroupChatModal = (props) => {
               textTransform: 'none',
               ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
             }}
-          // onClick={}
+            onClick={handleSubmit}
           >
             Submit
           </Button>
