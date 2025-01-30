@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   FormControl,
   FormControlLabel,
   IconButton,
@@ -179,7 +180,7 @@ const GroupChatModal = (props) => {
           <TextField
             // error={inputError}
             // helperText={inputHelperText}
-            label='Add minimum 3 users...'
+            label='Add minimum 2 users...'
             variant='outlined'
             slotProps={{
               inputLabel: { sx: { fontSize: '1.4rem' } }
@@ -216,18 +217,30 @@ const GroupChatModal = (props) => {
             ?
             <div>LOADING...</div>
             :
-            <Stack sx={{ marginBottom: '2rem' }}>
-              {
-                searchResult?.slice(0, 5).map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleFunction={() => handleGroupUsers(user)}
-                  />
-                ))
-              }
-            </Stack>
+            <Box
+              component='div'
+              sx={{
+                height: '20rem',
+                marginBottom: '3rem',
+                overflowY: 'auto',
+                padding: '0rem 1rem',
+                scrollbarWidth: 'thin'
+              }}
+            >
+              <Stack sx={{ marginBottom: '2rem' }}>
+                {
+                  searchResult?.map((user) => (
+                    <UserListItem
+                      key={user._id}
+                      user={user}
+                      handleFunction={() => handleGroupUsers(user)}
+                    />
+                  ))
+                }
+              </Stack>
+            </Box>
         }
+
         <DialogActions>
           <Button
             type='submit'
