@@ -64,11 +64,12 @@ const ChatsList = () => {
         backgroundColor: 'white',
         borderRadius: '0.5rem',
         boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
-        // display: { xs: chatState.selectedChat ? 'none' : 'flex', md: 'flex' },
-        display: 'flex',
+        display: { xs: chatState.selectedChat ? 'none' : 'flex', md: 'flex' },
+        // display: 'flex',
         flexDirection: 'column',
         padding: '1rem',
-        width: '25%'
+        width: { xs: '100%', md: '25%' },
+        // width: '25%'
       }}
     >
       <Box
