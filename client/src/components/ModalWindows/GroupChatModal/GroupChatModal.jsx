@@ -118,6 +118,8 @@ const GroupChatModal = (props) => {
         chatName: groupChatName,
         users: JSON.stringify(selectedUsers)
       }));
+
+      handleGroupChatModalClose();
     } catch (err) {
       console.error(err);
     };
