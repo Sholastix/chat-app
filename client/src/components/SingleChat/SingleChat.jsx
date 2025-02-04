@@ -57,15 +57,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               sx={{
                 alignItems: 'center',
                 display: 'flex',
-                fontSize: { sx: '2.5rem', md: '3rem' },
+                fontSize: { xs: '2.5rem', md: '3rem' },
                 height: 'fit-content',
-                justifyContent: { sx: 'space-between', md: 'center' },
+                justifyContent: { xs: 'space-between', md: 'center' },
+                padding: '0rem 1rem',
                 width: '100%'
               }}
             >
               <IconButton
                 sx={{
-                  display: { sx: 'flex', md: 'none' },
+                  display: { xs: 'flex', md: 'none' },
                   margin: '0.5rem 1rem'
                 }}
                 onClick={resetSelectedChat}
@@ -80,8 +81,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     {
                       getSender(authState.user, chatState.selectedChat[0].users)
                     }
-                    <IconButton onClick={() => { setIsProfileModalOpen(true) }}>
-                      <VisibilityIcon />
+                    <IconButton
+                      sx={{ marginLeft: '1rem' }}
+                      onClick={() => { setIsProfileModalOpen(true) }}
+                    >
+                      <VisibilityIcon sx={{ fontSize: '2rem' }} />
                     </IconButton>
                     <ProfileModal
                       isProfileModalOpen={isProfileModalOpen}
