@@ -8,3 +8,12 @@ export const getSender = (loggedInUser, users) => {
     console.error(err);
   };
 };
+
+// Function returns full info about our collocutor in our 1-on-1 chat.
+export const getFullSender = (loggedInUser, users) => {
+  try {
+    return users[0]._id === loggedInUser._id ? users[1] : users[0];
+  } catch (err) {
+    console.error(err);
+  };
+};

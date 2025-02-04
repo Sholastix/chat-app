@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -14,12 +14,16 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 // Components.
 import Spinner from '../Spinner/Spinner';
+import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Functions.
 import { resetSelectedChatState } from '../../features/chat/chatSlice';
-import { getSender } from '../../helpers/chatLogic';
+import { getSender, getFullSender } from '../../helpers/chatLogic';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -76,6 +80,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     {
                       getSender(authState.user, chatState.selectedChat[0].users)
                     }
+                    <IconButton onClick={() => { setIsProfileModalOpen(true) }}>
+                      <VisibilityIcon />
+                    </IconButton>
+                    <ProfileModal
+                      isProfileModalOpen={isProfileModalOpen}
+                      setIsProfileModalOpen={setIsProfileModalOpen}
+                      user={getFullSender(authState.user, chatState.selectedChat[0].users)}
+                    />
                   </Fragment>
                   :
                   <Fragment>
