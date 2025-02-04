@@ -8,7 +8,10 @@ import {
   Typography
 } from '@mui/material';
 
-const ChatBox = () => {
+// Components.
+import SingleChat from '../SingleChat/SingleChat';
+
+const ChatBox = (props) => {
   const chatState = useSelector((state) => {
     return state.chatReducer;
   });
@@ -30,7 +33,7 @@ const ChatBox = () => {
         // width: '74%'
       }}
     >
-
+      <SingleChat fetchAgain={props.fetchAgain} setFetchAgain={props.setFetchAgain} />
     </Box>
   );
 };

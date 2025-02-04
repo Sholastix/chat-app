@@ -89,7 +89,13 @@ const chatSlice = createSlice({
   // Specify the initial STATE for this slice.
   initialState,
   // Specify the REDUCER for this slice.
-  reducers: {},
+  reducers: {
+    // Reset STATE for 'selected chat'.
+    resetSelectedChatState: (state, action) => {
+      // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
+      state.selectedChat = null
+    }
+  },
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
     // -------------------------------   CREATE 1-on-1 CHAT   -------------------------------
@@ -185,4 +191,5 @@ const chatSlice = createSlice({
   },
 });
 
+export const { resetSelectedChatState } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

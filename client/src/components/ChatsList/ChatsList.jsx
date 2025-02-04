@@ -18,7 +18,7 @@ import ListLoading from '../ListLoading/ListLoading';
 import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
 import { getSender } from '../../helpers/chatLogic';
 
-const ChatsList = () => {
+const ChatsList = (props) => {
   const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
 
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -55,7 +55,7 @@ const ChatsList = () => {
 
   useEffect(() => {
     getAllChats();
-  }, []);
+  }, [props.fetchAgain]);
 
   return (
     <Box

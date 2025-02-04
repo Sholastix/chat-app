@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 
 // Styles.
@@ -14,6 +14,8 @@ import Spinner from '../../components/Spinner/Spinner';
 import { socket } from '../../socket/socket';
 
 const Chat = () => {
+  const [fetchAgain, setFetchAgain] = useState(false);
+
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -27,8 +29,8 @@ const Chat = () => {
           <div className={styles.container}>
             <Header />
             <div className={styles.chatContainer}>
-              <ChatsList />
-              <ChatBox />
+              <ChatsList fetchAgain={fetchAgain} />
+              <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
             </div>
           </div>
           :
