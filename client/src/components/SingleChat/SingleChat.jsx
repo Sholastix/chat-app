@@ -53,56 +53,82 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           <Spinner />
           :
           chatState.selectedChat ? (
-            <Typography
+            <Box
+              component='div'
               sx={{
-                alignItems: 'center',
                 display: 'flex',
-                fontSize: { xs: '2.5rem', md: '3rem' },
-                height: 'fit-content',
-                justifyContent: { xs: 'space-between', md: 'center' },
-                padding: '0rem 1rem',
+                flexDirection: 'column',
                 width: '100%'
               }}
             >
-              <IconButton
+              <Box
+                component='div'
                 sx={{
-                  display: { xs: 'flex', md: 'none' },
-                  margin: '0.5rem 1rem'
+                  alignItems: 'center',
+                  borderRadius: '0.5rem',
+                  display: 'flex',
+                  fontSize: { xs: '2.5rem', md: '3rem' },
+                  height: '6rem',
+                  justifyContent: { xs: 'space-between', md: 'center' },
+                  marginBottom: '1rem',
+                  padding: '0rem 1rem',
+                  width: '100%'
                 }}
-                onClick={resetSelectedChat}
               >
-                <ArrowBackIcon sx={{ fontSize: '3rem' }} />
-              </IconButton>
+                <IconButton
+                  sx={{
+                    display: { xs: 'flex', md: 'none' },
+                    margin: '0.5rem 1rem'
+                  }}
+                  onClick={resetSelectedChat}
+                >
+                  <ArrowBackIcon sx={{ fontSize: '3rem' }} />
+                </IconButton>
 
-              {
-                !chatState.selectedChat[0].isGroupChat
-                  ?
-                  <Fragment>
-                    {
-                      getSender(authState.user, chatState.selectedChat[0].users)
-                    }
-                    <IconButton
-                      sx={{ marginLeft: '1rem' }}
-                      onClick={() => { setIsProfileModalOpen(true) }}
-                    >
-                      <VisibilityIcon sx={{ fontSize: '2rem' }} />
-                    </IconButton>
-                    <ProfileModal
-                      isProfileModalOpen={isProfileModalOpen}
-                      setIsProfileModalOpen={setIsProfileModalOpen}
-                      user={getFullSender(authState.user, chatState.selectedChat[0].users)}
-                    />
-                  </Fragment>
-                  :
-                  <Fragment>
-                    {
-                      chatState.selectedChat[0].chatName
-                    }
-                    {/* <UpdateGroupChatModal fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} /> */}
-                  </Fragment>
-              }
+                {
+                  !chatState.selectedChat[0].isGroupChat
+                    ?
+                    <Fragment>
+                      {
+                        getSender(authState.user, chatState.selectedChat[0].users)
+                      }
+                      <IconButton
+                        sx={{ marginLeft: '1rem' }}
+                        onClick={() => { setIsProfileModalOpen(true) }}
+                      >
+                        <VisibilityIcon sx={{ fontSize: '2rem' }} />
+                      </IconButton>
+                      <ProfileModal
+                        isProfileModalOpen={isProfileModalOpen}
+                        setIsProfileModalOpen={setIsProfileModalOpen}
+                        user={getFullSender(authState.user, chatState.selectedChat[0].users)}
+                      />
+                    </Fragment>
+                    :
+                    <Fragment>
+                      {
+                        chatState.selectedChat[0].chatName
+                      }
+                      {/* <UpdateGroupChatModal fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} /> */}
+                    </Fragment>
+                }
+              </Box>
 
-            </Typography>
+              <Box
+                component='div'
+                sx={{
+                  borderRadius: '0.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%',
+                  overflowY: 'hidden',
+                  padding: '1rem',
+                  scrollbarWidth: 'thin'
+                }}
+              >
+                MESSAGES
+              </Box>
+            </Box>
           ) : (
             <Box
               sx={{
