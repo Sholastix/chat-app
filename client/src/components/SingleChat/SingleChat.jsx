@@ -15,6 +15,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Components.
 import Spinner from '../Spinner/Spinner';
 import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
+import UpdateGroupChatModal from '../ModalWindows/UpdateGroupChatModal/UpdateGroupChatModal';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Functions.
@@ -23,6 +24,7 @@ import { getSender, getFullSender } from '../../helpers/chatLogic';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
@@ -109,7 +111,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       {
                         chatState.selectedChat[0].chatName
                       }
-                      {/* <UpdateGroupChatModal fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} /> */}
+                      <IconButton
+                        sx={{ marginLeft: '1rem' }}
+                        onClick={() => { setIsUpdateGroupChatModalOpen(true) }}
+                      >
+                        <VisibilityIcon sx={{ fontSize: '2rem' }} />
+                      </IconButton>
+                      <UpdateGroupChatModal
+                        isUpdateGroupChatModalOpen={isUpdateGroupChatModalOpen}
+                        setIsUpdateGroupChatModalOpen={setIsUpdateGroupChatModalOpen}
+                        fetchAgain={fetchAgain}
+                        setFetchAgain={setFetchAgain}
+                      />
                     </Fragment>
                 }
               </Box>

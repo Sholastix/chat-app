@@ -19,7 +19,7 @@ const UserBadgeItem = (props) => {
         component='div'
         sx={{
           color: 'white',
-          fontSize: '1rem',
+          fontSize: '1.2rem',
         }}
       >
         {props.user.username}
