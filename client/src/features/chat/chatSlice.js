@@ -82,6 +82,18 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
   };
 });
 
+// Update (rename) group chat.
+export const renameGroupChat = createAsyncThunk('chat/renameGroupChat', async ({ chatId, chatName }) => {
+  try {
+    const renamedGroupChat = await axios.put('http://localhost:5000/api/chat/group/rename', { chatId, chatName });
+    console.log('RENAMED_GROUP_CHAT: ', renamedGroupChat.data);
+
+    return renamedGroupChat.data;
+  } catch (err) {
+    console.error(err);
+  };
+});
+
 // Create slice of the STORE for 'Chat'.
 const chatSlice = createSlice({
   // Specify the name of this slice.
@@ -137,8 +149,7 @@ const chatSlice = createSlice({
     builder.addCase(fetchChats.fulfilled, (state, action) => {
       state.loading = false,
         state.error = '',
-        state.chats = action.payload,
-        state.selectedChat = null
+        state.chats = action.payload
     });
 
     builder.addCase(fetchChats.rejected, (state, action) => {
@@ -187,6 +198,24 @@ const chatSlice = createSlice({
         state.error = action.error.message,
         state.chats = [...state.chats],
         state.selectedChat = null
+    });
+
+    // -------------------------------   RENAME GROUP CHAT   -------------------------------
+
+    builder.addCase(renameGroupChat.pending, (state, action) => {
+      state.loading = true
+    });
+
+    builder.addCase(renameGroupChat.fulfilled, (state, action) => {
+      console.log('ACTION_PAYLOAD_RENAME: ', action.payload)
+      state.loading = false,
+        state.error = '',
+        state.selectedChat = [action.payload]
+    });
+
+    builder.addCase(renameGroupChat.rejected, (state, action) => {
+      state.loading = false,
+        state.error = action.error.message
     });
   },
 });

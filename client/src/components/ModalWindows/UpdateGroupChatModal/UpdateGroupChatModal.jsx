@@ -28,7 +28,7 @@ import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
 
 // Functions.
-import { resetSelectedChatState } from '../../../features/chat/chatSlice';
+import { resetSelectedChatState, renameGroupChat } from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -50,6 +50,8 @@ const UpdateGroupChatModal = (props) => {
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
+  // ----------------------------   FUNCTIONS READY - START   ----------------------------
+
   const handleUpdateGroupChatModalClose = () => {
     props.setIsUpdateGroupChatModalOpen(false);
     setGroupChatName('');
@@ -58,8 +60,6 @@ const UpdateGroupChatModal = (props) => {
     setSearchLoading(false);
     setSearchResult([]);
   };
-
-  // ----------------------------   FUNCTIONS READY - START   ----------------------------
 
   const handleLeaveGroup = () => {
     try {
@@ -118,16 +118,24 @@ const UpdateGroupChatModal = (props) => {
     };
   };
 
-  const handleSubmit = async (event) => {
+  const handleUpdate = async (event) => {
     try {
       event.preventDefault();
-      console.log('SU: ', selectedUsers)
 
-      // dispatch(createGroupChat({
-      //   chatName: groupChatName,
-      //   users: JSON.stringify(selectedUsers)
-      // }));
+      if (groupChatName.trim().length === 0) {
+        console.log('PLEASE ENTER SOMETHING!');
+        return;
+      };
 
+      setUpdateLoading(true);
+
+      dispatch(renameGroupChat({
+        chatId: chatState.selectedChat[0]._id,
+        chatName: groupChatName,
+      }));
+
+      setUpdateLoading(false);
+      props.setFetchAgain(!props.fetchAgain);
       handleUpdateGroupChatModalClose();
     } catch (err) {
       console.error(err);
@@ -277,9 +285,9 @@ const UpdateGroupChatModal = (props) => {
               textTransform: 'none',
               ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
             }}
-            onClick={handleSubmit}
+            onClick={handleUpdate}
           >
-            Submit
+            Update
           </Button>
 
           <Button
@@ -297,7 +305,7 @@ const UpdateGroupChatModal = (props) => {
             }}
             onClick={handleLeaveGroup}
           >
-            Leave
+            Leave Group
           </Button>
         </DialogActions>
       </Box>
