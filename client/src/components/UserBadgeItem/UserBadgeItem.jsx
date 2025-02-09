@@ -9,7 +9,7 @@ const UserBadgeItem = (props) => {
         backgroundColor: 'rgb(93, 109, 126)',
         borderRadius: '0.5rem',
         cursor: 'pointer',
-        margin: '0rem 0.5rem 1rem',
+        margin: '0rem 0.5rem',
         padding: '0.5rem 1rem',
         ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' }
       }}

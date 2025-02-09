@@ -1,8 +1,6 @@
 import { useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
-
-// Styles.
-import styles from './Chat.module.css';
+import { Box } from '@mui/material';
 
 // Components.
 import ChatBox from '../../components/ChatBox/ChatBox';
@@ -11,7 +9,7 @@ import Header from '../../components/Header/Header';
 import Spinner from '../../components/Spinner/Spinner';
 
 // Functions.
-import { socket } from '../../socket/socket';
+// import { socket } from '../../socket/socket';
 
 const Chat = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
@@ -26,13 +24,26 @@ const Chat = () => {
       {
         !authState.loading && authState.user
           ?
-          <div className={styles.container}>
+          <Box
+            component='div'
+            sx={{ width: '100vw' }}
+          >
             <Header />
-            <div className={styles.chatContainer}>
+            <Box
+              component='div'
+              sx={{
+                backgroundColor: 'rgb(93, 109, 126)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                height: '92.61vh',
+                padding: '1rem',
+                width: '100vw'
+              }}
+            >
               <ChatsList fetchAgain={fetchAgain} />
               <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
-            </div>
-          </div>
+            </Box>
+          </Box>
           :
           <Spinner />
       }
