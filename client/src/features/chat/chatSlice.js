@@ -9,34 +9,6 @@ const initialState = {
   selectedChat: null
 };
 
-// Create new 1-on-1 chat or return existed chat.
-export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', async (userId) => {
-  try {
-    // // VARIANT 1.
-    // const { data } = await axios.post('http://localhost:5000/api/chat', { userId });
-    // return data;
-
-    // VARIANT 2.
-    let allChats = await axios.get('http://localhost:5000/api/chat');
-    console.log('FETCH_CHATS: ', allChats.data);
-
-    const createdChat = await axios.post('http://localhost:5000/api/chat', { userId });
-    console.log('CREATED_CHAT: ', createdChat.data);
-
-    const isChatExists = allChats.data.find((chat) => chat._id === createdChat.data._id);
-    console.log('CHECK: ', isChatExists);
-
-    // If that chat already existed in database then we don't add it to our chats list again. 
-    if (isChatExists === undefined) {
-      allChats.data.push(createdChat.data);
-    };
-
-    return { createdChat: createdChat.data, allChats: allChats.data };
-  } catch (err) {
-    console.error(err);
-  };
-});
-
 // Get all chats of the current user.
 export const fetchChats = createAsyncThunk('chat/fetchChats', async () => {
   try {
@@ -54,6 +26,29 @@ export const fetchChat = createAsyncThunk('chat/fetchChat', async (chatId) => {
     const { data } = await axios.get(`http://localhost:5000/api/chat/${chatId}`);
 
     return data;
+  } catch (err) {
+    console.error(err);
+  };
+});
+
+// Create new 1-on-1 chat or return existed chat.
+export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', async (userId) => {
+  try {
+    let allChats = await axios.get('http://localhost:5000/api/chat');
+    console.log('FETCH_CHATS: ', allChats.data);
+
+    const createdChat = await axios.post('http://localhost:5000/api/chat', { userId });
+    console.log('CREATED_CHAT: ', createdChat.data);
+
+    const isChatExists = allChats.data.find((chat) => chat._id === createdChat.data._id);
+    console.log('CHECK: ', isChatExists);
+
+    // If that chat already existed in database then we don't add it to our chats list again. 
+    if (isChatExists === undefined) {
+      allChats.data.push(createdChat.data);
+    };
+
+    return { createdChat: createdChat.data, allChats: allChats.data };
   } catch (err) {
     console.error(err);
   };
@@ -82,7 +77,7 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
   };
 });
 
-// Update (rename) group chat.
+// Rename group chat.
 export const renameGroupChat = createAsyncThunk('chat/renameGroupChat', async ({ chatId, chatName }) => {
   try {
     const renamedGroupChat = await axios.put('http://localhost:5000/api/chat/group/rename', { chatId, chatName });
@@ -106,57 +101,70 @@ const chatSlice = createSlice({
     resetSelectedChatState: (state, action) => {
       // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
       state.selectedChat = null
-    }
+    },
   },
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
-    // -------------------------------   CREATE 1-on-1 CHAT   -------------------------------
-
-    builder.addCase(createPrivateChat.pending, (state, action) => {
-      state.loading = true
-    });
-
-    // // VARIANT 1.
-    // builder.addCase(createPrivateChat.fulfilled, (state, action) => {
-    //   console.log('PAYLOAD: ', action.payload);
-    //   state.loading = false,
-    //   state.error = '',
-    //   state.chats = [...state.chats, action.payload],
-    //   state.selectedChat = action.payload
-    // });
-
-    // VARIANT 2.
-    builder.addCase(createPrivateChat.fulfilled, (state, action) => {
-      state.loading = false,
-        state.error = '',
-        state.chats = action.payload.allChats,
-        state.selectedChat = action.payload.createdChat
-    });
-
-    builder.addCase(createPrivateChat.rejected, (state, action) => {
-      state.loading = false,
-        state.error = action.error.message,
-        state.chats = [...state.chats],
-        state.selectedChat = null
-    });
-
-    // -------------------------------   GET ALL CURRENT USER'S CHATS   -------------------------------
+    // -------------------------------   FETCH CHATS   -------------------------------
 
     builder.addCase(fetchChats.pending, (state, action) => {
       state.loading = true
     });
 
     builder.addCase(fetchChats.fulfilled, (state, action) => {
+      console.log('ACTION_PAYLOAD_FETCH_CHATS: ', action.payload)
       state.loading = false,
-        state.error = '',
-        state.chats = action.payload
+      state.error = '',
+      state.chats = action.payload
     });
 
     builder.addCase(fetchChats.rejected, (state, action) => {
       state.loading = false,
-        state.error = action.error.message,
-        state.chats = [],
-        state.selectedChat = null
+      state.error = action.error.message,
+      state.chats = [],
+      state.selectedChat = null
+    });
+
+    // -------------------------------   FETCH CHAT   -------------------------------
+
+    builder.addCase(fetchChat.pending, (state, action) => {
+      state.loading = true
+    });
+
+    builder.addCase(fetchChat.fulfilled, (state, action) => {
+      console.log('ACTION_PAYLOAD_FETCH_CHAT: ', action.payload)
+      state.loading = false,
+      state.error = '',
+      state.chats = [...state.chats],
+      state.selectedChat = action.payload
+    });
+
+    builder.addCase(fetchChat.rejected, (state, action) => {
+      state.loading = false,
+      state.error = action.error.message,
+      state.chats = [...state.chats],
+      state.selectedChat = null
+    });
+
+    // -------------------------------   CREATE 1-on-1 CHAT   -------------------------------
+
+    builder.addCase(createPrivateChat.pending, (state, action) => {
+      state.loading = true
+    });
+
+    builder.addCase(createPrivateChat.fulfilled, (state, action) => {
+      console.log('ACTION_PAYLOAD_CREATE_PRIVATE_CHAT: ', action.payload.createdChat)
+      state.loading = false,
+      state.error = '',
+      state.chats = action.payload.allChats,
+      state.selectedChat = [action.payload.createdChat]
+    });
+
+    builder.addCase(createPrivateChat.rejected, (state, action) => {
+      state.loading = false,
+      state.error = action.error.message,
+      state.chats = [...state.chats],
+      state.selectedChat = null
     });
 
     // -------------------------------   CREATE GROUP CHAT   -------------------------------
@@ -166,38 +174,18 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(createGroupChat.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD: ', action.payload)
+      console.log('ACTION_PAYLOAD_CREATE_GROUP_CHAT: ', action.payload.createdGroupChat)
       state.loading = false,
-        state.error = '',
-        state.chats = action.payload.allChats,
-        state.selectedChat = null
+      state.error = '',
+      state.chats = action.payload.allChats,
+      state.selectedChat = [action.payload.createdGroupChat]
     });
 
     builder.addCase(createGroupChat.rejected, (state, action) => {
       state.loading = false,
-        state.error = action.error.message,
-        state.chats = [...state.chats],
-        state.selectedChat = null
-    });
-
-    // -------------------------------   GET CURRENT USER'S ONE SPECIFIC CHAT   -------------------------------
-
-    builder.addCase(fetchChat.pending, (state, action) => {
-      state.loading = true
-    });
-
-    builder.addCase(fetchChat.fulfilled, (state, action) => {
-      state.loading = false,
-        state.error = '',
-        state.chats = [...state.chats],
-        state.selectedChat = action.payload
-    });
-
-    builder.addCase(fetchChat.rejected, (state, action) => {
-      state.loading = false,
-        state.error = action.error.message,
-        state.chats = [...state.chats],
-        state.selectedChat = null
+      state.error = action.error.message,
+      state.chats = [...state.chats],
+      state.selectedChat = null
     });
 
     // -------------------------------   RENAME GROUP CHAT   -------------------------------
@@ -209,13 +197,13 @@ const chatSlice = createSlice({
     builder.addCase(renameGroupChat.fulfilled, (state, action) => {
       console.log('ACTION_PAYLOAD_RENAME: ', action.payload)
       state.loading = false,
-        state.error = '',
-        state.selectedChat = [action.payload]
+      state.error = '',
+      state.selectedChat = [action.payload]
     });
 
     builder.addCase(renameGroupChat.rejected, (state, action) => {
       state.loading = false,
-        state.error = action.error.message
+      state.error = action.error.message
     });
   },
 });

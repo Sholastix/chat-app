@@ -83,8 +83,6 @@ const GroupChatModal = (props) => {
       };
 
       setSelectedUsers([...selectedUsers, userToAdd]);
-
-      console.log('SELECTED_USERS: ', selectedUsers);
     } catch (err) {
       console.error(err);
     };
@@ -106,8 +104,7 @@ const GroupChatModal = (props) => {
   const handleSubmit = async (event) => {
     try {
       event.preventDefault();
-      console.log('SU: ', selectedUsers)
-
+      
       dispatch(createGroupChat({
         chatName: groupChatName,
         users: JSON.stringify(selectedUsers)
