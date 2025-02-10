@@ -30,6 +30,7 @@ const LeftDrawer = (props) => {
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
+  // STATE.
   const [inputError, setInputError] = useState(false);
   const [inputHelperText, setInputHelperText] = useState('');
 

@@ -1,11 +1,8 @@
 import { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
 import {
   Box,
-  Button,
   IconButton,
-  Stack,
   Typography
 } from '@mui/material';
 
@@ -23,9 +20,6 @@ import { resetSelectedChatState } from '../../features/chat/chatSlice';
 import { getSender, getFullSender } from '../../helpers/chatLogic';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
-
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -37,6 +31,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
+
+  // STATE.
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
   // Reset STATE for selected chat.
   const resetSelectedChat = () => {

@@ -33,6 +33,10 @@ const Header = () => {
     return state.authReducer
   });
 
+  // This constant will be used to dispatch ACTIONS when we need it.
+  const dispatch = useDispatch();
+
+  // STATE.
   const [anchorEl, setAnchorEl] = useState(null);
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -51,9 +55,6 @@ const Header = () => {
     setIsProfileModalOpen(true);
     setAnchorEl(null);
   };
-
-  // This constant will be used to dispatch ACTIONS when we need it.
-  const dispatch = useDispatch();
 
   // Sign out user.
   const logOut = () => {

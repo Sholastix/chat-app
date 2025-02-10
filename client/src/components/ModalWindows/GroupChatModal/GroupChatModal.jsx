@@ -7,17 +7,10 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
-  Divider,
-  FormControl,
-  FormControlLabel,
   IconButton,
-  Input,
-  InputLabel,
   Stack,
-  TextField,
-  Typography,
+  TextField
 } from '@mui/material';
 
 // MUI Icons.
@@ -44,6 +37,7 @@ const GroupChatModal = (props) => {
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
+  // STATE.
   const [inputError, setInputError] = useState(false);
   const [inputHelperText, setInputHelperText] = useState('');
 
