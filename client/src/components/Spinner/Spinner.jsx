@@ -1,12 +1,25 @@
-import spinner from './spinner.gif';
+import { Box } from '@mui/material';
 
-import styles from './Spinner.module.css';
+import spinner from './spinner.gif';
 
 const Spinner = () => {
   return (
-    <div className={styles.container}>
-      <img src={spinner} alt='LOADING...' className={styles.spinner} />
-    </div>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center'
+      }}
+    >
+      <Box
+        component='img'
+        src={spinner}
+        alt='LOADING...'
+        sx={{
+          marginTop: '40rem',
+          height: '5rem',
+          width: '5rem'
+        }} />
+    </Box>
   );
 };
 
