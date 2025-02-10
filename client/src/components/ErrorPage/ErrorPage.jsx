@@ -1,16 +1,67 @@
-import { Link } from 'react-router-dom';
-
-import styles from './ErrorPage.module.css';
+import { Link as ReactRouterLink } from 'react-router-dom';
+import { Box, Link, Typography } from '@mui/material';
 
 const ErrorPage = () => {
   return (
-    <div className={styles.container}>
-      <div className={styles.number}>404</div>
+    <Box
+      component='div'
+      sx={{
+        alignItems: 'center',
+        backgroundColor: 'rgb(93, 109, 126)',
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        width: '100vw'
+      }}
+    >
+      <Typography
+        component='div'
+        sx={{
+          fontSize: '30rem',
+          margin: '10rem 0rem'
+        }}
+      >
+        404
+      </Typography>
+
       <div>
-        <div className={styles.title}>PAGE NOT FOUND</div>
-        <p className={styles.text}>Nothing interesting here, time to go <Link to='/' className={styles.link}>back</Link></p>
+        <Box
+          component='div'
+          sx={{
+            fontSize: '3rem',
+            fontWeight: 'bold',
+            marginBottom: '5rem',
+            textAlign: 'center'
+          }}
+        >
+          PAGE NOT FOUND
+        </Box>
+
+        <Box
+          component='p'
+          sx={{
+            fontSize: '2rem',
+            marginBottom: '3rem'
+          }}
+        >
+          Nothing interesting here, time to go
+          <Link
+            component={ReactRouterLink}
+            to='/'
+            sx={{
+              textDecoration: 'none',
+              color: 'gold',
+              marginLeft: '0.5rem',
+              ':hover': { borderBottom: '0.2rem solid white' },
+              ':visited': { color: 'black' }
+            }}
+          >
+            back
+          </Link>
+        </Box>
       </div>
-    </div>
+    </Box>
   );
 };
 

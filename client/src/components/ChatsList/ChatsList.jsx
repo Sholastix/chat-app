@@ -19,8 +19,6 @@ import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
 import { getSender } from '../../helpers/chatLogic';
 
 const ChatsList = (props) => {
-  const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
-
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -30,6 +28,9 @@ const ChatsList = (props) => {
     return state.chatReducer;
   });
 
+  // STATE.
+  const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
+
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
@@ -37,6 +38,7 @@ const ChatsList = (props) => {
     setIsGroupChatModalOpen(true);
   };
 
+  // Get all chats of the current user from DB.
   const getAllChats = () => {
     try {
       dispatch(fetchChats());
@@ -45,6 +47,7 @@ const ChatsList = (props) => {
     };
   };
 
+  // Get one specific chat of the current user from DB.
   const getOneChat = async (chatId) => {
     try {
       dispatch(fetchChat(chatId));
@@ -65,11 +68,9 @@ const ChatsList = (props) => {
         borderRadius: '0.5rem',
         boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
         display: { xs: chatState.selectedChat ? 'none' : 'flex', md: 'flex' },
-        // display: 'flex',
         flexDirection: 'column',
         padding: '1rem',
-        width: { xs: '100%', md: '25%' },
-        // width: '25%'
+        width: { xs: '100%', md: '25%' }
       }}
     >
       <Box
@@ -148,7 +149,6 @@ const ChatsList = (props) => {
                       cursor: 'pointer',
                       marginBottom: '1rem',
                       padding: '2rem 3rem',
-                      // width: '100%'
                       ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
                     }}
                     onClick={() => getOneChat(chat._id)}
