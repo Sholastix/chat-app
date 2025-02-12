@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -26,10 +26,6 @@ import { createGroupChat } from '../../../features/chat/chatSlice';
 
 const GroupChatModal = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
-  const authState = useSelector((state) => {
-    return state.authReducer
-  });
-
   const chatState = useSelector((state) => {
     return state.chatReducer;
   });
@@ -38,14 +34,16 @@ const GroupChatModal = (props) => {
   const dispatch = useDispatch();
 
   // STATE.
-  const [inputError, setInputError] = useState(false);
-  const [inputHelperText, setInputHelperText] = useState('');
-
   const [groupChatName, setGroupChatName] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
+
+  const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
+  const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
+  const [addUsersInputError, setAddUsersInputError] = useState(false);
+  const [addUsersHelperText, setAddUsersHelperText] = useState('');
 
   const handleGroupChatModalClose = () => {
     props.setIsGroupChatModalOpen(false);
@@ -54,16 +52,16 @@ const GroupChatModal = (props) => {
     setSearch('');
     setSearchLoading(false);
     setSearchResult([]);
+
+    setGroupChatNameInputError(false);
+    setGroupChatNameInputHelperText('');
+    setAddUsersInputError(false);
+    setAddUsersHelperText('');
   };
 
   const handleSearch = async (query) => {
     try {
       setSearch(query);
-
-      if (!query) {
-        return;
-      };
-
       setSearchLoading(true);
 
       const { data } = await axios.get(`http://localhost:5000/api/users?search=${search}`);
@@ -78,7 +76,7 @@ const GroupChatModal = (props) => {
   const handleGroupUsers = (userToAdd) => {
     try {
       if (selectedUsers.includes(userToAdd)) {
-        console.log('USER ALREADY ADDED!');
+        console.log('User already added.')
         return;
       };
 
@@ -104,7 +102,19 @@ const GroupChatModal = (props) => {
   const handleSubmit = async (event) => {
     try {
       event.preventDefault();
-      
+
+      if (!groupChatName || groupChatName === '') {
+        setGroupChatNameInputError(true);
+        setGroupChatNameInputHelperText('Please enter something.');
+        return;
+      };
+
+      if (selectedUsers.length === 0) {
+        setAddUsersInputError(true);
+        setAddUsersHelperText('Please add minimum 2 users.');
+        return;
+      };
+
       dispatch(createGroupChat({
         chatName: groupChatName,
         users: JSON.stringify(selectedUsers)
@@ -154,8 +164,8 @@ const GroupChatModal = (props) => {
       >
         <DialogContent>
           <TextField
-            // error={inputError}
-            // helperText={inputHelperText}
+            error={groupChatNameInputError}
+            helperText={groupChatNameInputHelperText}
             label='Enter group chat name...'
             variant='outlined'
             slotProps={{
@@ -166,13 +176,15 @@ const GroupChatModal = (props) => {
               width: '100%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
+              '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
             }}
             value={groupChatName}
             onChange={(event) => { setGroupChatName(event.target.value) }}
           />
+
           <TextField
-            // error={inputError}
-            // helperText={inputHelperText}
+            error={addUsersInputError}
+            helperText={addUsersHelperText}
             label='Add minimum 2 users...'
             variant='outlined'
             slotProps={{
@@ -182,36 +194,43 @@ const GroupChatModal = (props) => {
               width: '100%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
+              '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
             }}
             value={search}
             onChange={(event) => { handleSearch(event.target.value) }}
           />
         </DialogContent>
 
-        {
-          <Stack sx={{
-            display: 'flex',
-            flexDirection: 'row'
-          }}>
-            {
-              selectedUsers?.map((user) => (
-                <UserBadgeItem
-                  key={user._id}
-                  user={user}
-                  handleFunction={() => handleDelete(user)}
-                />
-              ))
-            }
-          </Stack>
-        }
+        <Stack sx={{ flexDirection: 'row' }}>
+          {
+            selectedUsers?.map((user) => (
+              <UserBadgeItem
+                key={user._id}
+                user={user}
+                handleFunction={() => handleDelete(user)}
+              />
+            ))
+          }
+        </Stack>
 
         {
           searchLoading
             ?
-            <div>LOADING...</div>
-            :
             <Box
               component='div'
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '20rem',
+                marginBottom: '3rem',
+                padding: '0rem 1rem',
+              }}
+            >
+              <Spinner />
+            </Box>
+            :
+            <Stack
               sx={{
                 height: '20rem',
                 marginBottom: '3rem',
@@ -220,18 +239,16 @@ const GroupChatModal = (props) => {
                 scrollbarWidth: 'thin'
               }}
             >
-              <Stack sx={{ marginBottom: '2rem' }}>
-                {
-                  searchResult?.map((user) => (
-                    <UserListItem
-                      key={user._id}
-                      user={user}
-                      handleFunction={() => handleGroupUsers(user)}
-                    />
-                  ))
-                }
-              </Stack>
-            </Box>
+              {
+                searchResult?.map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroupUsers(user)}
+                  />
+                ))
+              }
+            </Stack>
         }
 
         <DialogActions>

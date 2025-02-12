@@ -31,12 +31,12 @@ const LeftDrawer = (props) => {
   const dispatch = useDispatch();
 
   // STATE.
-  const [inputError, setInputError] = useState(false);
-  const [inputHelperText, setInputHelperText] = useState('');
-
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
+
+  const [inputError, setInputError] = useState(false);
+  const [inputHelperText, setInputHelperText] = useState('');
 
   // 'Close' event for 'LeftDrawer' Component. 
   const handleLeftDrawerClose = () => {
@@ -139,6 +139,7 @@ const LeftDrawer = (props) => {
               width: '75%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
+              '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
             }}
             value={search}
             onChange={(event) => { setSearch(event.target.value) }}
@@ -184,9 +185,7 @@ const LeftDrawer = (props) => {
           <Typography
             component='div'
             sx={{
-              position: 'fixed',
-              top: '0%',
-              left: '9%'
+              marginTop: '2rem'
             }}
           >
             <Spinner />

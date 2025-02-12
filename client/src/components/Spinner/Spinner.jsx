@@ -15,7 +15,6 @@ const Spinner = () => {
         src={spinner}
         alt='LOADING...'
         sx={{
-          marginTop: '40rem',
           height: '5rem',
           width: '5rem'
         }} />
