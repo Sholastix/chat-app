@@ -24,6 +24,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 // Components.
+import Spinner from '../../Spinner/Spinner';
 import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
 
@@ -40,28 +41,38 @@ const UpdateGroupChatModal = (props) => {
     return state.chatReducer;
   });
 
+  // This constant will be used to dispatch ACTIONS when we need it.
+  const dispatch = useDispatch();
+
   const [groupChatName, setGroupChatName] = useState(chatState.selectedChat[0].chatName);
-  const [selectedUsers, setSelectedUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
   const [updateLoading, setUpdateLoading] = useState(false);
 
-  // This constant will be used to dispatch ACTIONS when we need it.
-  const dispatch = useDispatch();
+  const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
+  const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
+  const [addUsersInputError, setAddUsersInputError] = useState(false);
+  const [addUsersHelperText, setAddUsersHelperText] = useState('');
 
   // ----------------------------   FUNCTIONS READY - START   ----------------------------
 
+  // Close modal window.
   const handleUpdateGroupChatModalClose = () => {
     props.setIsUpdateGroupChatModalOpen(false);
     setGroupChatName('');
-    setSelectedUsers([]);
     setSearch('');
     setSearchLoading(false);
     setSearchResult([]);
+
+    setGroupChatNameInputError(false);
+    setGroupChatNameInputHelperText('');
+    setAddUsersInputError(false);
+    setAddUsersHelperText('');
   };
 
-  const handleLeaveGroup = () => {
+  // Leave group chat.
+  const handleLeaveGroupChat = () => {
     try {
       dispatch(resetSelectedChatState());
     } catch (err) {
@@ -69,14 +80,10 @@ const UpdateGroupChatModal = (props) => {
     };
   };
 
+  // Search for users to add to a group chat.
   const handleSearch = async (query) => {
     try {
       setSearch(query);
-
-      if (!query) {
-        return;
-      };
-
       setSearchLoading(true);
 
       const { data } = await axios.get(`http://localhost:5000/api/users?search=${search}`);
@@ -88,44 +95,42 @@ const UpdateGroupChatModal = (props) => {
     };
   };
 
-  const handleGroupUsers = (userToAdd) => {
-    try {
-      if (selectedUsers.includes(userToAdd)) {
-        console.log('USER ALREADY ADDED!');
-        return;
-      };
-
-      setSelectedUsers([...selectedUsers, userToAdd]);
-      console.log('SELECTED_USERS: ', selectedUsers);
-    } catch (err) {
-      console.error(err);
-    };
-  };
-
   // ----------------------------   FUNCTIONS READY - END   ----------------------------
 
-  // Delete user from selected users.
-  const handleDelete = (userToDelete) => {
+  // Add user to group chat.
+  const handleAddUser = (userToAdd) => {
     try {
-      // const filteredSelectedUsers = selectedUsers.filter((user) => {
-      //   return user._id !== userToDelete._id;
-      // });
-
-      // setSelectedUsers(filteredSelectedUsers);
-      console.log('DELETE');
+      console.log('ADD USER');
     } catch (err) {
       console.error(err);
     };
   };
 
-  const handleUpdate = async (event) => {
+  // Delete user from group chat.
+  const handleDeleteUser = (userToDelete) => {
+    try {
+      console.log('DELETE USER');
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // Rename group chat.
+  const handleRenameGroupChat = async (event) => {
     try {
       event.preventDefault();
 
-      if (groupChatName.trim().length === 0) {
-        console.log('PLEASE ENTER SOMETHING!');
+      if (!groupChatName || groupChatName === '') {
+        setGroupChatNameInputError(true);
+        setGroupChatNameInputHelperText('Please enter something.');
         return;
       };
+
+      // if () {
+      //   setAddUsersInputError(true);
+      //   setAddUsersHelperText('Group chat requires minimum 3 users.');
+      //   return;
+      // };
 
       setUpdateLoading(true);
 
@@ -180,8 +185,8 @@ const UpdateGroupChatModal = (props) => {
       >
         <DialogContent>
           <TextField
-            // error={inputError}
-            // helperText={inputHelperText}
+            error={groupChatNameInputError}
+            helperText={groupChatNameInputHelperText}
             label='Enter group chat name...'
             variant='outlined'
             slotProps={{
@@ -192,15 +197,16 @@ const UpdateGroupChatModal = (props) => {
               width: '100%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
+              '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
             }}
             value={groupChatName}
             onChange={(event) => { setGroupChatName(event.target.value) }}
           />
 
           <TextField
-            // error={inputError}
-            // helperText={inputHelperText}
-            label='Search user...'
+            // error={addUsersInputError}
+            // helperText={addUsersHelperText}
+            label='Add users...'
             variant='outlined'
             slotProps={{
               inputLabel: { sx: { fontSize: '1.4rem' } }
@@ -209,43 +215,41 @@ const UpdateGroupChatModal = (props) => {
               width: '100%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
+              '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
             }}
             value={search}
             onChange={(event) => { handleSearch(event.target.value) }}
           />
         </DialogContent>
 
-        {
-          <Stack sx={{
-            display: 'flex',
-            flexDirection: 'row'
-          }}>
-            {
-              chatState.selectedChat[0].users.map((user) => (
-                <UserBadgeItem
-                  key={user._id}
-                  user={user}
-                  handleFunction={() => handleDelete(user)}
-                />
-              ))
-            }
-
-            {
-              selectedUsers?.map((user) => (
-                <UserBadgeItem
-                  key={user._id}
-                  user={user}
-                  handleFunction={() => handleDelete(user)}
-                />
-              ))
-            }
-          </Stack>
-        }
+        <Stack sx={{ flexDirection: 'row' }}>
+          {
+            chatState.selectedChat[0].users.map((user) => (
+              <UserBadgeItem
+                key={user._id}
+                user={user}
+                handleFunction={() => handleDeleteUser(user)}
+              />
+            ))
+          }
+        </Stack>
 
         {
           searchLoading
             ?
-            <div>LOADING...</div>
+            <Box
+              component='div'
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '20rem',
+                marginBottom: '3rem',
+                padding: '0rem 1rem',
+              }}
+            >
+              <Spinner />
+            </Box>
             :
             <Box
               component='div'
@@ -263,7 +267,7 @@ const UpdateGroupChatModal = (props) => {
                     <UserListItem
                       key={user._id}
                       user={user}
-                      handleFunction={() => handleGroupUsers(user)}
+                      handleFunction={() => handleAddUser(user)}
                     />
                   ))
                 }
@@ -285,7 +289,7 @@ const UpdateGroupChatModal = (props) => {
               textTransform: 'none',
               ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
             }}
-            onClick={handleUpdate}
+            onClick={handleRenameGroupChat}
           >
             Update
           </Button>
@@ -303,9 +307,9 @@ const UpdateGroupChatModal = (props) => {
               textTransform: 'none',
               ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
             }}
-            onClick={handleLeaveGroup}
+            onClick={handleLeaveGroupChat}
           >
-            Leave Group
+            Leave Chat
           </Button>
         </DialogActions>
       </Box>

@@ -45,6 +45,7 @@ const GroupChatModal = (props) => {
   const [addUsersInputError, setAddUsersInputError] = useState(false);
   const [addUsersHelperText, setAddUsersHelperText] = useState('');
 
+  // Close modal window.
   const handleGroupChatModalClose = () => {
     props.setIsGroupChatModalOpen(false);
     setGroupChatName('');
@@ -59,6 +60,7 @@ const GroupChatModal = (props) => {
     setAddUsersHelperText('');
   };
 
+  // Search for users to add to a group chat.
   const handleSearch = async (query) => {
     try {
       setSearch(query);
@@ -73,7 +75,8 @@ const GroupChatModal = (props) => {
     };
   };
 
-  const handleGroupUsers = (userToAdd) => {
+  // Add user to selected users.
+  const handleAddUser = (userToAdd) => {
     try {
       if (selectedUsers.includes(userToAdd)) {
         console.log('User already added.')
@@ -87,7 +90,7 @@ const GroupChatModal = (props) => {
   };
 
   // Delete user from selected users.
-  const handleDelete = (userToDelete) => {
+  const handleDeleteUser = (userToDelete) => {
     try {
       const filteredSelectedUsers = selectedUsers.filter((user) => {
         return user._id !== userToDelete._id;
@@ -99,6 +102,7 @@ const GroupChatModal = (props) => {
     };
   };
 
+  // Create new group chat.
   const handleSubmit = async (event) => {
     try {
       event.preventDefault();
@@ -109,7 +113,7 @@ const GroupChatModal = (props) => {
         return;
       };
 
-      if (selectedUsers.length === 0) {
+      if (selectedUsers.length < 2) {
         setAddUsersInputError(true);
         setAddUsersHelperText('Please add minimum 2 users.');
         return;
@@ -185,7 +189,7 @@ const GroupChatModal = (props) => {
           <TextField
             error={addUsersInputError}
             helperText={addUsersHelperText}
-            label='Add minimum 2 users...'
+            label='Add users...'
             variant='outlined'
             slotProps={{
               inputLabel: { sx: { fontSize: '1.4rem' } }
@@ -207,7 +211,7 @@ const GroupChatModal = (props) => {
               <UserBadgeItem
                 key={user._id}
                 user={user}
-                handleFunction={() => handleDelete(user)}
+                handleFunction={() => handleDeleteUser(user)}
               />
             ))
           }
@@ -244,7 +248,7 @@ const GroupChatModal = (props) => {
                   <UserListItem
                     key={user._id}
                     user={user}
-                    handleFunction={() => handleGroupUsers(user)}
+                    handleFunction={() => handleAddUser(user)}
                   />
                 ))
               }
