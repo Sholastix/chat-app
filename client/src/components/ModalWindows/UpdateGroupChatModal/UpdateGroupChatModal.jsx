@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -7,17 +7,10 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
-  Divider,
-  FormControl,
-  FormControlLabel,
   IconButton,
-  Input,
-  InputLabel,
   Stack,
-  TextField,
-  Typography,
+  TextField
 } from '@mui/material';
 
 // MUI Icons.
@@ -48,7 +41,7 @@ const UpdateGroupChatModal = (props) => {
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
-  const [updateLoading, setUpdateLoading] = useState(false);
+  const [renameLoading, setRenameLoading] = useState(false);
 
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
@@ -132,14 +125,14 @@ const UpdateGroupChatModal = (props) => {
       //   return;
       // };
 
-      setUpdateLoading(true);
+      setRenameLoading(true);
 
       dispatch(renameGroupChat({
         chatId: chatState.selectedChat[0]._id,
         chatName: groupChatName,
       }));
 
-      setUpdateLoading(false);
+      setRenameLoading(false);
       props.setFetchAgain(!props.fetchAgain);
       handleUpdateGroupChatModalClose();
     } catch (err) {
@@ -184,24 +177,67 @@ const UpdateGroupChatModal = (props) => {
         }}
       >
         <DialogContent>
-          <TextField
-            error={groupChatNameInputError}
-            helperText={groupChatNameInputHelperText}
-            label='Enter group chat name...'
-            variant='outlined'
-            slotProps={{
-              inputLabel: { sx: { fontSize: '1.4rem' } }
-            }}
+          <Box
+            component='div'
             sx={{
-              marginBottom: '2rem',
-              width: '100%',
-              '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
-              '.MuiInputBase-input': { fontSize: '1.4rem' },
-              '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
+              display: 'flex'
             }}
-            value={groupChatName}
-            onChange={(event) => { setGroupChatName(event.target.value) }}
-          />
+          >
+            <TextField
+              error={groupChatNameInputError}
+              helperText={groupChatNameInputHelperText}
+              label='Enter group chat name...'
+              variant='outlined'
+              slotProps={{
+                inputLabel: { sx: { fontSize: '1.4rem' } }
+              }}
+              sx={{
+                marginBottom: '2rem',
+                width: '100%',
+                '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
+                '.MuiInputBase-input': { fontSize: '1.4rem' },
+                '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
+              }}
+              value={groupChatName}
+              onChange={(event) => { setGroupChatName(event.target.value) }}
+            />
+
+            {
+              renameLoading
+                ?
+                (
+                  <Box
+                    component='div'
+                    sx={{
+                      height: '5.3rem',
+                      margin: '0rem 0rem 2rem 0.5rem',
+                      padding: '0rem 1.6rem'
+                    }}
+                  >
+                    <Spinner />
+                  </Box>
+                ) : (
+                  <Button
+                    type='submit'
+                    variant='outlined'
+                    sx={{
+                      borderColor: 'lightgray',
+                      color: 'black',
+                      fontSize: '1.4rem',
+                      fontWeight: '400',
+                      height: '5.3rem',
+                      margin: '0rem 0rem 2rem 0.5rem',
+                      padding: '0.5rem 2rem',
+                      textTransform: 'none',
+                      ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
+                    }}
+                    onClick={handleRenameGroupChat}
+                  >
+                    Rename
+                  </Button>
+                )
+            }
+          </Box>
 
           <TextField
             // error={addUsersInputError}
@@ -212,7 +248,7 @@ const UpdateGroupChatModal = (props) => {
               inputLabel: { sx: { fontSize: '1.4rem' } }
             }}
             sx={{
-              width: '100%',
+              width: '37.5rem',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
               '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
@@ -276,24 +312,6 @@ const UpdateGroupChatModal = (props) => {
         }
 
         <DialogActions>
-          <Button
-            type='submit'
-            variant='outlined'
-            sx={{
-              borderColor: 'lightgray',
-              color: 'black',
-              fontSize: '1.4rem',
-              fontWeight: '400',
-              marginBottom: '2rem',
-              padding: '0.5rem 2rem',
-              textTransform: 'none',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
-            }}
-            onClick={handleRenameGroupChat}
-          >
-            Update
-          </Button>
-
           <Button
             type='button'
             variant='outlined'
