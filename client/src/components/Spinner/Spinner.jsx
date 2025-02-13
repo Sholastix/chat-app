@@ -5,20 +5,13 @@ import spinner from './spinner.gif';
 const Spinner = () => {
   return (
     <Box
+      component='img'
+      src={spinner}
+      alt='LOADING...'
       sx={{
-        display: 'flex',
-        justifyContent: 'center'
-      }}
-    >
-      <Box
-        component='img'
-        src={spinner}
-        alt='LOADING...'
-        sx={{
-          height: '5rem',
-          width: '5rem'
-        }} />
-    </Box>
+        height: '5rem',
+        width: '5rem'
+      }} />
   );
 };
 

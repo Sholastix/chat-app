@@ -182,14 +182,14 @@ const LeftDrawer = (props) => {
 
         {
           chatState.loading &&
-          <Typography
+          <Box
             component='div'
             sx={{
               marginTop: '2rem'
             }}
           >
             <Spinner />
-          </Typography>
+          </Box>
         }
       </Box>
     </Drawer >

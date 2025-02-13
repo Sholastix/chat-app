@@ -50,7 +50,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       {
         chatState.loading
           ?
-          <Spinner />
+          <Box
+            component='div'
+            sx={{
+              alignItems: 'center',
+              display: 'flex',
+              height: '100%',
+              justifyContent: 'center',
+              width: '100%'
+            }}
+          >
+            <Spinner />
+          </Box>
           :
           chatState.selectedChat ? (
             <Box
