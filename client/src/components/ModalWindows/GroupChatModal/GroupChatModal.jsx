@@ -64,12 +64,17 @@ const GroupChatModal = (props) => {
   const handleSearch = async (query) => {
     try {
       setSearch(query);
-      setSearchLoading(true);
 
-      const { data } = await axios.get(`http://localhost:5000/api/users?search=${search}`);
+      if (query.length > 0) {
+        setSearchLoading(true);
 
-      setSearchLoading(false);
-      setSearchResult(data);
+        const { data } = await axios.get(`http://localhost:5000/api/users?search=${query}`);
+
+        setSearchLoading(false);
+        setSearchResult(data);
+      } else {
+        setSearchResult([]);
+      };
     } catch (err) {
       console.error(err);
     };
