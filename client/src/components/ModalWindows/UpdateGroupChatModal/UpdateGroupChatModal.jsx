@@ -58,8 +58,6 @@ const UpdateGroupChatModal = (props) => {
 
     setGroupChatNameInputError(false);
     setGroupChatNameInputHelperText('');
-    setAddUsersInputError(false);
-    setAddUsersHelperText('');
   };
 
   // Search for users to add to a group chat.

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
   Box,
@@ -25,11 +25,6 @@ import UserListItem from '../../UserListItem/UserListItem';
 import { createGroupChat } from '../../../features/chat/chatSlice';
 
 const GroupChatModal = (props) => {
-  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
-  const chatState = useSelector((state) => {
-    return state.chatReducer;
-  });
-
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
