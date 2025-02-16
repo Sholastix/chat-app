@@ -45,8 +45,6 @@ const UpdateGroupChatModal = (props) => {
 
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
-  const [addUsersInputError, setAddUsersInputError] = useState(false);
-  const [addUsersHelperText, setAddUsersHelperText] = useState('');
 
   // ----------------------------   FUNCTIONS READY - START   ----------------------------
 
@@ -125,12 +123,6 @@ const UpdateGroupChatModal = (props) => {
         setGroupChatNameInputHelperText('Please enter something.');
         return;
       };
-
-      // if () {
-      //   setAddUsersInputError(true);
-      //   setAddUsersHelperText('Group chat requires minimum 3 users.');
-      //   return;
-      // };
 
       setRenameLoading(true);
 
@@ -247,8 +239,6 @@ const UpdateGroupChatModal = (props) => {
           </Box>
 
           <TextField
-            // error={addUsersInputError}
-            // helperText={addUsersHelperText}
             label='Add users...'
             variant='outlined'
             slotProps={{
