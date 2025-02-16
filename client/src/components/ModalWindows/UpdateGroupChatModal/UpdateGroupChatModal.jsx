@@ -41,7 +41,6 @@ const UpdateGroupChatModal = (props) => {
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
-  const [renameLoading, setRenameLoading] = useState(false);
 
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
@@ -51,7 +50,7 @@ const UpdateGroupChatModal = (props) => {
   // Close modal window.
   const handleUpdateGroupChatModalClose = () => {
     props.setIsUpdateGroupChatModalOpen(false);
-    setGroupChatName('');
+    setGroupChatName(chatState.selectedChat[0].chatName);
     setSearch('');
     setSearchLoading(false);
     setSearchResult([]);
@@ -80,6 +79,28 @@ const UpdateGroupChatModal = (props) => {
     };
   };
 
+  // Rename group chat.
+  const handleRenameGroupChat = async (event) => {
+    try {
+      event.preventDefault();
+
+      if (!groupChatName || groupChatName === '') {
+        setGroupChatNameInputError(true);
+        setGroupChatNameInputHelperText('Please enter something.');
+        return;
+      };
+
+      dispatch(renameGroupChat({
+        chatId: chatState.selectedChat[0]._id,
+        chatName: groupChatName,
+      }));
+
+      props.setFetchAgain(!props.fetchAgain);
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
   // ----------------------------   FUNCTIONS READY - END   ----------------------------
 
   // Leave group chat.
@@ -96,7 +117,8 @@ const UpdateGroupChatModal = (props) => {
   // Add user to group chat.
   const handleAddUser = (userToAdd) => {
     try {
-      console.log('ADD USER: ', userToAdd);
+      console.log('ADD_USER: ', userToAdd);
+      console.log('ADD_USER_ID: ', userToAdd._id);
     } catch (err) {
       console.error(err);
     };
@@ -105,33 +127,8 @@ const UpdateGroupChatModal = (props) => {
   // Delete user from group chat.
   const handleDeleteUser = (userToDelete) => {
     try {
-      console.log('DELETE USER: ', userToDelete);
-    } catch (err) {
-      console.error(err);
-    };
-  };
-
-  // Rename group chat.
-  const handleRenameGroupChat = async (event) => {
-    try {
-      event.preventDefault();
-
-      if (!groupChatName || groupChatName === '') {
-        setGroupChatNameInputError(true);
-        setGroupChatNameInputHelperText('Please enter something.');
-        return;
-      };
-
-      setRenameLoading(true);
-
-      dispatch(renameGroupChat({
-        chatId: chatState.selectedChat[0]._id,
-        chatName: groupChatName,
-      }));
-
-      setRenameLoading(false);
-      props.setFetchAgain(!props.fetchAgain);
-      handleUpdateGroupChatModalClose();
+      console.log('DELETE_USER: ', userToDelete);
+      console.log('DELETE_USER_ID: ', userToDelete._id);
     } catch (err) {
       console.error(err);
     };
@@ -200,7 +197,7 @@ const UpdateGroupChatModal = (props) => {
             />
 
             {
-              renameLoading
+              chatState.loading
                 ?
                 (
                   <Box
