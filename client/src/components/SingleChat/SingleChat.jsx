@@ -97,11 +97,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 </IconButton>
 
                 {
-                  !chatState.selectedChat[0].isGroupChat
+                  !chatState.selectedChat.isGroupChat
                     ?
                     <Fragment>
                       {
-                        getSender(authState.user, chatState.selectedChat[0].users)
+                        getSender(authState.user, chatState.selectedChat.users)
                       }
                       <IconButton
                         sx={{ marginLeft: '1rem' }}
@@ -112,13 +112,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       <ProfileModal
                         isProfileModalOpen={isProfileModalOpen}
                         setIsProfileModalOpen={setIsProfileModalOpen}
-                        user={getFullSender(authState.user, chatState.selectedChat[0].users)}
+                        user={getFullSender(authState.user, chatState.selectedChat.users)}
                       />
                     </Fragment>
                     :
                     <Fragment>
                       {
-                        chatState.selectedChat[0].chatName
+                        chatState.selectedChat.chatName
                       }
                       <IconButton
                         sx={{ marginLeft: '1rem' }}

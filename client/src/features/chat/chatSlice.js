@@ -157,7 +157,7 @@ const chatSlice = createSlice({
       state.loading = false,
       state.error = '',
       state.chats = action.payload.allChats,
-      state.selectedChat = [action.payload.createdChat]
+      state.selectedChat = action.payload.createdChat
     });
 
     builder.addCase(createPrivateChat.rejected, (state, action) => {
@@ -178,7 +178,7 @@ const chatSlice = createSlice({
       state.loading = false,
       state.error = '',
       state.chats = action.payload.allChats,
-      state.selectedChat = [action.payload.createdGroupChat]
+      state.selectedChat = action.payload.createdGroupChat
     });
 
     builder.addCase(createGroupChat.rejected, (state, action) => {
@@ -198,7 +198,7 @@ const chatSlice = createSlice({
       console.log('ACTION_PAYLOAD_RENAME: ', action.payload)
       state.loading = false,
       state.error = '',
-      state.selectedChat = [action.payload]
+      state.selectedChat = action.payload
     });
 
     builder.addCase(renameGroupChat.rejected, (state, action) => {

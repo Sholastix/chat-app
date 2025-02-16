@@ -37,7 +37,7 @@ const UpdateGroupChatModal = (props) => {
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
-  const [groupChatName, setGroupChatName] = useState(chatState.selectedChat[0].chatName);
+  const [groupChatName, setGroupChatName] = useState(chatState.selectedChat.chatName);
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
@@ -52,7 +52,7 @@ const UpdateGroupChatModal = (props) => {
   // Close modal window.
   const handleUpdateGroupChatModalClose = () => {
     props.setIsUpdateGroupChatModalOpen(false);
-    setGroupChatName(chatState.selectedChat[0].chatName);
+    setGroupChatName(chatState.selectedChat.chatName);
     setSearch('');
     setSearchLoading(false);
     setSearchResult([]);
@@ -93,7 +93,7 @@ const UpdateGroupChatModal = (props) => {
       };
 
       dispatch(renameGroupChat({
-        chatId: chatState.selectedChat[0]._id,
+        chatId: chatState.selectedChat._id,
         chatName: groupChatName,
       }));
 
@@ -121,19 +121,19 @@ const UpdateGroupChatModal = (props) => {
     try {
       console.log('ADD_USER: ', userToAdd);
       console.log('ADD_USER_ID: ', userToAdd._id);
-      console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat[0].users);
-      console.log('GROUP_ADMIN_ID: ', chatState.selectedChat[0].groupAdmin[0]);
+      console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat.users);
+      console.log('GROUP_ADMIN_ID: ', chatState.selectedChat.groupAdmin);
       console.log('CURRENT_USER_ID: ', authState.user._id);
-      console.log('CHAT_ID: ', chatState.selectedChat[0]._id);
+      console.log('CHAT_ID: ', chatState.selectedChat._id);
 
       // // Check if currently logged user is group admin.
-      // if (chatState.selectedChat[0].groupAdmin[0] !== authState.user._id) {
+      // if (chatState.selectedChat.groupAdmin !== authState.user._id) {
       //   console.log('GROUP ADMIN RIGHTS REQUIRED.');
       //   return;
       // };
 
       // // Check if user which we want to add already in group.
-      // if (chatState.selectedChat[0].users.find((user) => user._id === userToAdd._id)) {
+      // if (chatState.selectedChat.users.find((user) => user._id === userToAdd._id)) {
       //   console.log('USER ALREADY IN GROUP.');
       //   return;
       // };
@@ -141,7 +141,7 @@ const UpdateGroupChatModal = (props) => {
       // setLoading(true);
 
       // const { data } = await axios.put('http://localhost:5000/api/chat/group/add', {
-      //   chatId: chatState.selectedChat[0]._id,
+      //   chatId: chatState.selectedChat._id,
       //   userId: userToAdd._id
       // });
 
@@ -287,7 +287,7 @@ const UpdateGroupChatModal = (props) => {
           }}
         >
           {
-            chatState.selectedChat[0].users.map((user) => (
+            chatState.selectedChat.users.map((user) => (
               <UserBadgeItem
                 key={user._id}
                 user={user}
