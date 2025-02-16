@@ -22,7 +22,7 @@ import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
 
 // Functions.
-import { resetSelectedChatState, renameGroupChat } from '../../../features/chat/chatSlice';
+import { renameGroupChat } from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -64,18 +64,11 @@ const UpdateGroupChatModal = (props) => {
     setAddUsersHelperText('');
   };
 
-  // Leave group chat.
-  const handleLeaveGroupChat = () => {
-    try {
-      dispatch(resetSelectedChatState());
-    } catch (err) {
-      console.error(err);
-    };
-  };
-
   // Search for users to add to a group chat.
   const handleSearch = async (query) => {
     try {
+      console.log('QUERY: ', query);
+      
       setSearch(query);
       setSearchLoading(true);
 
@@ -90,10 +83,21 @@ const UpdateGroupChatModal = (props) => {
 
   // ----------------------------   FUNCTIONS READY - END   ----------------------------
 
+  // Leave group chat.
+  const handleLeaveGroupChat = () => {
+    try {
+      console.log('LEAVE GROUP CHAT.');
+
+      // dispatch();
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
   // Add user to group chat.
   const handleAddUser = (userToAdd) => {
     try {
-      console.log('ADD USER');
+      console.log('ADD USER: ', userToAdd);
     } catch (err) {
       console.error(err);
     };
@@ -102,7 +106,7 @@ const UpdateGroupChatModal = (props) => {
   // Delete user from group chat.
   const handleDeleteUser = (userToDelete) => {
     try {
-      console.log('DELETE USER');
+      console.log('DELETE USER: ', userToDelete);
     } catch (err) {
       console.error(err);
     };
@@ -186,7 +190,7 @@ const UpdateGroupChatModal = (props) => {
             <TextField
               error={groupChatNameInputError}
               helperText={groupChatNameInputHelperText}
-              label='Enter group chat name...'
+              label='Enter new group chat name...'
               variant='outlined'
               slotProps={{
                 inputLabel: { sx: { fontSize: '1.4rem' } }

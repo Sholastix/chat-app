@@ -102,6 +102,8 @@ const signin = async (req, res) => {
 // Get all users (except currently logged in user) from database accordingly to search parameters.
 const getUsers = async (req, res) => {
   try {
+    console.log('REQ_QUERY: ', req.query);
+    
     const keyword = req.query.search
       ?
       {
