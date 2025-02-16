@@ -205,7 +205,13 @@ const GroupChatModal = (props) => {
           />
         </DialogContent>
 
-        <Stack sx={{ flexDirection: 'row' }}>
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            width: '37.5rem'
+          }}
+        >
           {
             selectedUsers?.map((user) => (
               <UserBadgeItem

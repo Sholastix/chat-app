@@ -165,6 +165,8 @@ const renameGroupChat = async (req, res) => {
 const addToGroup = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
+    console.log('CHAT_ID: ', chatId);
+    console.log('USER_ID: ', userId);
 
     const addedUsers = await ChatModel.findByIdAndUpdate(chatId, { $push: { users: userId } }, { new: true })
       .populate('users', '-password')

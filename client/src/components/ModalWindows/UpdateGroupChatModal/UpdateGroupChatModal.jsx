@@ -45,6 +45,8 @@ const UpdateGroupChatModal = (props) => {
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   // ----------------------------   FUNCTIONS READY - START   ----------------------------
 
   // Close modal window.
@@ -115,10 +117,37 @@ const UpdateGroupChatModal = (props) => {
   };
 
   // Add user to group chat.
-  const handleAddUser = (userToAdd) => {
+  const handleAddUser = async (userToAdd) => {
     try {
       console.log('ADD_USER: ', userToAdd);
       console.log('ADD_USER_ID: ', userToAdd._id);
+      console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat[0].users);
+      console.log('GROUP_ADMIN_ID: ', chatState.selectedChat[0].groupAdmin[0]);
+      console.log('CURRENT_USER_ID: ', authState.user._id);
+      console.log('CHAT_ID: ', chatState.selectedChat[0]._id);
+
+      // // Check if currently logged user is group admin.
+      // if (chatState.selectedChat[0].groupAdmin[0] !== authState.user._id) {
+      //   console.log('GROUP ADMIN RIGHTS REQUIRED.');
+      //   return;
+      // };
+
+      // // Check if user which we want to add already in group.
+      // if (chatState.selectedChat[0].users.find((user) => user._id === userToAdd._id)) {
+      //   console.log('USER ALREADY IN GROUP.');
+      //   return;
+      // };
+
+      // setLoading(true);
+
+      // const { data } = await axios.put('http://localhost:5000/api/chat/group/add', {
+      //   chatId: chatState.selectedChat[0]._id,
+      //   userId: userToAdd._id
+      // });
+
+      // console.log('ADDED_USER: ', data);
+
+      // setLoading(false);
     } catch (err) {
       console.error(err);
     };
@@ -250,7 +279,13 @@ const UpdateGroupChatModal = (props) => {
           />
         </DialogContent>
 
-        <Stack sx={{ flexDirection: 'row' }}>
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            width:'37.5rem'
+          }}
+        >
           {
             chatState.selectedChat[0].users.map((user) => (
               <UserBadgeItem
