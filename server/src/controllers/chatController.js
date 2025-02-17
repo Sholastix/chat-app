@@ -19,7 +19,7 @@ const chat = async (req, res) => {
       return res.status(400).json('\nERROR: No collocutor\'s ID in request body.');
     };
 
-    // Check if 1-on-1 chat with requested users already exists.
+    // Check if 1-on-1 private chat with requested users already exists.
     let isChat = await ChatModel.find({
       isGroupChat: false,
       $and: [
@@ -103,8 +103,10 @@ const fetchChat = async (req, res) => {
 const createGroupChat = async (req, res) => {
   try {
     const chatName = req.body.chatName;
+
     // Current logged in user's ID.
     const userId = req.userId;
+
     // We get 'users' value from frontend as a string but we need to convert it to object. We can't parse 'undefined' so we must do the additional check.
     let users = req.body.users ? JSON.parse(req.body.users) : req.body.users;
 
@@ -121,20 +123,32 @@ const createGroupChat = async (req, res) => {
     // Also we need to add current logged in user to array.
     users.push(userId);
 
-    // Create group chat.
-    const groupChat = await ChatModel.create({
-      chatName: chatName,
-      groupAdmin: userId,
-      isGroupChat: true,
-      users: users
-    });
+    // Check if group chat with requested chat name already exists.
+    const isChatExists = await ChatModel.findOne({ chatName: chatName });
 
-    // Populate created group chat wit additional info.
-    const fullGroupChat = await ChatModel.findOne({ _id: groupChat._id })
-      .populate('users', '-password')
-      .populate('groupAdmin', '-password');
+    if (isChatExists) {
+      // Then populate existed group chat with additional info (without password).
+      const fullExistedChat = await ChatModel.findOne({ _id: isChatExists._id })
+        .populate('users', '-password')
+        .populate('groupAdmin', '-password');
 
-    res.status(201).json(fullGroupChat);
+      res.json(fullExistedChat);
+    } else {
+      // If chat not exist - create it.
+      const groupChat = await ChatModel.create({
+        chatName: chatName,
+        groupAdmin: userId,
+        isGroupChat: true,
+        users: users
+      });
+
+      // Then populate created group chat with additional info (without password).
+      const fullGroupChat = await ChatModel.findOne({ _id: groupChat._id })
+        .populate('users', '-password')
+        .populate('groupAdmin', '-password');
+
+      res.status(201).json(fullGroupChat);
+    };
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
@@ -150,7 +164,7 @@ const renameGroupChat = async (req, res) => {
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
-    await console.log('RENAMED_GROUP_CHAT: ', renameGroupChat);
+    console.log('RENAMED_GROUP_CHAT: ', renameGroupChat);
 
     if (!renamedChat) {
       throw new Error('Chat not found.');
