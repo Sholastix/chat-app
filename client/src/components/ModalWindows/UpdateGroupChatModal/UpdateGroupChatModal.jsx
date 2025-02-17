@@ -22,7 +22,11 @@ import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
 
 // Functions.
-import { addUserToGroupChat, renameGroupChat } from '../../../features/chat/chatSlice';
+import {
+  addUserToGroupChat,
+  removeUserFromGroupChat,
+  renameGroupChat
+} from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -117,12 +121,12 @@ const UpdateGroupChatModal = (props) => {
   // Add user to group chat.
   const handleAddUser = async (userToAdd) => {
     try {
-      console.log('ADD_USER: ', userToAdd);
-      console.log('ADD_USER_ID: ', userToAdd._id);
-      console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat.users);
-      console.log('GROUP_ADMIN_ID: ', chatState.selectedChat.groupAdmin);
-      console.log('CURRENT_USER_ID: ', authState.user._id);
-      console.log('CHAT_ID: ', chatState.selectedChat._id);
+      // console.log('ADD_USER: ', userToAdd);
+      // console.log('ADD_USER_ID: ', userToAdd._id);
+      // console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat.users);
+      // console.log('GROUP_ADMIN_ID: ', chatState.selectedChat.groupAdmin);
+      // console.log('CURRENT_USER_ID: ', authState.user._id);
+      // console.log('CHAT_ID: ', chatState.selectedChat._id);
 
       // Ok, this part kinda trash code. Later we think about better way to do it. It works fine but it is excessive.
       // The problem is that 'chatState.selectedChat.groupAdmin' is 'STRING' type ID after 'fetchChats' fired 
@@ -156,15 +160,27 @@ const UpdateGroupChatModal = (props) => {
     };
   };
 
-  // Delete user from group chat.
-  const handleDeleteUser = (userToDelete) => {
+  // Remove user from group chat.
+  const handleRemoveUser = (userToDelete) => {
     try {
-      console.log('DELETE_USER: ', userToDelete);
-      console.log('DELETE_USER_ID: ', userToDelete._id);
-      console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat.users);
-      console.log('GROUP_ADMIN_ID: ', chatState.selectedChat.groupAdmin);
-      console.log('CURRENT_USER_ID: ', authState.user._id);
-      console.log('CHAT_ID: ', chatState.selectedChat._id);
+      let groupAdminId = typeof chatState.selectedChat.groupAdmin === 'object'
+        ?
+        chatState.selectedChat.groupAdmin._id
+        :
+        chatState.selectedChat.groupAdmin
+
+      // Check if currently logged user is group admin.
+      if (groupAdminId !== authState.user._id) {
+        console.log('GROUP ADMIN RIGHTS REQUIRED.');
+        return;
+      };
+
+      dispatch(removeUserFromGroupChat({
+        chatId: chatState.selectedChat._id,
+        userId: userToDelete._id
+      }));
+
+      props.setFetchAgain(!props.fetchAgain);
     } catch (err) {
       console.error(err);
     };
@@ -298,7 +314,7 @@ const UpdateGroupChatModal = (props) => {
               <UserBadgeItem
                 key={user._id}
                 user={user}
-                handleFunction={() => handleDeleteUser(user)}
+                handleFunction={() => handleRemoveUser(user)}
               />
             ))
           }
