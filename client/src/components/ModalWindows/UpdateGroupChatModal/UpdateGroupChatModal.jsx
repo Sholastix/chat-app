@@ -22,7 +22,7 @@ import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
 
 // Functions.
-import { renameGroupChat } from '../../../features/chat/chatSlice';
+import { addUserToGroupChat, renameGroupChat } from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -44,8 +44,6 @@ const UpdateGroupChatModal = (props) => {
 
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
-
-  const [loading, setLoading] = useState(false);
 
   // ----------------------------   FUNCTIONS READY - START   ----------------------------
 
@@ -126,28 +124,33 @@ const UpdateGroupChatModal = (props) => {
       console.log('CURRENT_USER_ID: ', authState.user._id);
       console.log('CHAT_ID: ', chatState.selectedChat._id);
 
-      // // Check if currently logged user is group admin.
-      // if (chatState.selectedChat.groupAdmin !== authState.user._id) {
-      //   console.log('GROUP ADMIN RIGHTS REQUIRED.');
-      //   return;
-      // };
+      // Ok, this part kinda trash code. Later we think about better way to do it. It works fine but it is excessive.
+      // The problem is that 'chatState.selectedChat.groupAdmin' is 'STRING' type ID after 'fetchChats' fired 
+      // but 'object' type with all user properties after 'createGroupChat' or 'add/remove user from group chat' fired.
+      let groupAdminId = typeof chatState.selectedChat.groupAdmin === 'object'
+        ?
+        chatState.selectedChat.groupAdmin._id
+        :
+        chatState.selectedChat.groupAdmin
 
-      // // Check if user which we want to add already in group.
-      // if (chatState.selectedChat.users.find((user) => user._id === userToAdd._id)) {
-      //   console.log('USER ALREADY IN GROUP.');
-      //   return;
-      // };
+      // Check if currently logged user is group admin.
+      if (groupAdminId !== authState.user._id) {
+        console.log('GROUP ADMIN RIGHTS REQUIRED.');
+        return;
+      };
 
-      // setLoading(true);
+      // Check if user which we want to add already in group.
+      if (chatState.selectedChat.users.find((user) => user._id === userToAdd._id)) {
+        console.log('USER ALREADY IN GROUP.');
+        return;
+      };
 
-      // const { data } = await axios.put('http://localhost:5000/api/chat/group/add', {
-      //   chatId: chatState.selectedChat._id,
-      //   userId: userToAdd._id
-      // });
+      dispatch(addUserToGroupChat({
+        chatId: chatState.selectedChat._id,
+        userId: userToAdd._id
+      }));
 
-      // console.log('ADDED_USER: ', data);
-
-      // setLoading(false);
+      props.setFetchAgain(!props.fetchAgain);
     } catch (err) {
       console.error(err);
     };
@@ -158,6 +161,10 @@ const UpdateGroupChatModal = (props) => {
     try {
       console.log('DELETE_USER: ', userToDelete);
       console.log('DELETE_USER_ID: ', userToDelete._id);
+      console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat.users);
+      console.log('GROUP_ADMIN_ID: ', chatState.selectedChat.groupAdmin);
+      console.log('CURRENT_USER_ID: ', authState.user._id);
+      console.log('CHAT_ID: ', chatState.selectedChat._id);
     } catch (err) {
       console.error(err);
     };
@@ -283,7 +290,7 @@ const UpdateGroupChatModal = (props) => {
           sx={{
             flexDirection: 'row',
             flexWrap: 'wrap',
-            width:'37.5rem'
+            width: '37.5rem'
           }}
         >
           {

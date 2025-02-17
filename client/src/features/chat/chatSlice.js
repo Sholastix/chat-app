@@ -48,7 +48,10 @@ export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', asyn
       allChats.data.push(createdChat.data);
     };
 
-    return { createdChat: createdChat.data, allChats: allChats.data };
+    return { 
+      createdChat: createdChat.data, 
+      allChats: allChats.data 
+    };
   } catch (err) {
     console.error(err);
   };
@@ -71,7 +74,10 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
       allChats.data.push(createdGroupChat.data);
     };
 
-    return { createdGroupChat: createdGroupChat.data, allChats: allChats.data };
+    return { 
+      createdGroupChat: createdGroupChat.data, 
+      allChats: allChats.data 
+    };
   } catch (err) {
     console.error(err);
   };
@@ -84,6 +90,18 @@ export const renameGroupChat = createAsyncThunk('chat/renameGroupChat', async ({
     console.log('RENAMED_GROUP_CHAT: ', renamedGroupChat.data);
 
     return renamedGroupChat.data;
+  } catch (err) {
+    console.error(err);
+  };
+});
+
+// Add user to group chat.
+export const addUserToGroupChat = createAsyncThunk('chat/addUserToGroupChat', async ({ chatId, userId }) => {
+  try {
+    const { data } = await axios.put('http://localhost:5000/api/chat/group/add', { chatId, userId });
+    console.log('RENAMED_GROUP_CHAT: ', data);
+
+    return data;
   } catch (err) {
     console.error(err);
   };
@@ -154,6 +172,7 @@ const chatSlice = createSlice({
 
     builder.addCase(createPrivateChat.fulfilled, (state, action) => {
       console.log('ACTION_PAYLOAD_CREATE_PRIVATE_CHAT: ', action.payload.createdChat)
+      console.log('ACTION_PAYLOAD_ALL_CHATS: ', action.payload.allChats)
       state.loading = false,
       state.error = '',
       state.chats = action.payload.allChats,
@@ -175,6 +194,7 @@ const chatSlice = createSlice({
 
     builder.addCase(createGroupChat.fulfilled, (state, action) => {
       console.log('ACTION_PAYLOAD_CREATE_GROUP_CHAT: ', action.payload.createdGroupChat)
+      console.log('ACTION_PAYLOAD_ALL_CHATS: ', action.payload.allChats)
       state.loading = false,
       state.error = '',
       state.chats = action.payload.allChats,
@@ -202,6 +222,24 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(renameGroupChat.rejected, (state, action) => {
+      state.loading = false,
+      state.error = action.error.message
+    });
+
+    // -------------------------------   ADD USER TO GROUP CHAT   -------------------------------
+
+    builder.addCase(addUserToGroupChat.pending, (state, action) => {
+      state.loading = true
+    });
+
+    builder.addCase(addUserToGroupChat.fulfilled, (state, action) => {
+      console.log('ACTION_PAYLOAD_ADD_USER_TO_GROUP_CHAT: ', action.payload)
+      state.loading = false,
+      state.error = '',
+      state.selectedChat = action.payload
+    });
+
+    builder.addCase(addUserToGroupChat.rejected, (state, action) => {
       state.loading = false,
       state.error = action.error.message
     });

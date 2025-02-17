@@ -150,6 +150,8 @@ const renameGroupChat = async (req, res) => {
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
+    await console.log('RENAMED_GROUP_CHAT: ', renameGroupChat);
+
     if (!renamedChat) {
       throw new Error('Chat not found.');
     } else {
@@ -165,17 +167,17 @@ const renameGroupChat = async (req, res) => {
 const addToGroup = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
-    console.log('CHAT_ID: ', chatId);
-    console.log('USER_ID: ', userId);
 
-    const addedUsers = await ChatModel.findByIdAndUpdate(chatId, { $push: { users: userId } }, { new: true })
+    const updatedChat = await ChatModel.findByIdAndUpdate(chatId, { $push: { users: userId } }, { new: true })
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
-    if (!addedUsers) {
+    console.log('UPDATED_CHAT_(ADD_USERS): ', updatedChat);
+
+    if (!updatedChat) {
       throw new Error('Chat not found.');
     } else {
-      res.status(200).json(addedUsers);
+      res.status(200).json(updatedChat);
     };
   } catch (err) {
     console.error(err);
@@ -188,14 +190,16 @@ const removeFromGroup = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
-    const removedUsers = await ChatModel.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
+    const updatedChat = await ChatModel.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
-    if (!removedUsers) {
+    console.log('UPDATED_CHAT_(REMOVE_USERS): ', updatedChat);
+
+    if (!updatedChat) {
       throw new Error('Chat not found.');
     } else {
-      res.status(200).json(removedUsers);
+      res.status(200).json(updatedChat);
     };
   } catch (err) {
     console.error(err);
