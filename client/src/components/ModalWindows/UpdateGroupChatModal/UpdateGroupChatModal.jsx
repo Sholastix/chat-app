@@ -121,13 +121,6 @@ const UpdateGroupChatModal = (props) => {
   // Add user to group chat.
   const handleAddUser = async (userToAdd) => {
     try {
-      // console.log('ADD_USER: ', userToAdd);
-      // console.log('ADD_USER_ID: ', userToAdd._id);
-      // console.log('ALL_USERS_IN_CHAT: ', chatState.selectedChat.users);
-      // console.log('GROUP_ADMIN_ID: ', chatState.selectedChat.groupAdmin);
-      // console.log('CURRENT_USER_ID: ', authState.user._id);
-      // console.log('CHAT_ID: ', chatState.selectedChat._id);
-
       // Ok, this part kinda trash code. Later we think about better way to do it. It works fine but it is excessive.
       // The problem is that 'chatState.selectedChat.groupAdmin' is 'STRING' type ID after 'fetchChats' fired 
       // but 'object' type with all user properties after 'createGroupChat' or 'add/remove user from group chat' fired.
