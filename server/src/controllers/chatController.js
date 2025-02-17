@@ -90,7 +90,8 @@ const fetchChat = async (req, res) => {
     const chatId = req.params.chatId;
 
     const chat = await ChatModel.findOne({ _id: chatId })
-      .populate('users', '-password');
+      .populate('users', '-password')
+      .populate('groupAdmin', '-password');
 
     res.status(200).json(chat);
   } catch (err) {

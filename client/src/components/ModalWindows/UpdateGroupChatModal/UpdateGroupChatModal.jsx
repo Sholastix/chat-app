@@ -121,14 +121,7 @@ const UpdateGroupChatModal = (props) => {
   // Add user to group chat.
   const handleAddUser = async (userToAdd) => {
     try {
-      // Ok, this part kinda trash code. Later we think about better way to do it. It works fine but it is excessive.
-      // The problem is that 'chatState.selectedChat.groupAdmin' is 'STRING' type ID after 'fetchChats' fired 
-      // but 'object' type with all user properties after 'createGroupChat' or 'add/remove user from group chat' fired.
-      let groupAdminId = typeof chatState.selectedChat.groupAdmin === 'object'
-        ?
-        chatState.selectedChat.groupAdmin._id
-        :
-        chatState.selectedChat.groupAdmin
+      const groupAdminId = chatState.selectedChat.groupAdmin._id;
 
       // Check if currently logged user is group admin.
       if (groupAdminId !== authState.user._id) {
@@ -154,13 +147,9 @@ const UpdateGroupChatModal = (props) => {
   };
 
   // Remove user from group chat.
-  const handleRemoveUser = (userToDelete) => {
+  const handleRemoveUser = (userToRemove) => {
     try {
-      let groupAdminId = typeof chatState.selectedChat.groupAdmin === 'object'
-        ?
-        chatState.selectedChat.groupAdmin._id
-        :
-        chatState.selectedChat.groupAdmin
+      const groupAdminId = chatState.selectedChat.groupAdmin._id;
 
       // Check if currently logged user is group admin.
       if (groupAdminId !== authState.user._id) {
@@ -170,7 +159,7 @@ const UpdateGroupChatModal = (props) => {
 
       dispatch(removeUserFromGroupChat({
         chatId: chatState.selectedChat._id,
-        userId: userToDelete._id
+        userId: userToRemove._id
       }));
 
       props.setFetchAgain(!props.fetchAgain);
