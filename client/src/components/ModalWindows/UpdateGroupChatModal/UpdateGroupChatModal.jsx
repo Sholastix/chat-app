@@ -105,19 +105,6 @@ const UpdateGroupChatModal = (props) => {
     };
   };
 
-  // ----------------------------   FUNCTIONS READY - END   ----------------------------
-
-  // Leave group chat.
-  const handleLeaveGroupChat = () => {
-    try {
-      console.log('LEAVE GROUP CHAT.');
-
-      // dispatch();
-    } catch (err) {
-      console.error(err);
-    };
-  };
-
   // Add user to group chat.
   const handleAddUser = async (userToAdd) => {
     try {
@@ -163,6 +150,19 @@ const UpdateGroupChatModal = (props) => {
       }));
 
       props.setFetchAgain(!props.fetchAgain);
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // ----------------------------   FUNCTIONS READY - END   ----------------------------
+
+  // Leave group chat.
+  const handleLeaveGroupChat = () => {
+    try {
+      console.log('LEAVE GROUP CHAT.');
+
+      // dispatch();
     } catch (err) {
       console.error(err);
     };

@@ -75,7 +75,7 @@ const GroupChatModal = (props) => {
     };
   };
 
-  // Add user to selected users.
+  // Add user to group chat.
   const handleAddUser = (userToAdd) => {
     try {
       if (selectedUsers.includes(userToAdd)) {
@@ -89,11 +89,11 @@ const GroupChatModal = (props) => {
     };
   };
 
-  // Delete user from selected users.
-  const handleDeleteUser = (userToDelete) => {
+  // Remove user from group chat.
+  const handleRemoveUser = (userToRemove) => {
     try {
       const filteredSelectedUsers = selectedUsers.filter((user) => {
-        return user._id !== userToDelete._id;
+        return user._id !== userToRemove._id;
       });
 
       setSelectedUsers(filteredSelectedUsers);
@@ -217,7 +217,7 @@ const GroupChatModal = (props) => {
               <UserBadgeItem
                 key={user._id}
                 user={user}
-                handleFunction={() => handleDeleteUser(user)}
+                handleFunction={() => handleRemoveUser(user)}
               />
             ))
           }
