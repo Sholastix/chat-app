@@ -26,6 +26,7 @@ import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
 
 // Functions.
 import { signout } from '../../features/auth/authSlice';
+import { resetSelectedChatState } from '../../features/chat/chatSlice';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -59,6 +60,7 @@ const Header = () => {
   // Sign out user.
   const logOut = () => {
     try {
+      dispatch(resetSelectedChatState());
       dispatch(signout());
     } catch (err) {
       console.error(err);
