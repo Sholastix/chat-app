@@ -87,6 +87,14 @@ const UpdateGroupChatModal = (props) => {
   const handleRenameGroupChat = async (event) => {
     try {
       event.preventDefault();
+      
+      const groupAdminId = chatState.selectedChat.groupAdmin._id;
+
+      // Check if currently logged user is group admin.
+      if (groupAdminId !== authState.user._id) {
+        console.log('GROUP ADMIN RIGHTS REQUIRED.');
+        return;
+      };
 
       if (!groupChatName || groupChatName === '') {
         setGroupChatNameInputError(true);
