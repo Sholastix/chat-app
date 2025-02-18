@@ -144,6 +144,12 @@ const UpdateGroupChatModal = (props) => {
         return;
       };
 
+      // Checking if the currently logged in user is trying to delete themselves.
+      if (groupAdminId === authState.user._id && userToRemove._id === authState.user._id) {
+        console.log('GROUP ADMIN CAN NOT REMOVE HIMSELF.');
+        return;
+      };
+
       dispatch(removeUserFromGroupChat({
         chatId: chatState.selectedChat._id,
         userId: userToRemove._id
