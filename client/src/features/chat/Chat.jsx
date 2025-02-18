@@ -45,7 +45,16 @@ const Chat = () => {
             </Box>
           </Box>
           :
-          <Spinner />
+          <Box
+            sx={{
+              alignItems: 'center',
+              display: 'flex',
+              height: '100vh',
+              justifyContent: 'center',
+            }}
+          >
+            <Spinner />
+          </Box>
       }
     </Fragment>
   );
