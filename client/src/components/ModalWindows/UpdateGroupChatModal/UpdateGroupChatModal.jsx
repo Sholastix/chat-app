@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
-  Alert,
   Box,
   Button,
   Dialog,
@@ -18,6 +17,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 // Components.
+import AlertComponent from '../../AlertComponent/AlertComponent';
 import Spinner from '../../Spinner/Spinner';
 import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
@@ -52,14 +52,32 @@ const UpdateGroupChatModal = (props) => {
 
   // STATE for 'Alert' Component.
   const [addUserAlert, setAddUserAlert] = useState(false);
+  const [adminRightsAlert, setAdminRightsAlert] = useState(false);
+  const [adminSelfRemove, setAdminSelfRemove] = useState(false);
 
-  // 'Close' function for 'Alert' Component.
+  // 'Close' functions for 'Alert' Component.
   const handleCloseAddUserAlert = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     };
 
     setAddUserAlert(false);
+  };
+
+  const handleCloseAdminRightsAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    };
+
+    setAdminRightsAlert(false);
+  };
+
+  const handleAdminSelfRemoveAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    };
+
+    setAdminSelfRemove(false);
   };
 
   // ----------------------------   FUNCTIONS READY - START   ----------------------------
@@ -105,7 +123,12 @@ const UpdateGroupChatModal = (props) => {
 
       // Check if currently logged user is group admin.
       if (groupAdminId !== authState.user._id) {
-        console.log('GROUP ADMIN RIGHTS REQUIRED.');
+        setAdminRightsAlert(true);
+
+        setTimeout(() => {
+          setAdminRightsAlert(false);
+        }, 5000);
+
         return;
       };
 
@@ -133,7 +156,12 @@ const UpdateGroupChatModal = (props) => {
 
       // Check if currently logged user is group admin.
       if (groupAdminId !== authState.user._id) {
-        console.log('GROUP ADMIN RIGHTS REQUIRED.');
+        setAdminRightsAlert(true);
+
+        setTimeout(() => {
+          setAdminRightsAlert(false);
+        }, 5000);
+
         return;
       };
 
@@ -144,6 +172,7 @@ const UpdateGroupChatModal = (props) => {
         setTimeout(() => {
           setAddUserAlert(false);
         }, 5000);
+
         return;
       };
 
@@ -165,13 +194,23 @@ const UpdateGroupChatModal = (props) => {
 
       // Check if currently logged user is group admin.
       if (groupAdminId !== authState.user._id) {
-        console.log('GROUP ADMIN RIGHTS REQUIRED.');
+        setAdminRightsAlert(true);
+
+        setTimeout(() => {
+          setAdminRightsAlert(false);
+        }, 5000);
+
         return;
       };
 
-      // Checking if the currently logged in user is trying to delete themselves.
+      // Checking if the group admin is trying to remove himself.
       if (groupAdminId === authState.user._id && userToRemove._id === authState.user._id) {
-        console.log('GROUP ADMIN CAN NOT REMOVE HIMSELF.');
+        setAdminSelfRemove(true);
+
+        setTimeout(() => {
+          setAdminSelfRemove(false);
+        }, 5000);
+
         return;
       };
 
@@ -318,20 +357,31 @@ const UpdateGroupChatModal = (props) => {
           {
             addUserAlert
             &&
-            <Alert
-              onClose={handleCloseAddUserAlert}
-              severity='warning'
-              slotProps={{
-                closeIcon: { sx: { fontSize: '1.6rem' } }
-              }}
-              sx={{
-                color: 'black',
-                fontSize: '1.4rem',
-                width: '100%',
-              }}
-            >
-              User already added.
-            </Alert>
+            <AlertComponent
+              handleFunction={handleCloseAddUserAlert}
+              severityType={'warning'}
+              message={'User already added.'}
+            />
+          }
+
+          {
+            adminRightsAlert
+            &&
+            <AlertComponent
+              handleFunction={handleCloseAdminRightsAlert}
+              severityType={'error'}
+              message={'Group admin rights required.'}
+            />
+          }
+
+          {
+            adminSelfRemove
+            &&
+            <AlertComponent
+              handleFunction={handleAdminSelfRemoveAlert}
+              severityType={'error'}
+              message={'Group admin can\'t remove himself.'}
+            />
           }
 
           <Stack

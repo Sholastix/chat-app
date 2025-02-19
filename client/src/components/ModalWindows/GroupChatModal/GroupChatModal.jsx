@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
-  Alert,
   Box,
   Button,
   Dialog,
@@ -18,6 +17,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 // Components.
+import AlertComponent from '../../AlertComponent/AlertComponent';
 import Spinner from '../../Spinner/Spinner';
 import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
@@ -173,6 +173,7 @@ const GroupChatModal = (props) => {
         </IconButton>
         Create Group Chat
       </DialogTitle>
+      
       <Box
         component='form'
         noValidate
@@ -226,20 +227,11 @@ const GroupChatModal = (props) => {
           {
             addUserAlert
             &&
-            <Alert
-              onClose={handleCloseAddUserAlert}
-              severity='warning'
-              slotProps={{
-                closeIcon: { sx: { fontSize: '1.6rem' } }
-              }}
-              sx={{
-                color: 'black',
-                fontSize: '1.4rem',
-                width: '100%',
-              }}
-            >
-              User already added.
-            </Alert>
+            <AlertComponent
+              handleFunction={handleCloseAddUserAlert}
+              severityType={'warning'}
+              message={'User already added.'}
+            />
           }
 
           <Stack
