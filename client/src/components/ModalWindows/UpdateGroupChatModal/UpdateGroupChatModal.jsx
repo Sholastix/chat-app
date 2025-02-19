@@ -296,8 +296,6 @@ const UpdateGroupChatModal = (props) => {
             value={search}
             onChange={(event) => { handleSearch(event.target.value) }}
           />
-        </DialogContent>
-
         <Stack
           sx={{
             flexDirection: 'row',
@@ -336,10 +334,10 @@ const UpdateGroupChatModal = (props) => {
             <Box
               component='div'
               sx={{
-                height: '20rem',
-                marginBottom: '3rem',
+                minHeight: 'auto',
+                maxHeight: '20rem',
+                margin: '1rem 0rem',
                 overflowY: 'auto',
-                padding: '0rem 1rem',
                 scrollbarWidth: 'thin'
               }}
             >
@@ -356,6 +354,8 @@ const UpdateGroupChatModal = (props) => {
               </Stack>
             </Box>
         }
+        </DialogContent>
+
 
         <DialogActions>
           <Button

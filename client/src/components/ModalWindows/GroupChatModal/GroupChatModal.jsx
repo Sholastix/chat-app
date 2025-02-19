@@ -203,63 +203,63 @@ const GroupChatModal = (props) => {
             value={search}
             onChange={(event) => { handleSearch(event.target.value) }}
           />
-        </DialogContent>
 
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            width: '37.5rem'
-          }}
-        >
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              width: '37.5rem'
+            }}
+          >
+            {
+              selectedUsers?.map((user) => (
+                <UserBadgeItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleRemoveUser(user)}
+                />
+              ))
+            }
+          </Stack>
+
           {
-            selectedUsers?.map((user) => (
-              <UserBadgeItem
-                key={user._id}
-                user={user}
-                handleFunction={() => handleRemoveUser(user)}
-              />
-            ))
+            searchLoading
+              ?
+              <Box
+                component='div'
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '20rem',
+                  marginBottom: '3rem',
+                  padding: '0rem 1rem',
+                }}
+              >
+                <Spinner />
+              </Box>
+              :
+              <Stack
+                sx={{
+                  minHeight: 'auto',
+                  maxHeight: '20rem',
+                  margin: '1rem 0rem',
+                  overflowY: 'auto',
+                  scrollbarWidth: 'thin'
+                }}
+              >
+                {
+                  searchResult?.map((user) => (
+                    <UserListItem
+                      key={user._id}
+                      user={user}
+                      handleFunction={() => handleAddUser(user)}
+                    />
+                  ))
+                }
+              </Stack>
           }
-        </Stack>
-
-        {
-          searchLoading
-            ?
-            <Box
-              component='div'
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '20rem',
-                marginBottom: '3rem',
-                padding: '0rem 1rem',
-              }}
-            >
-              <Spinner />
-            </Box>
-            :
-            <Stack
-              sx={{
-                height: '20rem',
-                marginBottom: '3rem',
-                overflowY: 'auto',
-                padding: '0rem 1rem',
-                scrollbarWidth: 'thin'
-              }}
-            >
-              {
-                searchResult?.map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleFunction={() => handleAddUser(user)}
-                  />
-                ))
-              }
-            </Stack>
-        }
+        </DialogContent>
 
         <DialogActions>
           <Button
