@@ -26,7 +26,8 @@ import UserListItem from '../../UserListItem/UserListItem';
 import {
   addUserToGroupChat,
   removeUserFromGroupChat,
-  renameGroupChat
+  renameGroupChat,
+  resetSelectedChatState
 } from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = (props) => {
@@ -228,11 +229,28 @@ const UpdateGroupChatModal = (props) => {
   // ----------------------------   FUNCTIONS READY - END   ----------------------------
 
   // Leave group chat.
-  const handleLeaveGroupChat = () => {
+  const handleLeaveGroupChat = (userToRemove) => {
     try {
-      console.log('LEAVE GROUP CHAT.');
+      const groupAdminId = chatState.selectedChat.groupAdmin._id;
 
-      // dispatch();
+      // Checking if the group admin is trying to remove himself.
+      if (groupAdminId === authState.user._id && userToRemove._id === authState.user._id) {
+        setAdminSelfRemove(true);
+
+        setTimeout(() => {
+          setAdminSelfRemove(false);
+        }, 5000);
+
+        return;
+      };
+
+      dispatch(removeUserFromGroupChat({
+        chatId: chatState.selectedChat._id,
+        userId: userToRemove._id,
+        currentUserId: authState.user._id
+      }));
+
+      props.setFetchAgain(!props.fetchAgain);
     } catch (err) {
       console.error(err);
     };
@@ -380,7 +398,7 @@ const UpdateGroupChatModal = (props) => {
             <AlertComponent
               handleFunction={handleAdminSelfRemoveAlert}
               severityType={'error'}
-              message={'Group admin can\'t remove himself.'}
+              message={'Group admin can\'t leave the group.'}
             />
           }
 
@@ -459,7 +477,7 @@ const UpdateGroupChatModal = (props) => {
               textTransform: 'none',
               ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
             }}
-            onClick={handleLeaveGroupChat}
+            onClick={() => handleLeaveGroupChat(authState.user)}
           >
             Leave Chat
           </Button>

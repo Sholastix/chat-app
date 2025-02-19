@@ -102,12 +102,16 @@ export const addUserToGroupChat = createAsyncThunk('chat/addUserToGroupChat', as
 });
 
 // Remove user from group chat.
-export const removeUserFromGroupChat = createAsyncThunk('chat/removeUserFromGroupChat', async ({ chatId, userId }) => {
+export const removeUserFromGroupChat = createAsyncThunk('chat/removeUserFromGroupChat', async ({ chatId, userId, currentUserId }) => {
   try {
     const { data } = await axios.put('http://localhost:5000/api/chat/group/remove', { chatId, userId });
     console.log('REMOVE_USER_FROM_GROUP_CHAT: ', data);
 
-    return data;
+    if (userId === currentUserId) {
+      return null;
+    } else {
+      return data;
+    };
   } catch (err) {
     console.error(err);
   };
