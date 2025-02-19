@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -39,6 +40,18 @@ const GroupChatModal = (props) => {
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
   const [addUsersInputError, setAddUsersInputError] = useState(false);
   const [addUsersHelperText, setAddUsersHelperText] = useState('');
+
+  // STATE for 'Alert' Component.
+  const [addUserAlert, setAddUserAlert] = useState(false);
+
+  // 'Close' function for 'Alert' Component.
+  const handleCloseAddUserAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    };
+
+    setAddUserAlert(false);
+  };
 
   // Close modal window.
   const handleGroupChatModalClose = () => {
@@ -79,7 +92,12 @@ const GroupChatModal = (props) => {
   const handleAddUser = (userToAdd) => {
     try {
       if (selectedUsers.includes(userToAdd)) {
-        console.log('User already added.')
+        setAddUserAlert(true);
+
+        setTimeout(() => {
+          setAddUserAlert(false);
+        }, 5000);
+
         return;
       };
 
@@ -195,6 +213,7 @@ const GroupChatModal = (props) => {
               inputLabel: { sx: { fontSize: '1.4rem' } }
             }}
             sx={{
+              marginBottom: '1rem',
               width: '100%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
@@ -203,6 +222,25 @@ const GroupChatModal = (props) => {
             value={search}
             onChange={(event) => { handleSearch(event.target.value) }}
           />
+
+          {
+            addUserAlert
+            &&
+            <Alert
+              onClose={handleCloseAddUserAlert}
+              severity='warning'
+              slotProps={{
+                closeIcon: { sx: { fontSize: '1.6rem' } }
+              }}
+              sx={{
+                color: 'black',
+                fontSize: '1.4rem',
+                width: '100%',
+              }}
+            >
+              User already added.
+            </Alert>
+          }
 
           <Stack
             sx={{

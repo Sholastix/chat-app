@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -49,6 +50,18 @@ const UpdateGroupChatModal = (props) => {
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
 
+  // STATE for 'Alert' Component.
+  const [addUserAlert, setAddUserAlert] = useState(false);
+
+  // 'Close' function for 'Alert' Component.
+  const handleCloseAddUserAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    };
+
+    setAddUserAlert(false);
+  };
+
   // ----------------------------   FUNCTIONS READY - START   ----------------------------
 
   // Close modal window.
@@ -87,7 +100,7 @@ const UpdateGroupChatModal = (props) => {
   const handleRenameGroupChat = async (event) => {
     try {
       event.preventDefault();
-      
+
       const groupAdminId = chatState.selectedChat.groupAdmin._id;
 
       // Check if currently logged user is group admin.
@@ -126,7 +139,11 @@ const UpdateGroupChatModal = (props) => {
 
       // Check if user which we want to add already in group.
       if (chatState.selectedChat.users.find((user) => user._id === userToAdd._id)) {
-        console.log('USER ALREADY IN GROUP.');
+        setAddUserAlert(true);
+
+        setTimeout(() => {
+          setAddUserAlert(false);
+        }, 5000);
         return;
       };
 
@@ -288,6 +305,7 @@ const UpdateGroupChatModal = (props) => {
               inputLabel: { sx: { fontSize: '1.4rem' } }
             }}
             sx={{
+              marginBottom: '1rem',
               width: '37.5rem',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
@@ -296,64 +314,84 @@ const UpdateGroupChatModal = (props) => {
             value={search}
             onChange={(event) => { handleSearch(event.target.value) }}
           />
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            width: '37.5rem'
-          }}
-        >
-          {
-            chatState.selectedChat.users.map((user) => (
-              <UserBadgeItem
-                key={user._id}
-                user={user}
-                handleFunction={() => handleRemoveUser(user)}
-              />
-            ))
-          }
-        </Stack>
 
-        {
-          searchLoading
-            ?
-            <Box
-              component='div'
+          {
+            addUserAlert
+            &&
+            <Alert
+              onClose={handleCloseAddUserAlert}
+              severity='warning'
+              slotProps={{
+                closeIcon: { sx: { fontSize: '1.6rem' } }
+              }}
               sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '20rem',
-                marginBottom: '3rem',
-                padding: '0rem 1rem',
+                color: 'black',
+                fontSize: '1.4rem',
+                width: '100%',
               }}
             >
-              <Spinner />
-            </Box>
-            :
-            <Box
-              component='div'
-              sx={{
-                minHeight: 'auto',
-                maxHeight: '20rem',
-                margin: '1rem 0rem',
-                overflowY: 'auto',
-                scrollbarWidth: 'thin'
-              }}
-            >
-              <Stack sx={{ marginBottom: '2rem' }}>
-                {
-                  searchResult?.map((user) => (
-                    <UserListItem
-                      key={user._id}
-                      user={user}
-                      handleFunction={() => handleAddUser(user)}
-                    />
-                  ))
-                }
-              </Stack>
-            </Box>
-        }
+              User already added.
+            </Alert>
+          }
+
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              width: '37.5rem'
+            }}
+          >
+            {
+              chatState.selectedChat.users.map((user) => (
+                <UserBadgeItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleRemoveUser(user)}
+                />
+              ))
+            }
+          </Stack>
+
+          {
+            searchLoading
+              ?
+              <Box
+                component='div'
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '20rem',
+                  marginBottom: '3rem',
+                  padding: '0rem 1rem',
+                }}
+              >
+                <Spinner />
+              </Box>
+              :
+              <Box
+                component='div'
+                sx={{
+                  minHeight: 'auto',
+                  maxHeight: '20rem',
+                  margin: '1rem 0rem',
+                  overflowY: 'auto',
+                  scrollbarWidth: 'thin'
+                }}
+              >
+                <Stack sx={{ marginBottom: '2rem' }}>
+                  {
+                    searchResult?.map((user) => (
+                      <UserListItem
+                        key={user._id}
+                        user={user}
+                        handleFunction={() => handleAddUser(user)}
+                      />
+                    ))
+                  }
+                </Stack>
+              </Box>
+          }
         </DialogContent>
 
 
