@@ -10,7 +10,8 @@ import {
   DialogTitle,
   IconButton,
   Stack,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 
 // MUI Icons.
@@ -26,8 +27,7 @@ import UserListItem from '../../UserListItem/UserListItem';
 import {
   addUserToGroupChat,
   removeUserFromGroupChat,
-  renameGroupChat,
-  resetSelectedChatState
+  renameGroupChat
 } from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = (props) => {
@@ -80,8 +80,6 @@ const UpdateGroupChatModal = (props) => {
 
     setAdminSelfRemove(false);
   };
-
-  // ----------------------------   FUNCTIONS READY - START   ----------------------------
 
   // Close modal window.
   const handleUpdateGroupChatModalClose = () => {
@@ -226,8 +224,6 @@ const UpdateGroupChatModal = (props) => {
     };
   };
 
-  // ----------------------------   FUNCTIONS READY - END   ----------------------------
-
   // Leave group chat.
   const handleLeaveGroupChat = (userToRemove) => {
     try {
@@ -262,11 +258,7 @@ const UpdateGroupChatModal = (props) => {
       onClose={handleUpdateGroupChatModalClose}
     >
       <DialogTitle
-        sx={{
-          fontSize: '2rem',
-          marginTop: '2rem',
-          textAlign: 'center'
-        }}
+        sx={{ marginTop: '2rem', textAlign: 'center' }}
       >
         <IconButton
           aria-label='close'
@@ -279,8 +271,42 @@ const UpdateGroupChatModal = (props) => {
         >
           <CloseIcon sx={{ fontSize: '2rem' }} />
         </IconButton>
-        Update Group Chat
+
+        <Typography sx={{ marginBottom: '2rem', fontSize: '2rem' }}>
+          Update Group Chat
+        </Typography>
+
+        {
+          addUserAlert
+          &&
+          <AlertComponent
+            handleFunction={handleCloseAddUserAlert}
+            severityType={'warning'}
+            message={'User already added.'}
+          />
+        }
+
+        {
+          adminRightsAlert
+          &&
+          <AlertComponent
+            handleFunction={handleCloseAdminRightsAlert}
+            severityType={'error'}
+            message={'Group admin rights required.'}
+          />
+        }
+
+        {
+          adminSelfRemove
+          &&
+          <AlertComponent
+            handleFunction={handleAdminSelfRemoveAlert}
+            severityType={'error'}
+            message={'Group admin can\'t leave the group.'}
+          />
+        }
       </DialogTitle>
+
       <Box
         component='form'
         noValidate
@@ -372,36 +398,6 @@ const UpdateGroupChatModal = (props) => {
             onChange={(event) => { handleSearch(event.target.value) }}
           />
 
-          {
-            addUserAlert
-            &&
-            <AlertComponent
-              handleFunction={handleCloseAddUserAlert}
-              severityType={'warning'}
-              message={'User already added.'}
-            />
-          }
-
-          {
-            adminRightsAlert
-            &&
-            <AlertComponent
-              handleFunction={handleCloseAdminRightsAlert}
-              severityType={'error'}
-              message={'Group admin rights required.'}
-            />
-          }
-
-          {
-            adminSelfRemove
-            &&
-            <AlertComponent
-              handleFunction={handleAdminSelfRemoveAlert}
-              severityType={'error'}
-              message={'Group admin can\'t leave the group.'}
-            />
-          }
-
           <Stack
             sx={{
               flexDirection: 'row',
@@ -475,7 +471,7 @@ const UpdateGroupChatModal = (props) => {
               marginBottom: '2rem',
               padding: '0.5rem 2rem',
               textTransform: 'none',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
+              ':hover': { backgroundColor: 'rgb(230, 46, 46)', color: 'white' }
             }}
             onClick={() => handleLeaveGroupChat(authState.user)}
           >

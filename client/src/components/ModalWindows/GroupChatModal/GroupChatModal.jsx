@@ -10,7 +10,8 @@ import {
   DialogTitle,
   IconButton,
   Stack,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 
 // MUI Icons.
@@ -154,11 +155,7 @@ const GroupChatModal = (props) => {
       onClose={handleGroupChatModalClose}
     >
       <DialogTitle
-        sx={{
-          fontSize: '2rem',
-          marginTop: '2rem',
-          textAlign: 'center'
-        }}
+        sx={{ marginTop: '2rem', textAlign: 'center' }}
       >
         <IconButton
           aria-label='close'
@@ -171,9 +168,22 @@ const GroupChatModal = (props) => {
         >
           <CloseIcon sx={{ fontSize: '2rem' }} />
         </IconButton>
-        Create Group Chat
+
+        <Typography sx={{ marginBottom: '2rem', fontSize: '2rem' }}>
+          Create Group Chat
+        </Typography>
+
+        {
+          addUserAlert
+          &&
+          <AlertComponent
+            handleFunction={handleCloseAddUserAlert}
+            severityType={'warning'}
+            message={'User already added.'}
+          />
+        }
       </DialogTitle>
-      
+
       <Box
         component='form'
         noValidate
@@ -223,16 +233,6 @@ const GroupChatModal = (props) => {
             value={search}
             onChange={(event) => { handleSearch(event.target.value) }}
           />
-
-          {
-            addUserAlert
-            &&
-            <AlertComponent
-              handleFunction={handleCloseAddUserAlert}
-              severityType={'warning'}
-              message={'User already added.'}
-            />
-          }
 
           <Stack
             sx={{
