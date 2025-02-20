@@ -29,6 +29,7 @@ const routes = require('./routes/api/index');
 // Set the routes.
 app.use('/api/', routes.authRoute);
 app.use('/api/', routes.chatRoute);
+app.use('/api/', routes.messageRoute);
 app.use('/api/', routes.userRoute);
 
 // Starting the server.
