@@ -6,7 +6,14 @@ const UserModel = require('../models/UserModel');
 // Fetch all messages for a specific chat.
 const fetchMessages = async (req, res) => {
   try {
-    
+    // Chat ID from request params.
+    const chatId = req.params.chatId;
+
+    const messages = await MessageModel.find({ chat: chatId })
+      .populate('chat')
+      .populate('sender', 'username email avatar');
+
+    res.status(200).json(messages);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);

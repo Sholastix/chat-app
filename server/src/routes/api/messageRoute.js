@@ -7,10 +7,10 @@ const authMdw = require('../../middleware/authMdw');
 // Functions.
 const { fetchMessages, sendMessage } = require('../../controllers/messageController');
 
-// @route: GET /api/chat/:chatId
+// @route: GET /api/chat/messages/:chatId
 // @desc: Fetch all messages for a specific chat.
 // @access: Private.
-router.get('/chat/:chatId', authMdw, fetchMessages);
+router.get('/chat/messages/:chatId', authMdw, fetchMessages);
 
 // @route: POST /api/chat/message
 // @desc: Send message.
