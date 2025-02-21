@@ -2,7 +2,9 @@ import { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Box,
+  FormControl,
   IconButton,
+  TextField,
   Typography
 } from '@mui/material';
 
@@ -33,6 +35,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const dispatch = useDispatch();
 
   // STATE.
+  const [messages, setMessages] = useState([]);
+  const [messageLoading, setMessageLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState('');
+
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
@@ -40,6 +46,28 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const resetSelectedChat = () => {
     try {
       dispatch(resetSelectedChatState());
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // Typing handler.
+  const handleTyping = (event) => {
+    try {
+      setNewMessage(event.target.value);
+
+      // Later we will add here logic for typing indication.
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // Send message.
+  const sendMessage = async (event) => {
+    try {
+      if (event.key === 'Enter' && newMessage.trim().length > 0) {
+        console.log('Message sended.');
+      };
     } catch (err) {
       console.error(err);
     };
@@ -139,16 +167,56 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               <Box
                 component='div'
                 sx={{
+                  backgroundColor: 'rgb(235, 235, 235)',
                   borderRadius: '0.5rem',
                   display: 'flex',
                   flexDirection: 'column',
                   height: '100%',
+                  justifyContent: 'flex-end',
                   overflowY: 'hidden',
                   padding: '1rem',
                   scrollbarWidth: 'thin'
                 }}
               >
-                MESSAGES
+                {
+                  messageLoading
+                    ?
+                    <Box
+                      component='div'
+                      sx={{
+                        alignItems: 'center',
+                        display: 'flex',
+                        height: '100%',
+                        justifyContent: 'center',
+                        width: '100%'
+                      }}
+                    >
+                      <Spinner />
+                    </Box>
+                    :
+                    <Box component='div'>
+                      {messages}
+                    </Box>
+                }
+
+                <FormControl>
+                  <TextField
+                    label='Type your message...'
+                    variant='outlined'
+                    slotProps={{
+                      inputLabel: { sx: { fontSize: '1.4rem' } }
+                    }}
+                    sx={{
+                      backgroundColor: 'white',
+                      '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
+                      '.MuiInputBase-input': { fontSize: '1.4rem' },
+                    }}
+                    value={newMessage}
+                    onChange={handleTyping}
+                    onKeyDown={sendMessage}
+                  >
+                  </TextField>
+                </FormControl>
               </Box>
             </Box>
           ) : (
