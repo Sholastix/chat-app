@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Box,
@@ -20,6 +20,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 // Functions.
 import { resetSelectedChatState } from '../../features/chat/chatSlice';
 import { getSender, getFullSender } from '../../helpers/chatLogic';
+import axios from 'axios';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -42,6 +43,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
+  // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
+  useEffect(() => {
+    fetchMessages();
+  }, [chatState.selectedChat]);
+
   // Reset STATE for selected chat.
   const resetSelectedChat = () => {
     try {
@@ -62,11 +68,43 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     };
   };
 
-  // Send message.
+  // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
+  const fetchMessages = async (event) => {
+    try {
+      if (!chatState.selectedChat) {
+        return;
+      };
+
+      const chatId = chatState.selectedChat._id;
+
+      setMessageLoading(true);
+
+      const { data } = await axios.get(`http://localhost:5000/api/chat/messages/${chatId}`);
+
+      console.log('FETCH_MESSAGES: ', data);
+
+      setMessages(data);
+      setMessageLoading(false);
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // Send message (maybe later we will put this logic in REDUX).
   const sendMessage = async (event) => {
     try {
       if (event.key === 'Enter' && newMessage.trim().length > 0) {
-        console.log('Message sended.');
+        const chatId = chatState.selectedChat._id;
+
+        const { data } = await axios.post('http://localhost:5000/api/chat/message', {
+          chatId: chatId,
+          messageContent: newMessage
+        });
+
+        console.log('SEND_MESSAGE: ', data);
+
+        setMessages([...messages, data]);
+        setNewMessage('');
       };
     } catch (err) {
       console.error(err);
@@ -194,9 +232,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       <Spinner />
                     </Box>
                     :
-                    <Box component='div'>
-                      {messages}
-                    </Box>
+                    messages.map((message) => (
+                      <Box
+                        component='div'
+                        key={message._id}
+                        sx={{
+                          alignSelf: 'flex-end',
+                          backgroundColor: 'rgb(200, 240, 200)',
+                          borderRadius: '1rem 1rem 0rem 1rem',
+                          fontSize: '1.6rem',
+                          marginBottom: '1rem',
+                          overflowWrap: 'break-word',
+                          padding: '1rem',
+                          maxWidth: '50%',
+                          width: 'fit-content'
+                        }}
+                      >
+                        {message.content}
+                      </Box>
+                    ))
                 }
 
                 <FormControl>
