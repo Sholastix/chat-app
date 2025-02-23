@@ -458,7 +458,6 @@ const UpdateGroupChatModal = (props) => {
           }
         </DialogContent>
 
-
         <DialogActions>
           <Button
             type='button'

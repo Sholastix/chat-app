@@ -1,12 +1,17 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 import {
   Box,
   FormControl,
   IconButton,
+  Stack,
   TextField,
   Typography
 } from '@mui/material';
+
+// Styles.
+import styles from './SingleChat.module.css';
 
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -20,7 +25,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 // Functions.
 import { resetSelectedChatState } from '../../features/chat/chatSlice';
 import { getSender, getFullSender } from '../../helpers/chatLogic';
-import axios from 'axios';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -205,15 +209,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               <Box
                 component='div'
                 sx={{
-                  backgroundColor: 'rgb(235, 235, 235)',
                   borderRadius: '0.5rem',
                   display: 'flex',
                   flexDirection: 'column',
                   height: '100%',
                   justifyContent: 'flex-end',
                   overflowY: 'hidden',
-                  padding: '1rem',
-                  scrollbarWidth: 'thin'
+                  // padding: '1rem'
                 }}
               >
                 {
@@ -232,46 +234,71 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       <Spinner />
                     </Box>
                     :
-                    messages.map((message) => (
-                      <Box
-                        component='div'
-                        key={message._id}
-                        sx={{
-                          alignSelf: 'flex-end',
-                          backgroundColor: 'rgb(200, 240, 200)',
-                          borderRadius: '1rem 1rem 0rem 1rem',
-                          fontSize: '1.6rem',
-                          marginBottom: '1rem',
-                          overflowWrap: 'break-word',
-                          padding: '1rem',
-                          maxWidth: '50%',
-                          width: 'fit-content'
-                        }}
-                      >
-                        {message.content}
-                      </Box>
-                    ))
-                }
+                    <Box
+                      component='div'
+                      sx={{
+                        borderRadius: '0.5rem',
+                        height: '100%',
+                        overflowY: 'scroll',
+                        padding: '1rem',
+                        scrollbarWidth: 'none',
+                      }}
+                    >
+                      {
+                        messages.map((message) => (
+                          // <Box
+                          //   component='div'
+                          //   key={message._id}
+                          //   sx={{
+                          //     alignSelf: 'flex-end',
+                          //     backgroundColor: 'rgb(200, 240, 200)',
+                          //     borderRadius: '1rem 1rem 0rem 1rem',
+                          //     fontSize: '1.6rem',
+                          //     marginBottom: '1rem',
+                          //     overflowWrap: 'break-word',
+                          //     padding: '1rem',
+                          //     maxWidth: '50%',
+                          //     width: 'fit-content'
+                          //   }}
+                          // >
+                          //   {message.content}
+                          // </Box>
 
-                <FormControl>
-                  <TextField
-                    label='Type your message...'
-                    variant='outlined'
-                    slotProps={{
-                      inputLabel: { sx: { fontSize: '1.4rem' } }
-                    }}
-                    sx={{
-                      backgroundColor: 'white',
-                      '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
-                      '.MuiInputBase-input': { fontSize: '1.4rem' },
-                    }}
-                    value={newMessage}
-                    onChange={handleTyping}
-                    onKeyDown={sendMessage}
-                  >
-                  </TextField>
-                </FormControl>
+                          <div
+                            key={message._id}
+                            className={styles.message}
+                          >
+                            <div
+                              className={authState.user._id === message.sender._id ? styles.messageContentMe : styles.messageContentOther}
+                            >
+                              {message.content}
+                            </div>
+                          </div>
+                        ))
+                      }
+                    </Box>
+                }
               </Box>
+
+              <FormControl>
+                <TextField
+                  label='Type your message...'
+                  variant='outlined'
+                  slotProps={{
+                    inputLabel: { sx: { fontSize: '1.4rem' } }
+                  }}
+                  sx={{
+                    backgroundColor: 'white',
+                    margin: '2rem 1rem 1rem',
+                    '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
+                    '.MuiInputBase-input': { fontSize: '1.4rem' },
+                  }}
+                  value={newMessage}
+                  onChange={handleTyping}
+                  onKeyDown={sendMessage}
+                >
+                </TextField>
+              </FormControl>
             </Box>
           ) : (
             <Box
