@@ -1,9 +1,9 @@
 import React from 'react';
-import { Alert } from '@mui/material';
+import { Alert as MuiAlert } from '@mui/material';
 
-const AlertComponent = ({ handleFunction, severityType, message }) => {
+const Alert = ({ handleFunction, severityType, message }) => {
   return (
-    <Alert
+    <MuiAlert
       onClose={handleFunction}
       severity={`${severityType}`}
       slotProps={{
@@ -16,8 +16,8 @@ const AlertComponent = ({ handleFunction, severityType, message }) => {
       }}
     >
       {`${message}`}
-    </Alert>
+    </MuiAlert>
   );
 };
 
-export default AlertComponent;
+export default Alert;

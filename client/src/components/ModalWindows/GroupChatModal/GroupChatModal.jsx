@@ -18,7 +18,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 // Components.
-import AlertComponent from '../../AlertComponent/AlertComponent';
+import Alert from '../../Alert/Alert';
 import Spinner from '../../Spinner/Spinner';
 import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
@@ -176,7 +176,7 @@ const GroupChatModal = (props) => {
         {
           addUserAlert
           &&
-          <AlertComponent
+          <Alert
             handleFunction={handleCloseAddUserAlert}
             severityType={'warning'}
             message={'User already added.'}

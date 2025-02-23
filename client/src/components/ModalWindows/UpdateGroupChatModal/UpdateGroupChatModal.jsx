@@ -18,7 +18,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 // Components.
-import AlertComponent from '../../AlertComponent/AlertComponent';
+import Alert from '../../Alert/Alert';
 import Spinner from '../../Spinner/Spinner';
 import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
@@ -279,7 +279,7 @@ const UpdateGroupChatModal = (props) => {
         {
           addUserAlert
           &&
-          <AlertComponent
+          <Alert
             handleFunction={handleCloseAddUserAlert}
             severityType={'warning'}
             message={'User already added.'}
@@ -289,7 +289,7 @@ const UpdateGroupChatModal = (props) => {
         {
           adminRightsAlert
           &&
-          <AlertComponent
+          <Alert
             handleFunction={handleCloseAdminRightsAlert}
             severityType={'error'}
             message={'Group admin rights required.'}
@@ -299,7 +299,7 @@ const UpdateGroupChatModal = (props) => {
         {
           adminSelfRemove
           &&
-          <AlertComponent
+          <Alert
             handleFunction={handleAdminSelfRemoveAlert}
             severityType={'error'}
             message={'Group admin can\'t leave the group.'}
