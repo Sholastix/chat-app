@@ -5,20 +5,17 @@ import {
   Box,
   FormControl,
   IconButton,
-  Stack,
   TextField,
   Typography
 } from '@mui/material';
-
-// Styles.
-import styles from './SingleChat.module.css';
 
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 // Components.
-import Spinner from '../Spinner/Spinner';
 import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
+import ScrollableChatWindow from '../ScrollableChatWindow/ScrollableChatWindow';
+import Spinner from '../Spinner/Spinner';
 import UpdateGroupChatModal from '../ModalWindows/UpdateGroupChatModal/UpdateGroupChatModal';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
@@ -234,49 +231,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       <Spinner />
                     </Box>
                     :
-                    <Box
-                      component='div'
-                      sx={{
-                        borderRadius: '0.5rem',
-                        height: '100%',
-                        overflowY: 'scroll',
-                        padding: '1rem',
-                        scrollbarWidth: 'none',
-                      }}
-                    >
-                      {
-                        messages.map((message) => (
-                          // <Box
-                          //   component='div'
-                          //   key={message._id}
-                          //   sx={{
-                          //     alignSelf: 'flex-end',
-                          //     backgroundColor: 'rgb(200, 240, 200)',
-                          //     borderRadius: '1rem 1rem 0rem 1rem',
-                          //     fontSize: '1.6rem',
-                          //     marginBottom: '1rem',
-                          //     overflowWrap: 'break-word',
-                          //     padding: '1rem',
-                          //     maxWidth: '50%',
-                          //     width: 'fit-content'
-                          //   }}
-                          // >
-                          //   {message.content}
-                          // </Box>
-
-                          <div
-                            key={message._id}
-                            className={styles.message}
-                          >
-                            <div
-                              className={authState.user._id === message.sender._id ? styles.messageContentMe : styles.messageContentOther}
-                            >
-                              {message.content}
-                            </div>
-                          </div>
-                        ))
-                      }
-                    </Box>
+                    <ScrollableChatWindow messages={messages} />
                 }
               </Box>
 
