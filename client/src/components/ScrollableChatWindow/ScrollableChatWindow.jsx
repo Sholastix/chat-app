@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
 
@@ -11,6 +11,31 @@ const ScrollableChatWindow = ({ messages }) => {
     return state.authReducer
   });
 
+  // const [scrollbarPosition, setScrollbarPosition] = useState(0);
+
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // // Calculate the scrollbar position in percentage.
+  // const handleScroll = (event) => {
+  //   const { scrollTop, scrollHeight, clientHeight } = event.target;
+  //   const position = Math.ceil((scrollTop / (scrollHeight - clientHeight)) * 100);
+  //   // console.log('POSITION: ', position);
+  //   setScrollbarPosition(position);
+  // };
+
+  // Auto-scrolling chat to the end.
+  const scrollToBottom = () => {
+    try {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
   return (
     <Box
       component='div'
@@ -19,29 +44,12 @@ const ScrollableChatWindow = ({ messages }) => {
         height: '100%',
         overflowY: 'scroll',
         padding: '1rem',
-        scrollbarWidth: 'none',
+        scrollbarWidth: 'thin',
       }}
+      // onScroll={handleScroll}
     >
       {
         messages.map((message) => (
-          // <Box
-          //   component='div'
-          //   key={message._id}
-          //   sx={{
-          //     alignSelf: 'flex-end',
-          //     backgroundColor: 'rgb(200, 240, 200)',
-          //     borderRadius: '1rem 1rem 0rem 1rem',
-          //     fontSize: '1.6rem',
-          //     marginBottom: '1rem',
-          //     overflowWrap: 'break-word',
-          //     padding: '1rem',
-          //     maxWidth: '50%',
-          //     width: 'fit-content'
-          //   }}
-          // >
-          //   {message.content}
-          // </Box>
-
           <div
             key={message._id}
             className={styles.message}
@@ -54,6 +62,8 @@ const ScrollableChatWindow = ({ messages }) => {
           </div>
         ))
       }
+
+      <Box component='div' ref={chatEndRef} />
     </Box>
   );
 };
