@@ -1,15 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Box } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Tooltip
+} from '@mui/material';
 
 // Styles.
 import styles from './ScrollableChatWindow.module.css';
+
+// Functions.
+import { isLastMessage, isSameSender } from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ messages }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
   });
+
+  // Current user's ID.
+  const userId = authState.user._id;
 
   // const [scrollbarPosition, setScrollbarPosition] = useState(0);
 
@@ -46,18 +56,40 @@ const ScrollableChatWindow = ({ messages }) => {
         padding: '1rem',
         scrollbarWidth: 'thin',
       }}
-      // onScroll={handleScroll}
+    // onScroll={handleScroll}
     >
       {
-        messages.map((message) => (
-          <div
-            key={message._id}
-            className={styles.message}
-          >
-            <div
-              className={authState.user._id === message.sender._id ? styles.messageContentMe : styles.messageContentOther}
-            >
-              {message.content}
+        messages.map((message, index) => (
+          <div key={message._id}>
+            <div className={styles.message}>
+
+              <div className={authState.user._id === message.sender._id ? styles.messageContentMe : styles.messageContentOther}>
+                {message.content}
+              </div>
+
+              {
+                (isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId))
+                &&
+                <Tooltip
+                  title={message.sender.username}
+                  placement='bottom-start'
+                  arrow
+                  slotProps={{
+                    tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'black', color: 'white' } },
+                    arrow: { sx: { color: 'black' } }
+                  }}
+                >
+                  <Avatar
+                    src={message.sender.avatar}
+                    sx={{
+                      cursor: 'pointer',
+                      height: '5rem',
+                      width: '5rem'
+                    }}
+                  />
+                </Tooltip>
+              }
+              
             </div>
           </div>
         ))

@@ -17,3 +17,36 @@ export const getFullSender = (loggedInUser, users) => {
     console.error(err);
   };
 };
+
+// Check if the next message is from the same sender as previous message.
+export const isSameSender = (messages, message, index, userId) => {
+  try {
+    return (
+      // Check if current message is the last message ('true' if it isn't).
+      index < messages.length - 1
+      &&
+      // Check if sender is currently logged in user (if 'true' then it's not and we rendering avatar for this message).
+      messages[index].sender._id !== userId
+      &&
+      // Check if the next message has the same sender as previous message ('true' if it isn't).
+      messages[index + 1].sender._id !== message.sender._id
+    );
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check if message is the last message in chat.
+export const isLastMessage = (messages, index, userId) => {
+  try {
+    return (
+      // Check if current message is the last message  ('true' if it is).
+      index === messages.length - 1
+      &&
+      // Check if current message's sender not the currently logged in user ('true' if it isn't).
+      messages[messages.length - 1].sender._id !== userId
+    );
+  } catch (err) {
+    console.error(err);
+  };
+};
