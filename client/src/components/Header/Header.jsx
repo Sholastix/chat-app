@@ -82,8 +82,8 @@ const Header = () => {
           title='Search user by username.'
           arrow
           slotProps={{
-            tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'white', color: 'black' } },
-            arrow: { sx: { color: 'white' } }
+            tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
+            arrow: { sx: { color: 'rgb(93, 109, 126)' } }
           }}
         >
           <Button

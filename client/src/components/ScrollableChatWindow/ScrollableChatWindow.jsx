@@ -61,11 +61,14 @@ const ScrollableChatWindow = ({ messages }) => {
       {
         messages.map((message, index) => (
           <div key={message._id}>
-            <div className={styles.message}>
+            <div
+              className={styles.message}
+              style={{ justifyContent: `${message.sender._id === userId ? 'flex-end' : 'flex-start'}` }}
+            >
 
-              <div className={authState.user._id === message.sender._id ? styles.messageContentMe : styles.messageContentOther}>
+              {/* <div className={authState.user._id === message.sender._id ? styles.messageContentMe : styles.messageContentOther}>
                 {message.content}
-              </div>
+              </div> */}
 
               {
                 (isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId))
@@ -75,21 +78,36 @@ const ScrollableChatWindow = ({ messages }) => {
                   placement='bottom-start'
                   arrow
                   slotProps={{
-                    tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'black', color: 'white' } },
-                    arrow: { sx: { color: 'black' } }
+                    tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
+                    arrow: { sx: { color: 'rgb(93, 109, 126)' } }
                   }}
                 >
                   <Avatar
                     src={message.sender.avatar}
                     sx={{
                       cursor: 'pointer',
-                      height: '5rem',
-                      width: '5rem'
+                      height: '4rem',
+                      width: '4rem'
                     }}
                   />
                 </Tooltip>
               }
-              
+
+              <span
+                style={{
+                  backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                  borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+
+                  alignContent: 'center',
+                  fontSize: '1.6rem',
+                  overflowWrap: 'break-word',
+                  padding: '1rem',
+                  width: 'fit-content',
+                  maxWidth: '50%',
+                }}
+              >
+                {message.content}
+              </span>
             </div>
           </div>
         ))
