@@ -28,8 +28,8 @@ export const isSameSender = (messages, message, index, userId) => {
       // Check if sender is currently logged in user (if 'true' then it's not and we rendering avatar for this message).
       messages[index].sender._id !== userId
       &&
-      // Check if the previous message has the same sender as the current message ('true' if it isn't).
-      messages[index - 1].sender._id !== message.sender._id
+      // Check if the previous message exists and has the same sender as the current message ('true' if it isn't).
+      messages[index - 1] !== undefined && messages[index - 1].sender._id !== message.sender._id
     );
   } catch (err) {
     console.error(err);
@@ -44,7 +44,7 @@ export const isLastMessage = (messages, index, userId) => {
       index === messages.length - 1
       &&
       // Check if current message's sender not the currently logged in user ('true' if it isn't).
-      messages[messages.length - 1].sender._id !== userId
+      messages[messages.length - 1].sender._id !== userId   
     );
   } catch (err) {
     console.error(err);

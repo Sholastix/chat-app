@@ -71,7 +71,7 @@ const ScrollableChatWindow = ({ messages }) => {
               </div> */}
 
               {
-                (isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId))
+                (isSameSender(messages, message, index, userId) || isLastMessage(messages, message, index, userId))
                 &&
                 <Tooltip
                   title={message.sender.username}
