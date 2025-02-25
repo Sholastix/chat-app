@@ -6,9 +6,6 @@ import {
   Tooltip
 } from '@mui/material';
 
-// Styles.
-import styles from './ScrollableChatWindow.module.css';
-
 // Functions.
 import { isLastMessage, isSameSender } from '../../helpers/chatLogic';
 
@@ -54,22 +51,21 @@ const ScrollableChatWindow = ({ messages }) => {
         height: '100%',
         overflowY: 'scroll',
         padding: '1rem',
-        scrollbarWidth: 'thin',
+        scrollbarWidth: 'none',
       }}
-    // onScroll={handleScroll}
+      // onScroll={handleScroll}
     >
       {
         messages.map((message, index) => (
           <div key={message._id}>
-            <div
-              className={styles.message}
-              style={{ justifyContent: `${message.sender._id === userId ? 'flex-end' : 'flex-start'}` }}
+            <Box
+              component='div'
+              sx={{
+                display: 'flex',
+                justifyContent: `${message.sender._id === userId ? 'flex-end' : 'flex-start'}`,
+                margin: '0.5rem 0rem'
+              }}
             >
-
-              {/* <div className={authState.user._id === message.sender._id ? styles.messageContentMe : styles.messageContentOther}>
-                {message.content}
-              </div> */}
-
               {
                 (isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId))
                 &&
@@ -93,12 +89,12 @@ const ScrollableChatWindow = ({ messages }) => {
                 </Tooltip>
               }
 
-              <span
-                style={{
+              <Box
+                component='span'
+                sx={{
+                  alignContent: 'center',
                   backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
                   borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-
-                  alignContent: 'center',
                   fontSize: '1.6rem',
                   overflowWrap: 'break-word',
                   padding: '1rem',
@@ -107,8 +103,8 @@ const ScrollableChatWindow = ({ messages }) => {
                 }}
               >
                 {message.content}
-              </span>
-            </div>
+              </Box>
+            </Box>
           </div>
         ))
       }
