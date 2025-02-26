@@ -53,7 +53,7 @@ const ScrollableChatWindow = ({ messages }) => {
         padding: '1rem',
         scrollbarWidth: 'none',
       }}
-      // onScroll={handleScroll}
+    // onScroll={handleScroll}
     >
       {
         messages.map((message, index) => (
@@ -96,6 +96,7 @@ const ScrollableChatWindow = ({ messages }) => {
                   backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
                   borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
                   fontSize: '1.6rem',
+                  marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '4rem'}`,
                   overflowWrap: 'break-word',
                   padding: '1rem',
                   width: 'fit-content',
