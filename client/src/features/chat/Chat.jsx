@@ -8,9 +8,6 @@ import ChatsList from '../../components/ChatsList/ChatsList';
 import Header from '../../components/Header/Header';
 import Spinner from '../../components/Spinner/Spinner';
 
-// Functions.
-// import { socket } from '../../socket/socket';
-
 const Chat = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
 
