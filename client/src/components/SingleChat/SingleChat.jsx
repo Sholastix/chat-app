@@ -1,5 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { io } from 'socket.io-client';
 import axios from 'axios';
 import {
   Box,
@@ -8,9 +9,6 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-
-// Socket.IO
-// import { socket } from '../../socket/socket';
 
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -43,9 +41,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [socket, setSocket] = useState(null);
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
+
+  // Create URL for socket connection (import URL from environment variables).
+  const URL = import.meta.env.VITE_HOST;
+  
+  // User connects to the app.
+  useEffect(() => {
+    setSocket(io(URL));
+  }, []);
 
   // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
   useEffect(() => {
