@@ -10,6 +10,9 @@ import {
   Typography
 } from '@mui/material';
 
+// Socket.IO
+import { socket } from '../../socket/socket';
+
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -46,13 +49,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
-  // Create URL for socket connection (import URL from environment variables).
-  const URL = import.meta.env.VITE_HOST;
-  
-  // User connects to the app.
-  useEffect(() => {
-    setSocket(io(URL));
-  }, []);
+  // // User connects to the app.
+  // useEffect(() => {
+    
+  // }, []);
 
   // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
   useEffect(() => {

@@ -1,7 +1,5 @@
-// import { io } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
-// const URL = import.meta.env.VITE_HOST;
+const URL = import.meta.env.VITE_HOST;
 
-// export const socket = io(URL, {
-//   // autoConnect: false
-// });
+export const socket = io(URL);
