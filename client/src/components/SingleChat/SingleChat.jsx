@@ -44,15 +44,30 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
-  const [socket, setSocket] = useState(null);
+  const [isSocketConnected, setIsSocketConnected] = useState(null);
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
-  // // User connects to the app.
-  // useEffect(() => {
-    
-  // }, []);
+  // User connects to the app.
+  useEffect(() => {
+    // // Catch-all listener for all events, useful in development process.
+    // socket.onAny((event, ...args) => {
+    //   console.log(`Event '${event}' with arguments: `, ...args);
+    // });
+
+    socket.emit('addUser', authState.user._id);
+
+    socket.on('users_online', (data) => {
+      console.log('USERS_ONLINE: ', data);
+    });
+
+    return () => {
+      // socket.offAny();
+
+      socket.off('users_online');
+    };
+  }, []);
 
   // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
   useEffect(() => {

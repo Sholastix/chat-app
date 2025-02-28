@@ -10,13 +10,51 @@ const socket = (server) => {
       }
     });
 
+    // // Create a variable to count the number of active sockets ('Set' constructor contains only unique values so no duplicates alowed).
+    // let connectionsCounter = new Set();
+
+    // Create a variable to check user's online/offline status.
+    let usersOnline = [];
+
+    // Add user to 'online users'.
+    const addUser = (userId, socketId) => {
+      // Check if user already in 'usersOnline' array. If 'YES' - skip it, if 'NO' - add it to array.
+      if (!usersOnline.some((element) => element.userId === userId)) {
+        usersOnline.push({ userId, socketId });
+      };
+    };
+
+    // Remove user from 'online users'.
+    const removeUser = (socketId) => {
+      // Delete from array ID of user which go offline.
+      usersOnline = usersOnline.filter(element => element.socketId !== socketId);
+    };
+
     // User connects to the app.
     io.on('connection', (socket) => {
       console.log(`CONNECTED: User with socketId '${socket.id}'.`);
 
+      // // Add socket to counter.
+      // connectionsCounter.add(socket.id);
+      // console.log(`Number of active sockets: ${connectionsCounter.size}\n`);
+
+      // Add user to 'online users'.
+      socket.on('addUser', (userId) => {
+        addUser(userId, socket.id);
+        io.emit('users_online', usersOnline);
+      });
+
       // User disconnects from the app.
       socket.on('disconnect', () => {
         console.log(`DISCONNECTED: User with socketId '${socket.id}'.`);
+
+        // // Remove socket from counter.
+        // connectionsCounter.delete(socket.id);
+        // console.log(`Number of active sockets: ${connectionsCounter.size}\n`);
+
+        // Remove user from 'online users'.
+        removeUser(socket.id);
+        io.emit('users_online', usersOnline);
       });
     });
   } catch (err) {
