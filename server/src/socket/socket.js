@@ -32,21 +32,27 @@ const socket = (server) => {
 
     // User connects to the app.
     io.on('connection', (socket) => {
-      console.log(`CONNECTED: User with socketId '${socket.id}'.`);
+      console.log(`SOCKET_CONNECTED: user with socketId '${socket.id}'.`);
 
       // // Add socket to counter.
       // connectionsCounter.add(socket.id);
       // console.log(`Number of active sockets: ${connectionsCounter.size}\n`);
 
       // Add user to 'online users'.
-      socket.on('addUser', (userId) => {
+      socket.on('user_add', (userId) => {
         addUser(userId, socket.id);
         io.emit('users_online', usersOnline);
       });
 
+      // Join chat room.
+      socket.on('room_join', (room) => {
+        socket.join(room);
+        console.log(`SOCKET_EVENT: user joined room '${room}'.`);
+      });
+
       // User disconnects from the app.
       socket.on('disconnect', () => {
-        console.log(`DISCONNECTED: User with socketId '${socket.id}'.`);
+        console.log(`SOCKET_DISCONNECTED: user with socketId '${socket.id}'.`);
 
         // // Remove socket from counter.
         // connectionsCounter.delete(socket.id);
