@@ -39,15 +39,22 @@ const socket = (server) => {
       // console.log(`Number of active sockets: ${connectionsCounter.size}\n`);
 
       // Add user to 'online users'.
-      socket.on('user_add', (userId) => {
-        addUser(userId, socket.id);
+      socket.on('user_add', (user) => {
+        addUser(user._id, socket.id);
         io.emit('users_online', usersOnline);
+        io.emit('connected', `User '${user.username}' with socketId '${socket.id}' connected.`);
       });
 
       // Join chat room.
+      // We need this to know if the sender and receiver in the same room. If they are - then no need to add new UI notification of unread message.
       socket.on('room_join', (room) => {
         socket.join(room);
         console.log(`SOCKET_EVENT: user joined room '${room}'.`);
+      });
+
+      // Send message to all connected clients except the sender.
+      socket.on('message_send', (data) => {
+        socket.broadcast.emit('message_received', data);
       });
 
       // User disconnects from the app.

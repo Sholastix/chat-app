@@ -1,6 +1,5 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { io } from 'socket.io-client';
 import axios from 'axios';
 import {
   Box,
@@ -45,33 +44,49 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [selectedChatCompare, setSelectedChatCompare] = useState(null);
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
   // User connects to the app.
   useEffect(() => {
-    // // Catch-all listener for all events, useful in development process.
-    // socket.onAny((event, ...args) => {
-    //   console.log(`Event '${event}' with arguments: `, ...args);
-    // });
+    socket.emit('user_add', authState.user);
 
-    socket.emit('user_add', authState.user._id);
+    socket.on('connected', (data) => {
+      setIsSocketConnected(true);
+      console.log('CONNECTED: ', data);
+    });
 
     socket.on('users_online', (data) => {
       console.log('USERS_ONLINE: ', data);
     });
 
     return () => {
-      // socket.offAny();
-
+      socket.off('connected');
       socket.off('users_online');
     };
   }, []);
 
+  useEffect(() => {
+    socket.on('message_received', (data) => {
+      if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
+        // Add new notification.
+      } else {
+        setMessages([...messages, data]);
+      };
+    });
+
+    return () => {
+      socket.off('message_received');
+    };
+  });
+
   // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
   useEffect(() => {
     fetchMessages();
+
+    setSelectedChatCompare(chatState.selectedChat);
   }, [chatState.selectedChat]);
 
   // Reset STATE for selected chat.
@@ -131,6 +146,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
         console.log('SEND_MESSAGE: ', data);
 
+        socket.emit('message_send', data);
         setMessages([...messages, data]);
         setNewMessage('');
       };
