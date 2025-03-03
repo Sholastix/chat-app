@@ -5,6 +5,10 @@ import {
   Box,
   Tooltip
 } from '@mui/material';
+import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
+
+// Assets (typing animation).
+import typingAnimation from '../../assets/animations/typing.json';
 
 // Functions.
 import { isLastMessage, isSameSender } from '../../helpers/chatLogic';
@@ -113,22 +117,18 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
       <Box
         component='div'
         ref={chatEndRef}
-        sx={{
-          backgroundColor: 'yellow',
-          height: '1.4rem',
-          margin: '1.5rem 0rem 1rem'
-        }}
+        sx={{ height: '5rem' }}
       >
         {
           isTypingIndicatorVisible
           &&
-          <Box
-            component='div'
-            sx={{
-              fontSize: '1.4rem',
-            }}
-          >
-            LOADING...
+          <Box component='div'>
+            <Lottie
+              loop={true}
+              animationData={typingAnimation}
+              play={true}
+              style={{ width: 50, height: 50 }}
+            />
           </Box>
         }
       </Box>
