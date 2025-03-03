@@ -43,11 +43,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
-  const [isSocketConnected, setIsSocketConnected] = useState(false);
-  const [selectedChatCompare, setSelectedChatCompare] = useState(null);
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
+
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [selectedChatCompare, setSelectedChatCompare] = useState(null);
+
+  const [typing, setTyping] = useState(false);
+  const [isTypingIndicatorVisible, setIsTypingIndicatorVisible] = useState(false);
 
   // User connects to the app.
   useEffect(() => {
@@ -58,12 +62,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       console.log('CONNECTED: ', data);
     });
 
+    socket.on('typing', () => setIsTypingIndicatorVisible(true));
+
+    socket.on('stop_typing', () => setIsTypingIndicatorVisible(false));
+
     socket.on('users_online', (data) => {
       console.log('USERS_ONLINE: ', data);
     });
 
     return () => {
       socket.off('connected');
+      socket.off('typing');
+      socket.off('stop_typing');
       socket.off('users_online');
     };
   }, []);
@@ -103,11 +113,37 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       setNewMessage(event.target.value);
 
-      // Later we will add here logic for typing indication.
+      // Logic for typing indication.
+      if (!isSocketConnected) {
+        return;
+      };
+
+      if (!typing) {
+        setTyping(true);
+        socket.emit('typing', chatState.selectedChat._id);
+      };
+
+      console.log('TYPING_(handleTyping): ', typing);
+
+      const timeout = 3000;
+      const lastTypingTime = new Date().getTime();
+
+      // Disable typing indicator after 3 second of user's typing inactivity.
+      setTimeout(() => {
+        const currentTime = new Date().getTime();
+        const timeDifference = currentTime - lastTypingTime;
+
+        if (timeDifference >= timeout && typing) {
+          socket.emit('stop_typing', chatState.selectedChat._id);
+          setTyping(false);
+        };
+      }, timeout);
     } catch (err) {
       console.error(err);
     };
   };
+
+  console.log('TYPING_AFTER: ', typing);
 
   // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
   const fetchMessages = async (event) => {
@@ -149,6 +185,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket.emit('message_send', data);
         setMessages([...messages, data]);
         setNewMessage('');
+
+        socket.emit('stop_typing', chatState.selectedChat._id);
+        setTyping(false);
       };
     } catch (err) {
       console.error(err);
@@ -274,12 +313,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       <Spinner />
                     </Box>
                     :
-                    <ScrollableChatWindow messages={messages} />
+                    <ScrollableChatWindow messages={messages} isTypingIndicatorVisible={isTypingIndicatorVisible} />
                 }
               </Box>
 
               <FormControl>
                 <TextField
+                  autoComplete='off'
                   label='Type your message...'
                   variant='outlined'
                   slotProps={{
@@ -287,7 +327,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   }}
                   sx={{
                     backgroundColor: 'white',
-                    margin: '2rem 1rem 1rem',
+                    margin: '0rem 1rem 1rem',
                     '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
                     '.MuiInputBase-input': { fontSize: '1.4rem' },
                   }}

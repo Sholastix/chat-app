@@ -52,6 +52,15 @@ const socket = (server) => {
         console.log(`SOCKET_EVENT: user joined room '${room}'.`);
       });
 
+      // Typing indication.
+      socket.on('typing', (room) => {
+        socket.in(room).emit('typing');
+      });
+
+      socket.on('stop_typing', (room) => {
+        socket.in(room).emit('stop_typing');
+      });
+
       // Send message to all connected clients except the sender.
       socket.on('message_send', (data) => {
         socket.broadcast.emit('message_received', data);

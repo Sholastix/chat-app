@@ -9,7 +9,7 @@ import {
 // Functions.
 import { isLastMessage, isSameSender } from '../../helpers/chatLogic';
 
-const ScrollableChatWindow = ({ messages }) => {
+const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -110,7 +110,28 @@ const ScrollableChatWindow = ({ messages }) => {
         ))
       }
 
-      <Box component='div' ref={chatEndRef} />
+      <Box
+        component='div'
+        ref={chatEndRef}
+        sx={{
+          backgroundColor: 'yellow',
+          height: '1.4rem',
+          margin: '1.5rem 0rem 1rem'
+        }}
+      >
+        {
+          isTypingIndicatorVisible
+          &&
+          <Box
+            component='div'
+            sx={{
+              fontSize: '1.4rem',
+            }}
+          >
+            LOADING...
+          </Box>
+        }
+      </Box>
     </Box>
   );
 };
