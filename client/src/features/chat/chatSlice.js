@@ -6,7 +6,8 @@ const initialState = {
   loading: false,
   error: '',
   chats: [],
-  selectedChat: null
+  selectedChat: null,
+  notifications: []
 };
 
 // Get all chats of the current user.
@@ -130,7 +131,14 @@ const chatSlice = createSlice({
       // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
       state.selectedChat = null
     },
+
+    // Set STATE for 'notifications'.
+    notifications: (state, action) => {
+      state.notifications.push(action.payload);
+      // state.notifications = [...state.notifications, action.payload];
+    },
   },
+
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
     // -------------------------------   FETCH CHATS   -------------------------------
@@ -274,5 +282,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { resetSelectedChatState } = chatSlice.actions;
+export const { resetSelectedChatState, notifications } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

@@ -2,12 +2,14 @@ import { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Divider,
   IconButton,
   ListItemIcon,
   Menu,
+  MenuList,
   MenuItem,
   Tooltip,
   Typography,
@@ -16,7 +18,7 @@ import {
 // MUI Icons.
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Logout from '@mui/icons-material/Logout';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import Settings from '@mui/icons-material/Settings';
 
@@ -34,27 +36,44 @@ const Header = () => {
     return state.authReducer
   });
 
+  const chatState = useSelector((state) => {
+    return state.chatReducer;
+  });
+
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
   // STATE.
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorUserMenu, setAnchorUserMenu] = useState(null);
+  const [anchorNotificationsMenu, setAnchorNotificationsMenu] = useState(null);
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  const openUserMenu = Boolean(anchorEl);
+  // User menu.
+  const openUserMenu = Boolean(anchorUserMenu);
 
   const handleUserMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorUserMenu(event.currentTarget);
   };
 
   const handleUserMenuClose = () => {
-    setAnchorEl(null);
+    setAnchorUserMenu(null);
   };
 
   const handleProfileModalOpen = () => {
     setIsProfileModalOpen(true);
-    setAnchorEl(null);
+    setAnchorUserMenu(null);
+  };
+
+  // Notifications menu.
+  const openNotificationsMenu = Boolean(anchorNotificationsMenu);
+
+  const handleNotificationsMenuClick = (event) => {
+    setAnchorNotificationsMenu(event.currentTarget);
+  };
+
+  const handleNotificationsMenuClose = () => {
+    setAnchorNotificationsMenu(null);
   };
 
   // Sign out user.
@@ -108,9 +127,59 @@ const Header = () => {
         </Typography>
 
         <div>
-          <IconButton aria-label='notifications'>
-            <NotificationsIcon sx={{ fontSize: '3rem' }} />
+          <IconButton
+            aria-label='notifications'
+            id='notifications-button'
+            aria-controls={openNotificationsMenu ? 'notifications-menu' : undefined}
+            aria-haspopup='true'
+            aria-expanded={openNotificationsMenu ? 'true' : undefined}
+            onClick={handleNotificationsMenuClick}
+          >
+            <Badge
+              badgeContent={chatState.notifications.length}
+              max={99}
+              color='primary'
+              sx={{
+                '& .MuiBadge-badge': {
+                  backgroundColor: 'rgb(93, 109, 126)',
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold'
+                },
+              }}
+            >
+              <NotificationsOutlinedIcon
+                sx={{
+                  color: 'black',
+                  fontSize: '3rem'
+                }}
+              />
+            </Badge>
           </IconButton>
+          <Menu
+            id='notifications-menu'
+            anchorEl={anchorNotificationsMenu}
+            open={openNotificationsMenu}
+            MenuListProps={{
+              'aria-labelledby': 'notifications-button',
+            }}
+            onClose={handleNotificationsMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+          >
+            <MenuList>
+              <MenuItem>1</MenuItem>
+              <Divider />
+              <MenuItem>2</MenuItem>
+              <Divider />
+              <MenuItem>3</MenuItem>
+            </MenuList>
+          </Menu>
 
           <Button
             id='user-menu-button'
@@ -134,7 +203,7 @@ const Header = () => {
           </Button>
           <Menu
             id='user-menu'
-            anchorEl={anchorEl}
+            anchorEl={anchorUserMenu}
             open={openUserMenu}
             MenuListProps={{
               'aria-labelledby': 'user-menu-button',
@@ -149,20 +218,22 @@ const Header = () => {
               horizontal: 'right'
             }}
           >
-            <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-              <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} /> Profile
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleUserMenuClose} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-              <ListItemIcon>
-                <Settings sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Settings
-              </ListItemIcon>
-            </MenuItem>
-            <MenuItem onClick={logOut} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-              <ListItemIcon>
-                <Logout sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Logout
-              </ListItemIcon>
-            </MenuItem>
+            <MenuList>
+              <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
+                <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} /> Profile
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleUserMenuClose} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
+                <ListItemIcon>
+                  <Settings sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Settings
+                </ListItemIcon>
+              </MenuItem>
+              <MenuItem onClick={logOut} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
+                <ListItemIcon>
+                  <Logout sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Logout
+                </ListItemIcon>
+              </MenuItem>
+            </MenuList>
           </Menu>
         </div>
       </Box>

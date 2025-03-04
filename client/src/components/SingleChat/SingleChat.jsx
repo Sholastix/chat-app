@@ -23,7 +23,7 @@ import UpdateGroupChatModal from '../ModalWindows/UpdateGroupChatModal/UpdateGro
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Functions.
-import { resetSelectedChatState } from '../../features/chat/chatSlice';
+import { notifications, resetSelectedChatState } from '../../features/chat/chatSlice';
 import { getSender, getFullSender } from '../../helpers/chatLogic';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -81,7 +81,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket.on('message_received', (data) => {
       if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
-        // Add new notification.
+        if (!chatState.notifications.includes(data)) {
+          dispatch(notifications(data));
+          setFetchAgain(!fetchAgain);
+        };
       } else {
         setMessages([...messages, data]);
       };
