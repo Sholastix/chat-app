@@ -28,7 +28,8 @@ import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
 
 // Functions.
 import { signout } from '../../features/auth/authSlice';
-import { resetSelectedChatState } from '../../features/chat/chatSlice';
+import { resetNotifications, resetSelectedChatState } from '../../features/chat/chatSlice';
+import { getSender } from '../../helpers/chatLogic';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -79,7 +80,7 @@ const Header = () => {
   // Sign out user.
   const logOut = () => {
     try {
-      dispatch(resetSelectedChatState());
+      dispatch(resetSelectedChatState(null));
       dispatch(signout());
     } catch (err) {
       console.error(err);
@@ -173,11 +174,42 @@ const Header = () => {
             }}
           >
             <MenuList>
-              <MenuItem>1</MenuItem>
-              <Divider />
-              <MenuItem>2</MenuItem>
-              <Divider />
-              <MenuItem>3</MenuItem>
+              {
+                !chatState.notifications.length
+                &&
+                <Box
+                  component='div'
+                  sx={{
+                    fontSize: '1.4rem',
+                    padding: '0rem 1rem'
+                  }}
+                >
+                  No new messages
+                </Box>
+              }
+
+              {
+                chatState.notifications.map((notification) => (
+                  <MenuItem
+                    key={notification._id}
+                    sx={{ fontSize: '1.4rem' }}
+                    onClick={() => {
+                      // Redirect to chat with new message.
+                      dispatch(resetSelectedChatState(notification.chat));
+
+                      // Clear the message from notifications menu.
+                      const updatedNotifications = chatState.notifications.filter((element) => element._id !== notification._id);
+                      dispatch(resetNotifications(updatedNotifications));
+                    }}
+                  >
+                    {
+                      notification.chat.isGroupChat
+                        ? `New message in '${notification.chat.chatName}' chat`
+                        : `New message from '${getSender(authState.user, notification.chat.users)}'`
+                    }
+                  </MenuItem>
+                ))
+              }
             </MenuList>
           </Menu>
 

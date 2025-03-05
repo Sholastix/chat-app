@@ -129,13 +129,16 @@ const chatSlice = createSlice({
     // Reset STATE for 'selected chat'.
     resetSelectedChatState: (state, action) => {
       // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
-      state.selectedChat = null
+      state.selectedChat = action.payload
     },
 
     // Set STATE for 'notifications'.
-    notifications: (state, action) => {
-      state.notifications.push(action.payload);
-      // state.notifications = [...state.notifications, action.payload];
+    resetNotifications: (state, action) => {
+      if (Array.isArray(action.payload) === false) {
+        state.notifications = [...state.notifications, action.payload];
+      } else {
+        state.notifications = action.payload;
+      };
     },
   },
 
@@ -282,5 +285,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { resetSelectedChatState, notifications } = chatSlice.actions;
+export const { resetSelectedChatState, resetNotifications } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;
