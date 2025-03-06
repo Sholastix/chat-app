@@ -173,7 +173,7 @@ const Header = () => {
               horizontal: 'right'
             }}
           >
-            <MenuList>
+            <MenuList disablePadding>
               {
                 !chatState.notifications.length
                 &&
@@ -250,7 +250,7 @@ const Header = () => {
               horizontal: 'right'
             }}
           >
-            <MenuList>
+            <MenuList disablePadding>
               <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
                 <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} /> Profile
               </MenuItem>
