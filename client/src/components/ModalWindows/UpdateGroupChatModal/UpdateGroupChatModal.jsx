@@ -101,7 +101,7 @@ const UpdateGroupChatModal = (props) => {
       if (query.length > 0) {
         setSearchLoading(true);
 
-        const { data } = await axios.get(`http://localhost:5000/api/users?search=${query}`);
+        const { data } = await axios.get(`/api/users?search=${query}`);
 
         setSearchLoading(false);
         setSearchResult(data);

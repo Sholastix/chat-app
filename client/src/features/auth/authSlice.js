@@ -22,14 +22,14 @@ export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () =
     setAuthToken();
   };
 
-  const user = await axios.get('http://localhost:5000/api/auth');
+  const user = await axios.get('/api/auth');
 
   return user.data;
 });
 
 // Signup.
 export const signup = createAsyncThunk('auth/signup', async (props) => {
-  const user = await axios.post('http://localhost:5000/api/signup', {
+  const user = await axios.post('/api/signup', {
     username: props.username,
     email: props.email,
     password: props.password,
@@ -41,7 +41,7 @@ export const signup = createAsyncThunk('auth/signup', async (props) => {
 
 // Signin.
 export const signin = createAsyncThunk('auth/signin', async (props) => {
-  const user = await axios.post('http://localhost:5000/api/signin', {
+  const user = await axios.post('/api/signin', {
     email: props.email,
     password: props.password
   });
