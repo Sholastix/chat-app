@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "main": "src/main.js",
   "scripts": {
-    "dev": "node --watch ./src/main.js"
+    "start": "node ./src/main.js",
+    "dev": "node --watch ./src/main.js",
+    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
   },
   "keywords": [],
   "author": "",
