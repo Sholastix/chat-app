@@ -18,6 +18,7 @@ const PORT = process.env.PORT;
 // Initialize the middleware.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Use the client app from distributive.
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Сross-origin resource sharing permission.
@@ -34,16 +35,13 @@ app.use('/api/', routes.chatRoute);
 app.use('/api/', routes.messageRoute);
 app.use('/api/', routes.userRoute);
 
-// -----------------   DEPLOYMENT - START   -----------------
-
+// Render client for any path.
 if (process.env.NODE_ENV === 'production') {
-  app.get('/*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
-    // res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  app.get('*', (req, res) => {
+    // res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 };
-
-// -----------------   DEPLOYMENT - END   -----------------
 
 // Starting the server.
 server.listen(PORT, () => {
