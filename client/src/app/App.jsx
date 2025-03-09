@@ -2,7 +2,7 @@ import { Fragment, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import styles from './App.module.css';
+import './App.css';
 
 import Chat from '../features/chat/Chat';
 import ErrorPage from '../components/ErrorPage/ErrorPage';
