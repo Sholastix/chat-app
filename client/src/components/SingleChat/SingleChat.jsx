@@ -324,6 +324,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <TextField
                   autoComplete='off'
                   label='Type your message...'
+                  multiline
                   variant='outlined'
                   slotProps={{
                     inputLabel: { sx: { fontSize: '1.4rem' } }
