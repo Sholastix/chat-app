@@ -7,8 +7,7 @@
     "dev": "node --watch ./src/main.js",
     "frontend-build": "cd ./client && npm install --include=dev && npm run build",
     "backend-build": "npm install",
-    "build": "npm run frontend-build && npm run backend-build",
-    "prebuild": "cd ./client && npm run build"
+    "build": "npm run frontend-build && npm run backend-build"
   },
   "keywords": [],
   "author": "",
