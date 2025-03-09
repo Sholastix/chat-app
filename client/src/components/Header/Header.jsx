@@ -25,6 +25,7 @@ import Settings from '@mui/icons-material/Settings';
 // Components.
 import LeftDrawer from '../ModalWindows/LeftDrawer/LeftDrawer';
 import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
+import SettingsModal from '../ModalWindows/SettingsModal/SettingsModal';
 
 // Functions.
 import { signout } from '../../features/auth/authSlice';
@@ -49,6 +50,7 @@ const Header = () => {
   const [anchorNotificationsMenu, setAnchorNotificationsMenu] = useState(null);
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // User menu.
   const openUserMenu = Boolean(anchorUserMenu);
@@ -63,6 +65,11 @@ const Header = () => {
 
   const handleProfileModalOpen = () => {
     setIsProfileModalOpen(true);
+    setAnchorUserMenu(null);
+  };
+
+  const handleSettingsModalOpen = () => {
+    setIsSettingsModalOpen(true);
     setAnchorUserMenu(null);
   };
 
@@ -255,7 +262,7 @@ const Header = () => {
                 <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} /> Profile
               </MenuItem>
               <Divider />
-              <MenuItem onClick={handleUserMenuClose} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
+              <MenuItem onClick={handleSettingsModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
                 <ListItemIcon>
                   <Settings sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Settings
                 </ListItemIcon>
@@ -279,6 +286,11 @@ const Header = () => {
         isProfileModalOpen={isProfileModalOpen}
         setIsProfileModalOpen={setIsProfileModalOpen}
         user={authState.user}
+      />
+
+      <SettingsModal
+        isSettingsModalOpen={isSettingsModalOpen}
+        setIsSettingsModalOpen={setIsSettingsModalOpen}
       />
     </Fragment>
   );
