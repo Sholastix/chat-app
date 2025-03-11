@@ -9,6 +9,7 @@ import ErrorPage from '../components/ErrorPage/ErrorPage';
 import ProtectedRoutes from '../components/ProtectedRoutes/ProtectedRoutes';
 import Signin from '../features/auth/signin/Signin';
 import Signup from '../features/auth/signup/Signup';
+import UserProfilePage from '../components/UserProfilePage/UserProfilePage';
 
 import { isUserSignedIn } from '../features/auth/authSlice';
 
@@ -28,6 +29,7 @@ const App = () => {
           <Route path='/' element={<Navigate replace to='/chat' />} />
           <Route element={<ProtectedRoutes />}>
             <Route path='/chat' element={<Chat />} />
+            <Route path='/profile' element={<UserProfilePage />} />
           </Route>
           <Route path='/signin' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />

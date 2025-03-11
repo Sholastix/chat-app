@@ -167,8 +167,13 @@ const Header = () => {
             id='notifications-menu'
             anchorEl={anchorNotificationsMenu}
             open={openNotificationsMenu}
-            MenuListProps={{
-              'aria-labelledby': 'notifications-button',
+            // MenuListProps={{
+            //   'aria-labelledby': 'notifications-button',
+            // }}
+            slotProps={{
+              list: {
+                'aria-labelledby': 'notifications-button'
+              }
             }}
             onClose={handleNotificationsMenuClose}
             anchorOrigin={{

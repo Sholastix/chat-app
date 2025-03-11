@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as ReactRouterLink } from 'react-router-dom';
 import {
   Avatar,
   Box,
@@ -6,6 +7,7 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
+  Link,
   Typography
 } from '@mui/material';
 
@@ -46,6 +48,7 @@ const ProfileModal = (props) => {
         >
           {props.user.username}
         </DialogTitle>
+
         <IconButton
           aria-label='close'
           onClick={handleProfileModalClose}
@@ -57,6 +60,7 @@ const ProfileModal = (props) => {
         >
           <CloseIcon sx={{ fontSize: '2rem' }} />
         </IconButton>
+
         <DialogContent>
           <Typography
             component='div'
@@ -69,20 +73,35 @@ const ProfileModal = (props) => {
               src={props.user.avatar}
               sx={{
                 height: '15rem',
-                marginBottom: '4rem',
+                marginBottom: '2rem',
                 width: '15rem'
               }}
             />
           </Typography>
+
           <Typography
             component='div'
             sx={{
               fontSize: '2rem',
+              marginBottom: '3rem',
               textAlign: 'center'
             }}
           >
-            Email: {props.user.email}
+            {props.user.email}
           </Typography>
+
+          <Link
+            component={ReactRouterLink}
+            to='/profile'
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              fontSize: '1.6rem',
+              textDecoration: 'none'
+            }}
+          >
+            Edit Profile
+          </Link>
         </DialogContent>
       </Box>
     </Dialog>
