@@ -87,6 +87,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                     sx={{
                       cursor: 'pointer',
                       height: '4rem',
+                      marginRight: '1rem',
                       width: '4rem'
                     }}
                   />
@@ -100,7 +101,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
                   borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
                   fontSize: '1.6rem',
-                  marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '4rem'}`,
+                  marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '5rem'}`,
                   overflowWrap: 'break-word',
                   padding: '1rem',
                   width: 'fit-content',
