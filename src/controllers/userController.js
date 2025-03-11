@@ -121,8 +121,26 @@ const getUsers = async (req, res) => {
   };
 };
 
+// Update user's profile.
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { picture } = req.body;
+
+    const updatedUser = await UserModel.findByIdAndUpdate(id, { avatar: picture }, { new: true })
+
+    console.log('UPDATED_USER: ', updatedUser);
+
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
+
 module.exports = {
   getUsers,
   signin,
-  signup
+  signup,
+  updateUser
 };

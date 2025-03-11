@@ -6,7 +6,7 @@ const authMdw = require('../../middleware/authMdw');
 const yupMdw = require('../../middleware/yupMdw');
 
 // Functions.
-const { signup, signin, getUsers } = require('../../controllers/userController');
+const { signup, signin, getUsers, updateUser } = require('../../controllers/userController');
 const { signupSchema, signinSchema } = require('../../validation/userValidation');
 const { checkEmail, checkUsername } = require('../../helpers/checkCredentials');
 
@@ -38,5 +38,10 @@ router.get('/user/email/:email', checkEmail);
 // @desc: Get all users (accordingly to search request) from database.
 // @access: Private.
 router.get('/users', authMdw, getUsers);
+
+// @route: PUT /api/user/:id
+// @desc: Update user's profile.
+// @access: Private.
+router.put('/user/:id', authMdw, updateUser);
 
 module.exports = router;
