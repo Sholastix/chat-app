@@ -49,6 +49,15 @@ export const signin = createAsyncThunk('auth/signin', async (props) => {
   return user.data;
 });
 
+// Update user's profile.
+export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture }) => {
+  const { data } = await axios.put(`/api/user/${id}`, {
+    picture: picture
+  });
+
+  return data;
+});
+
 // Create slice of the STORE for 'User'.
 const authSlice = createSlice({
   // Specify the name of this slice.
@@ -84,7 +93,7 @@ const authSlice = createSlice({
       state.user = action.payload,
       state.isAuthenticated = true
     });
-    
+
     builder.addCase(isUserSignedIn.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message,
@@ -94,7 +103,7 @@ const authSlice = createSlice({
       // Remove token from local storage.
       localStorage.removeItem('token')
     });
-    
+
     // -------------------------------   SIGNUP   -------------------------------
 
     builder.addCase(signup.pending, (state, action) => {
@@ -138,13 +147,30 @@ const authSlice = createSlice({
     });
 
     builder.addCase(signin.rejected, (state, action) => {
-      state.loading = false;
+      state.loading = false,
       state.error = action.error.message,
       state.user = null,
       state.isAuthenticated = false,
       state.token = null
       // Remove token from local storage.
       localStorage.removeItem('token')
+    });
+
+    // -------------------------------   UPDATE USER'S PROFILE   -------------------------------
+
+    builder.addCase(updateUser.pending, (state, action) => {
+      state.loading = true;
+    });
+
+    builder.addCase(updateUser.fulfilled, (state, action) => {
+      state.loading = false;
+      state.error = '';
+      state.user = action.payload;
+    });
+
+    builder.addCase(updateUser.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
     });
   },
 });

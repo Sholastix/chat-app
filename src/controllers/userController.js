@@ -127,9 +127,7 @@ const updateUser = async (req, res) => {
     const { id } = req.params;
     const { picture } = req.body;
 
-    const updatedUser = await UserModel.findByIdAndUpdate(id, { avatar: picture }, { new: true })
-
-    console.log('UPDATED_USER: ', updatedUser);
+    const updatedUser = await UserModel.findByIdAndUpdate(id, { avatar: picture }, { new: true });
 
     res.status(200).json(updatedUser);
   } catch (err) {
