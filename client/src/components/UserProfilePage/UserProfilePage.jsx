@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -29,9 +29,24 @@ const SettingsModal = () => {
   const navigate = useNavigate();
 
   const [picture, setPicture] = useState('');
+  const [picturePreview, setPicturePreview] = useState('');
+  // STATE for loadings.
   const [pictureLoading, setPictureLoading] = useState(false);
-  const [picturePreview, setPicturePreview] = useState(authState.user.avatar);
+  // STATE for alerts.
   const [uploadPictureAlert, setUploadPictureAlert] = useState(false);
+
+  useEffect(() => {
+    !authState.loading && getInitialValues();
+  }, [authState.user]);
+
+  // Set initial values.
+  const getInitialValues = () => {
+    try {
+      setPicturePreview(authState.user.avatar);
+    } catch (err) {
+      console.error(err);
+    };
+  };
 
   // 'Close' function for 'Alert' Component.
   const handleCloseUploadPictureAlert = (event, reason) => {
@@ -109,6 +124,17 @@ const SettingsModal = () => {
       dispatch(updateUser({ id, picture }));
 
       navigate('/chat');
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // Reset form values.
+  const resetForm = async (event) => {
+    try {
+      event.preventDefault();
+
+      getInitialValues();
     } catch (err) {
       console.error(err);
     };
@@ -193,7 +219,7 @@ const SettingsModal = () => {
                     alignSelf: 'center',
                     borderRadius: '50%',
                     height: '10rem',
-                    margin: '1rem 0rem',
+                    margin: '2rem 0rem',
                     width: '10rem'
                   }}
                 />
@@ -213,32 +239,50 @@ const SettingsModal = () => {
                   slotProps={{
                     htmlInput: { accept: 'image/png, image/jpeg, image/gif' }
                   }}
-                  sx={{
-                    color: 'black',
-                    fontSize: '1.4rem',
-                    marginBottom: '1rem'
-                  }}
+                  sx={{ marginBottom: '1rem' }}
                   onChange={(event) => { selectAvatar(event.target.files[0]) }}
                 />
               </FormControl>
 
-              <Button
-                type='submit'
-                variant='outlined'
-                sx={{
-                  borderColor: 'lightgray',
-                  color: 'black',
-                  fontSize: '1.4rem',
-                  fontWeight: '400',
-                  marginTop: '2rem',
-                  padding: '0.5rem 2rem',
-                  textTransform: 'none',
-                  ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' }
-                }}
-                loading={pictureLoading}
+              <Box
+                display='flex'
               >
-                Save
-              </Button>
+                <Button
+                  type='submit'
+                  variant='outlined'
+                  sx={{
+                    borderColor: 'lightgray',
+                    color: 'black',
+                    fontSize: '1.4rem',
+                    fontWeight: '400',
+                    margin: '2rem 0.5rem 0rem',
+                    padding: '0.5rem 2rem',
+                    textTransform: 'none',
+                    ':hover': { backgroundColor: 'rgb(10, 199, 20)', color: 'white' }
+                  }}
+                  loading={pictureLoading}
+                >
+                  Save
+                </Button>
+
+                <Button
+                  type='button'
+                  variant='outlined'
+                  sx={{
+                    borderColor: 'lightgray',
+                    color: 'black',
+                    fontSize: '1.4rem',
+                    fontWeight: '400',
+                    margin: '2rem 0.5rem 0rem',
+                    padding: '0.5rem 2rem',
+                    textTransform: 'none',
+                    ':hover': { backgroundColor: 'rgb(231, 34, 34)', color: 'white' }
+                  }}
+                  onClick={resetForm}
+                >
+                  Reset
+                </Button>
+              </Box>
             </Box>
           </Box>
       }
