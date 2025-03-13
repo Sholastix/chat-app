@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -10,12 +10,12 @@ import {
   Typography
 } from '@mui/material';
 
+// Environment variables.
+const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
 // Components.
 import Alert from '../Alert/Alert';
 import Spinner from '../Spinner/Spinner'
-
-// Environment variables.
-const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
 // Functions.
 import { updateUser } from '../../features/auth/authSlice';
@@ -25,19 +25,23 @@ const SettingsModal = () => {
     return state.authReducer
   });
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
+  // General STATE.
   const [picture, setPicture] = useState('');
   const [picturePreview, setPicturePreview] = useState('');
   const [username, setUsername] = useState('');
+
   // STATE for loadings.
   const [pictureLoading, setPictureLoading] = useState(false);
+
   // STATE for alerts.
   const [uploadPictureAlert, setUploadPictureAlert] = useState(false);
-
   const [usernameInputError, setUsernameInputError] = useState(false);
   const [usernameInputHelperText, setUsernameInputHelperText] = useState('');
+
+  // Hooks initializing.
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     !authState.loading && getInitialValues();
@@ -149,6 +153,7 @@ const SettingsModal = () => {
       event.preventDefault();
 
       getInitialValues();
+      fileInputRef.current.value = null;
     } catch (err) {
       console.error(err);
     };
@@ -249,11 +254,12 @@ const SettingsModal = () => {
                 </FormLabel>
 
                 <TextField
+                  inputRef={fileInputRef}
                   type='file'
                   slotProps={{
                     htmlInput: { accept: 'image/png, image/jpeg, image/gif' }
                   }}
-                  sx={{ marginBottom: '1rem' }}
+                  sx={{ marginBottom: '2rem' }}
                   onChange={(event) => { selectAvatar(event.target.files[0]) }}
                 />
 
