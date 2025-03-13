@@ -50,9 +50,10 @@ export const signin = createAsyncThunk('auth/signin', async (props) => {
 });
 
 // Update user's profile.
-export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture }) => {
+export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture, username }) => {
   const { data } = await axios.put(`/api/user/${id}`, {
-    picture: picture
+    picture: picture,
+    username: username
   });
 
   return data;

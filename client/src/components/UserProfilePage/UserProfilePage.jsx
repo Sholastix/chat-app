@@ -30,10 +30,14 @@ const SettingsModal = () => {
 
   const [picture, setPicture] = useState('');
   const [picturePreview, setPicturePreview] = useState('');
+  const [username, setUsername] = useState('');
   // STATE for loadings.
   const [pictureLoading, setPictureLoading] = useState(false);
   // STATE for alerts.
   const [uploadPictureAlert, setUploadPictureAlert] = useState(false);
+
+  const [usernameInputError, setUsernameInputError] = useState(false);
+  const [usernameInputHelperText, setUsernameInputHelperText] = useState('');
 
   useEffect(() => {
     !authState.loading && getInitialValues();
@@ -43,6 +47,10 @@ const SettingsModal = () => {
   const getInitialValues = () => {
     try {
       setPicturePreview(authState.user.avatar);
+      setUsername(authState.user.username);
+
+      setUsernameInputError(false);
+      setUsernameInputHelperText('');
     } catch (err) {
       console.error(err);
     };
@@ -78,16 +86,16 @@ const SettingsModal = () => {
         formData.append("cloud_name", cloudName);
 
         fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: 'post',
+          method: 'POST',
           body: formData
         })
           .then((res) => res.json())
           .then((data) => {
+            console.log('DATA: ', data.url.toString());
             setPicture(data.url.toString());
             setPicturePreview(data.url.toString());
-            console.log('DATA: ', data.url.toString());
             setPictureLoading(false);
-          })
+          });
       } else {
         setUploadPictureAlert(true);
 
@@ -119,9 +127,15 @@ const SettingsModal = () => {
         return;
       };
 
+      if (!username || username === '') {
+        setUsernameInputError(true);
+        setUsernameInputHelperText('Please enter something.');
+        return;
+      };
+
       const id = authState.user._id;
 
-      dispatch(updateUser({ id, picture }));
+      dispatch(updateUser({ id, picture, username }));
 
       navigate('/chat');
     } catch (err) {
@@ -241,6 +255,25 @@ const SettingsModal = () => {
                   }}
                   sx={{ marginBottom: '1rem' }}
                   onChange={(event) => { selectAvatar(event.target.files[0]) }}
+                />
+
+                <TextField
+                  error={usernameInputError}
+                  helperText={usernameInputHelperText}
+                  label='Username...'
+                  variant='outlined'
+                  slotProps={{
+                    inputLabel: { sx: { fontSize: '1.4rem' } }
+                  }}
+                  sx={{
+                    marginBottom: '2rem',
+                    width: '100%',
+                    '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
+                    '.MuiInputBase-input': { fontSize: '1.4rem' },
+                    '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
+                  }}
+                  value={username}
+                  onChange={(event) => { setUsername(event.target.value) }}
                 />
               </FormControl>
 

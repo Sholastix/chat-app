@@ -125,9 +125,12 @@ const getUsers = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { picture } = req.body;
+    const { picture, username } = req.body;
 
-    const updatedUser = await UserModel.findByIdAndUpdate(id, { avatar: picture }, { new: true });
+    const updatedUser = await UserModel.findByIdAndUpdate(id, { 
+      avatar: picture, 
+      username: username 
+    }, { new: true });
 
     res.status(200).json(updatedUser);
   } catch (err) {
