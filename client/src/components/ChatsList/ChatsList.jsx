@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+  Avatar,
   Box,
   Button,
   Stack,
@@ -16,7 +17,7 @@ import ListLoading from '../ListLoading/ListLoading';
 
 // Functions.
 import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
-import { getSender } from '../../helpers/chatLogic';
+import { getFullSender, getSender } from '../../helpers/chatLogic';
 
 const ChatsList = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -147,19 +148,34 @@ const ChatsList = (props) => {
                       borderRadius: '0.5rem',
                       color: 'black',
                       cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
                       marginBottom: '1rem',
-                      padding: '2rem 3rem',
+                      padding: '1rem 2rem',
                       ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
                     }}
                     onClick={() => getOneChat(chat._id)}
                   >
+                    {
+                      !chat.isGroupChat
+                        ? <Avatar
+                          src={getFullSender(authState.user, chat.users).avatar}
+                          sx={{ fontSize: '2rem', marginRight: '2rem' }}
+                        />
+                        : null
+                    }
+
                     <Typography
                       sx={{
                         fontSize: '1.4rem',
                         fontWeight: '500',
                       }}
                     >
-                      {!chat.isGroupChat ? getSender(authState.user, chat.users) : (chat.chatName)}
+                      {
+                        !chat.isGroupChat
+                          ? getSender(authState.user, chat.users)
+                          : (chat.chatName)
+                      }
                     </Typography>
                   </Box>
                 ))
