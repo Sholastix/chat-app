@@ -6,12 +6,16 @@ import {
   Button,
   FormControl,
   FormLabel,
+  IconButton,
   TextField,
   Typography
 } from '@mui/material';
 
 // Environment variables.
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
+// MUI Icons.
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 // Components.
 import Alert from '../Alert/Alert';
@@ -200,10 +204,21 @@ const SettingsModal = () => {
                 borderRadius: '0.5rem',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '3rem',
+                padding: '1rem',
                 width: '50rem'
               }}
             >
+              <IconButton
+                sx={{
+                  alignSelf: 'flex-start',
+                  display: 'flex',
+                  margin: '0.5rem 1rem'
+                }}
+                onClick={() => navigate('/chat')}
+              >
+                <ArrowBackIcon sx={{ fontSize: '3rem' }} />
+              </IconButton>
+
               <Typography
                 component='div'
                 sx={{
@@ -294,7 +309,7 @@ const SettingsModal = () => {
                     color: 'black',
                     fontSize: '1.4rem',
                     fontWeight: '400',
-                    margin: '2rem 0.5rem 0rem',
+                    margin: '2rem 0.5rem 2rem',
                     padding: '0.5rem 2rem',
                     textTransform: 'none',
                     ':hover': { backgroundColor: 'rgb(10, 199, 20)', color: 'white' }
@@ -312,7 +327,7 @@ const SettingsModal = () => {
                     color: 'black',
                     fontSize: '1.4rem',
                     fontWeight: '400',
-                    margin: '2rem 0.5rem 0rem',
+                    margin: '2rem 0.5rem 2rem',
                     padding: '0.5rem 2rem',
                     textTransform: 'none',
                     ':hover': { backgroundColor: 'rgb(231, 34, 34)', color: 'white' }
