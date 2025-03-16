@@ -52,11 +52,15 @@ export const isLastMessage = (messages, index, userId) => {
 };
 
 // Check where is the end of each users message block (we need to know this to add a larger bottom margin after the messages block).
+// Exception - last message in chat.
 export const isEndOfMessagesBlock = (messages, message, index) => {
   try {
     return (
+      // Check if current message is the last message  ('true' if it's not).
+      index !== messages.length - 1
+      &&
       // Check if the next message has the same sender as the current message ('true' if it isn't).
-      messages[index + 1].sender._id !== message.sender._id
+      messages[index + 1]?.sender._id !== message.sender._id
     );
   } catch (err) {
     console.error(err);
