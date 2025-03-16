@@ -44,7 +44,19 @@ export const isLastMessage = (messages, index, userId) => {
       index === messages.length - 1
       &&
       // Check if current message's sender not the currently logged in user ('true' if it isn't).
-      messages[messages.length - 1].sender._id !== userId   
+      messages[messages.length - 1].sender._id !== userId
+    );
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check where is the end of each users message block (we need to know this to add a larger bottom margin after the messages block).
+export const isEndOfMessagesBlock = (messages, message, index) => {
+  try {
+    return (
+      // Check if the next message has the same sender as the current message ('true' if it isn't).
+      messages[index + 1].sender._id !== message.sender._id
     );
   } catch (err) {
     console.error(err);

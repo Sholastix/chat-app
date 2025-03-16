@@ -23,7 +23,7 @@ import UpdateGroupChatModal from '../ModalWindows/UpdateGroupChatModal/UpdateGro
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Functions.
-import { resetNotifications, resetSelectedChatState } from '../../features/chat/chatSlice';
+import { resetNotifications, resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 import { getSender, getFullSender } from '../../helpers/chatLogic';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -68,6 +68,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     socket.on('users_online', (data) => {
       console.log('USERS_ONLINE: ', data);
+      dispatch(onlineUsers(data));
     });
 
     return () => {

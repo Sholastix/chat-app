@@ -7,7 +7,8 @@ const initialState = {
   error: '',
   chats: [],
   selectedChat: null,
-  notifications: []
+  notifications: [],
+  usersOnline: []
 };
 
 // Get all chats of the current user.
@@ -139,6 +140,12 @@ const chatSlice = createSlice({
       } else {
         state.notifications = action.payload;
       };
+    },
+
+    // Set STATE for 'isUserOnline'.
+    onlineUsers: (state, action) => {
+      console.log('ACTION_PAYLOAD_USERS_ONLINE: ', action.payload);
+      state.usersOnline = action.payload;
     },
   },
 
@@ -285,5 +292,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { resetSelectedChatState, resetNotifications } = chatSlice.actions;
+export const { resetSelectedChatState, resetNotifications, onlineUsers } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

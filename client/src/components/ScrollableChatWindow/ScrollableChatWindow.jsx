@@ -11,7 +11,7 @@ import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
 import typingAnimation from '../../assets/animations/typing.json';
 
 // Functions.
-import { isLastMessage, isSameSender } from '../../helpers/chatLogic';
+import { isLastMessage, isSameSender, isEndOfMessagesBlock } from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -101,6 +101,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
                   borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
                   fontSize: '1.6rem',
+                  marginBottom: `${isEndOfMessagesBlock(messages, message, index) ? '3rem' : '0rem'}`,
                   marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '5rem'}`,
                   overflowWrap: 'break-word',
                   padding: '1rem',
