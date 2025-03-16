@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   Avatar,
   Box,
@@ -15,6 +16,13 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 const ProfileModal = (props) => {
+  const authState = useSelector((state) => {
+    return state.authReducer
+  });
+
+  // This constant will be used to dispatch ACTIONS when we need it.
+  const dispatch = useDispatch();
+
   const handleProfileModalClose = () => {
     props.setIsProfileModalOpen(false);
   };
@@ -90,18 +98,23 @@ const ProfileModal = (props) => {
             {props.user.email}
           </Typography>
 
-          <Link
-            component={ReactRouterLink}
-            to='/profile'
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              fontSize: '1.6rem',
-              textDecoration: 'none'
-            }}
-          >
-            Edit Profile
-          </Link>
+          {
+            props.user._id === authState.user._id
+              ? <Link
+                component={ReactRouterLink}
+                to='/profile'
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  fontSize: '1.6rem',
+                  textDecoration: 'none'
+                }}
+              >
+                Edit Profile
+              </Link>
+              : null
+          }
+
         </DialogContent>
       </Box>
     </Dialog>
