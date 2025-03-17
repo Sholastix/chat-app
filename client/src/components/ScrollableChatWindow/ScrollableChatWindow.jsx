@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import {
   Avatar,
   Box,
+  Divider,
   Tooltip
 } from '@mui/material';
 import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
@@ -11,7 +12,12 @@ import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
 import typingAnimation from '../../assets/animations/typing.json';
 
 // Functions.
-import { isLastMessage, isSameSender, isEndOfMessagesBlock } from '../../helpers/chatLogic';
+import {
+  isEndOfMessagesBlock,
+  isLastMessage,
+  isNewDay,
+  isSameSender
+} from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -62,6 +68,26 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
       {
         messages.map((message, index) => (
           <div key={message._id}>
+            {
+              isNewDay(messages, message, index)
+              &&
+              <Divider
+                sx={{
+                  fontSize: '1.4rem',
+                  marginBottom: '3rem'
+                }}
+              >
+                {
+                  new Date(messages[index - 1]?.createdAt).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })
+                }
+              </Divider>
+            }
+
             <Box
               component='div'
               sx={{

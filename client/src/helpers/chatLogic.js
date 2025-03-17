@@ -66,3 +66,25 @@ export const isEndOfMessagesBlock = (messages, message, index) => {
     console.error(err);
   };
 };
+
+// Check if new day already started after last message in chat.
+// If true - then add a divider between group of messages from each day.
+export const isNewDay = (messages, message, index) => {
+  try {
+    let previousMessageCreatedAt = new Date(messages[index - 1]?.createdAt).toLocaleDateString();
+    let currentMessageCreatedAt = new Date(message.createdAt).toLocaleDateString();
+
+    return (
+      // Check if it is not the first message in chat ('true' if it is).
+      messages[index - 1]
+      &&
+      // Check if current message is the last message  ('true' if it's not).
+      index !== messages.length - 1
+      &&
+      // Check if current date and previous date are different ('true' if it is).
+      currentMessageCreatedAt !== previousMessageCreatedAt
+    );
+  } catch (err) {
+    console.error(err);
+  };
+};
