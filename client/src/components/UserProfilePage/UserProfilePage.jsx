@@ -11,8 +11,8 @@ import {
   Typography
 } from '@mui/material';
 
-// Environment variables.
-const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+// // Environment variables.
+// const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -91,9 +91,9 @@ const SettingsModal = () => {
         const formData = new FormData();
         formData.append('file', picture);
         formData.append('upload_preset', 'chitchat');
-        formData.append('cloud_name', cloudName);
+        formData.append('cloud_name', 'doaivcqt6');
 
-        fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        fetch(`https://api.cloudinary.com/v1_1/doaivcqt6/image/upload`, {
           method: 'POST',
           body: formData
         })
