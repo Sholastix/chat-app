@@ -93,7 +93,7 @@ const SettingsModal = () => {
         formData.append('upload_preset', 'chitchat');
         formData.append("cloud_name", cloudName);
 
-        fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        fetch(`https://api.cloudinary.com/v1_1/doaivcqt6/image/upload`, {
           method: 'POST',
           body: formData
         })
