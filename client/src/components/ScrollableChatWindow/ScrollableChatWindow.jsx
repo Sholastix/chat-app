@@ -16,7 +16,8 @@ import {
   isEndOfMessagesBlock,
   isLastMessage,
   isNewDay,
-  isSameSender
+  isSameSender,
+  isNotSameTime
 } from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
@@ -72,13 +73,10 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
               isNewDay(messages, message, index)
               &&
               <Divider
-                sx={{
-                  fontSize: '1.4rem',
-                  marginBottom: '3rem'
-                }}
+                sx={{ fontSize: '1.4rem' }}
               >
                 {
-                  new Date(messages[index - 1]?.createdAt).toLocaleDateString('en-US', {
+                  new Date(message.createdAt).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -89,6 +87,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
             }
 
             <Box
+              id='message'
               component='div'
               sx={{
                 display: 'flex',
@@ -113,7 +112,8 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                     sx={{
                       cursor: 'pointer',
                       height: '4rem',
-                      marginRight: '1rem',
+                      // marginRight: '1rem',
+                      margin: '0.5rem 1rem 0rem 0rem',
                       width: '4rem'
                     }}
                   />
@@ -121,22 +121,50 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
               }
 
               <Box
-                component='span'
+                component='div'
                 sx={{
-                  alignContent: 'center',
-                  backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                  borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                  fontSize: '1.6rem',
+                  display: 'flex',
+                  flexDirection: 'column',
                   marginBottom: `${isEndOfMessagesBlock(messages, message, index) ? '3rem' : '0rem'}`,
                   marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '5rem'}`,
-                  overflowWrap: 'break-word',
-                  padding: '1rem',
-                  width: 'fit-content',
                   maxWidth: '50%',
                 }}
               >
-                {message.content}
+                {
+                  isNotSameTime(messages, message, index)
+                  &&
+                  <Box
+                    component='span'
+                    sx={{
+                      alignSelf: `${isSameSender(messages, message, index, userId) ? 'flex-start' : 'flex-end'}`,
+                      fontSize: '1.2rem',
+                      margin: '0.5rem 0rem'
+                    }}
+                  >
+                    {new Date(message.createdAt).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })}
+                  </Box>
+                }
+
+                <Box
+                  component='span'
+                  sx={{
+                    alignContent: 'center',
+                    alignSelf: 'flex-end',
+                    backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                    borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                    fontSize: '1.6rem',
+                    // marginBottom: `${isEndOfMessagesBlock(messages, message, index) ? '3rem' : '0rem'}`,
+                    // marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '5rem'}`,
+                    overflowWrap: 'break-word',
+                    padding: '1rem',
+                    width: 'fit-content',
+                    // maxWidth: '50%',
+                  }}
+                >
+                  {message.content}
+                </Box>
               </Box>
+
             </Box>
           </div>
         ))

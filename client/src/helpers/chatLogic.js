@@ -71,8 +71,8 @@ export const isEndOfMessagesBlock = (messages, message, index) => {
 // If true - then add a divider between group of messages from each day.
 export const isNewDay = (messages, message, index) => {
   try {
-    let previousMessageCreatedAt = new Date(messages[index - 1]?.createdAt).toLocaleDateString();
-    let currentMessageCreatedAt = new Date(message.createdAt).toLocaleDateString();
+    const previousMessageCreatedAt = new Date(messages[index - 1]?.createdAt).toLocaleDateString();
+    const currentMessageCreatedAt = new Date(message.createdAt).toLocaleDateString();
 
     return (
       // Check if it is not the first message in chat ('true' if it is).
@@ -81,8 +81,25 @@ export const isNewDay = (messages, message, index) => {
       // Check if current message is the last message  ('true' if it's not).
       index !== messages.length - 1
       &&
-      // Check if current date and previous date are different ('true' if it is).
+      // Check if the creation date of the current message is different from the creation date of the previous message ('true' if it is).
       currentMessageCreatedAt !== previousMessageCreatedAt
+    );
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check if at least 1 minute passed after previous message in chat.
+export const isNotSameTime = (messages, message, index) => {
+  try {
+    const previousMessageTime = new Date(messages[index - 1]?.createdAt).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' });
+    const currentMessageTime = new Date(message.createdAt).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' });
+
+    return (
+      previousMessageTime
+      &&
+      // Check if the creation time of the current message is different from the creation time of the previous message ('true' if it is).
+      currentMessageTime !== previousMessageTime
     );
   } catch (err) {
     console.error(err);
