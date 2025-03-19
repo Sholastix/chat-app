@@ -141,6 +141,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                       margin: '0.5rem 0rem'
                     }}
                   >
+                    {isSameSender(messages, message, index, userId) && message.sender.username + ', '}
                     {new Date(message.createdAt).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })}
                   </Box>
                 }
