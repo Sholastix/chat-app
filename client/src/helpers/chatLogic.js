@@ -78,9 +78,9 @@ export const isNewDay = (messages, message, index) => {
       // Check if it is not the first message in chat ('true' if it is).
       messages[index - 1]
       &&
-      // Check if current message is the last message  ('true' if it's not).
-      index !== messages.length - 1
-      &&
+      // // Check if current message is the last message  ('true' if it's not).
+      // index !== messages.length - 1
+      // &&
       // Check if the creation date of the current message is different from the creation date of the previous message ('true' if it is).
       currentMessageCreatedAt !== previousMessageCreatedAt
     );
