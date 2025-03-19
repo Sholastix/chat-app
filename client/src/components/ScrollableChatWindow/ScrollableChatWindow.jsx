@@ -13,6 +13,7 @@ import typingAnimation from '../../assets/animations/typing.json';
 
 // Functions.
 import {
+  check,
   isEndOfMessagesBlock,
   isLastMessage,
   isNewDay,
@@ -136,7 +137,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   <Box
                     component='span'
                     sx={{
-                      alignSelf: `${isSameSender(messages, message, index, userId) ? 'flex-start' : 'flex-end'}`,
+                      alignSelf: `${check(messages, message, index, userId) ? 'flex-start' : 'flex-end'}`,
                       fontSize: '1.2rem',
                       margin: '0.5rem 0rem'
                     }}
@@ -150,16 +151,13 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   component='span'
                   sx={{
                     alignContent: 'center',
-                    alignSelf: 'flex-end',
+                    alignSelf: `${check(messages, message, index, userId) ? 'flex-start' : 'flex-end'}`,
                     backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
                     borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
                     fontSize: '1.6rem',
-                    // marginBottom: `${isEndOfMessagesBlock(messages, message, index) ? '3rem' : '0rem'}`,
-                    // marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '5rem'}`,
                     overflowWrap: 'break-word',
                     padding: '1rem',
-                    width: 'fit-content',
-                    // maxWidth: '50%',
+                    width: 'fit-content'
                   }}
                 >
                   {message.content}

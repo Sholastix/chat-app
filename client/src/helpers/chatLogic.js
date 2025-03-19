@@ -78,9 +78,6 @@ export const isNewDay = (messages, message, index) => {
       // Check if it is not the first message in chat ('true' if it is).
       messages[index - 1]
       &&
-      // // Check if current message is the last message  ('true' if it's not).
-      // index !== messages.length - 1
-      // &&
       // Check if the creation date of the current message is different from the creation date of the previous message ('true' if it is).
       currentMessageCreatedAt !== previousMessageCreatedAt
     );
@@ -100,6 +97,21 @@ export const isNotSameTime = (messages, message, index) => {
       &&
       // Check if the creation time of the current message is different from the creation time of the previous message ('true' if it is).
       currentMessageTime !== previousMessageTime
+    );
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+
+export const check = (messages, message, index, userId) => {
+  try {
+    return (
+      // Check if sender is currently logged in user (if 'true' then it's not and we rendering avatar for this message).
+      messages[index].sender._id !== userId
+      // &&
+      // // Check if the next message has the same sender as the current message ('true' if it isn't).
+      // messages[index + 1].sender._id !== message.sender._id
     );
   } catch (err) {
     console.error(err);
