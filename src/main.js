@@ -9,8 +9,13 @@ const app = express();
 const server = createServer(app);
 
 // Imports.
+const { dbMigrationAddField, dbMigrationRemoveField } = require('./config/dbMigration');
 const dbConnection = require('./config/dbConnection');
 const socket = require('./socket/socket');
+
+// DB migration functions.
+// dbMigrationAddField();
+// dbMigrationRemoveField();
 
 // Environment variables.
 const PORT = process.env.PORT;
