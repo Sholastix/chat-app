@@ -41,7 +41,6 @@ export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', asyn
     const createdChat = await axios.post('/api/chat', { userId });
 
     const isChatExists = allChats.data.find((chat) => chat._id === createdChat.data._id);
-    console.log('IS_PRIVATE_CHAT_EXISTS: ', isChatExists);
 
     // If that chat already existed in database then we don't add it to our chats list again. 
     if (isChatExists === undefined) {
@@ -65,7 +64,6 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
     const createdGroupChat = await axios.post('/api/chat/group', { chatName, users });
 
     const isChatExists = allChats.data.find((chat) => chat._id === createdGroupChat.data._id);
-    console.log('IS_GROUP_CHAT_EXISTS: ', isChatExists);
 
     // If that chat already existed in database then we don't add it to our chats list again. 
     if (isChatExists === undefined) {
@@ -107,7 +105,6 @@ export const addUserToGroupChat = createAsyncThunk('chat/addUserToGroupChat', as
 export const removeUserFromGroupChat = createAsyncThunk('chat/removeUserFromGroupChat', async ({ chatId, userId, currentUserId }) => {
   try {
     const { data } = await axios.put('/api/chat/group/remove', { chatId, userId });
-    console.log('REMOVE_USER_FROM_GROUP_CHAT: ', data);
 
     if (userId === currentUserId) {
       return null;
@@ -144,7 +141,6 @@ const chatSlice = createSlice({
 
     // Set STATE for 'isUserOnline'.
     onlineUsers: (state, action) => {
-      console.log('ACTION_PAYLOAD_USERS_ONLINE: ', action.payload);
       state.usersOnline = action.payload;
     },
   },
@@ -158,7 +154,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(fetchChats.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD_FETCH_CHATS: ', action.payload)
       state.loading = false,
       state.error = '',
       state.chats = action.payload
@@ -178,7 +173,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(fetchChat.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD_FETCH_CHAT: ', action.payload)
       state.loading = false,
       state.error = '',
       // state.chats = [...state.chats],
@@ -199,8 +193,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(createPrivateChat.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD_ALL_CHATS: ', action.payload?.allChats)
-      console.log('ACTION_PAYLOAD_CREATE_PRIVATE_CHAT: ', action.payload?.createdChat)
       state.loading = false,
       state.error = '',
       state.chats = action.payload?.allChats,
@@ -221,8 +213,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(createGroupChat.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD_ALL_CHATS: ', action.payload?.allChats)
-      console.log('ACTION_PAYLOAD_CREATE_GROUP_CHAT: ', action.payload?.createdGroupChat)
       state.loading = false,
       state.error = '',
       state.chats = action.payload?.allChats,
@@ -243,7 +233,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(renameGroupChat.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD_RENAME_GROUP_CHAT: ', action.payload)
       state.loading = false,
       state.error = '',
       state.selectedChat = action.payload
@@ -261,7 +250,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(addUserToGroupChat.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD_ADD_USER_TO_GROUP_CHAT: ', action.payload)
       state.loading = false,
       state.error = '',
       state.selectedChat = action.payload
@@ -279,7 +267,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(removeUserFromGroupChat.fulfilled, (state, action) => {
-      console.log('ACTION_PAYLOAD_REMOVE_USER_FROM_GROUP_CHAT: ', action.payload)
       state.loading = false,
       state.error = '',
       state.selectedChat = action.payload

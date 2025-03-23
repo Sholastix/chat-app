@@ -127,8 +127,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket.emit('typing', chatState.selectedChat._id);
       };
 
-      console.log('TYPING_(handleTyping): ', typing);
-
       const timeout = 3000;
       const lastTypingTime = new Date().getTime();
 
@@ -146,8 +144,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       console.error(err);
     };
   };
-
-  console.log('TYPING_AFTER: ', typing);
 
   // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
   const fetchMessages = async (event) => {

@@ -99,7 +99,7 @@ const SettingsModal = () => {
         })
           .then((res) => res.json())
           .then((data) => {
-            console.log('DATA: ', data.url.toString());
+            console.log('PICTURE_URL: ', data.url.toString());
             setPicture(data.url.toString());
             setPicturePreview(data.url.toString());
             setPictureLoading(false);

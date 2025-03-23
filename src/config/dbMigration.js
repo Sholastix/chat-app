@@ -5,7 +5,7 @@ const dbMigrationAddField = async () => {
   try {
     const result = await UserModel.find().updateMany({}, { $set: { notifications: [] } });
 
-    console.log('MIGRATION_RESULT: ', result);
+    console.log('\nMIGRATION_RESULT: ', result);
   } catch (err) {
     console.error(err);
   };
@@ -16,7 +16,7 @@ const dbMigrationRemoveField = async () => {
   try {
     const result = await UserModel.find().updateMany({}, { $unset: { notifications: [] } });
 
-    console.log('MIGRATION_RESULT: ', result);
+    console.log('\nMIGRATION_RESULT: ', result);
   } catch (err) {
     console.error(err);
   };

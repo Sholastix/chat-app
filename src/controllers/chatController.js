@@ -165,8 +165,6 @@ const renameGroupChat = async (req, res) => {
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
-    console.log('RENAMED_GROUP_CHAT: ', renameGroupChat);
-
     if (!renamedChat) {
       throw new Error('Chat not found.');
     } else {
@@ -187,8 +185,6 @@ const addToGroup = async (req, res) => {
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
-    console.log('UPDATED_CHAT_(ADD_USERS): ', updatedChat);
-
     if (!updatedChat) {
       throw new Error('Chat not found.');
     } else {
@@ -208,8 +204,6 @@ const removeFromGroup = async (req, res) => {
     const updatedChat = await ChatModel.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
-
-    console.log('UPDATED_CHAT_(REMOVE_USERS): ', updatedChat);
 
     if (!updatedChat) {
       throw new Error('Chat not found.');
