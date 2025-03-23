@@ -125,14 +125,26 @@ const getUsers = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { picture, username } = req.body;
+    const { picture, username, updNotifications } = req.body;
+    console.log('REQ_BODY: ', req.body);
 
-    const updatedUser = await UserModel.findByIdAndUpdate(id, { 
-      avatar: picture, 
-      username: username 
-    }, { new: true });
+    // If we updating picture and name from 'user profile' form (in that case 'notifications' from req.body will be 'undefined').
+    if (picture && username) {
+      const updatedUser = await UserModel.findByIdAndUpdate(id, { 
+        avatar: picture, 
+        username: username 
+      }, { new: true });
 
-    res.status(200).json(updatedUser);
+      res.status(200).json(updatedUser);
+    } else {
+      // If we updating only notifications (in that case 'picture' and 'username' from req.body will be 'undefined').
+      const updatedUser = await UserModel.findByIdAndUpdate(id, {
+        notifications: updNotifications,
+      }, { new: true });
+  
+      console.log('NOTIFICATIONS_UPDATED: ', updatedUser);
+      res.status(200).json(updatedUser);
+    };
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);

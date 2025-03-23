@@ -7,7 +7,7 @@ const initialState = {
   error: '',
   chats: [],
   selectedChat: null,
-  notifications: [],
+  // notifications: [],
   usersOnline: []
 };
 
@@ -37,9 +37,7 @@ export const fetchChat = createAsyncThunk('chat/fetchChat', async (chatId) => {
 export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', async (userId) => {
   try {
     let allChats = await axios.get('/api/chat');
-
     const createdChat = await axios.post('/api/chat', { userId });
-
     const isChatExists = allChats.data.find((chat) => chat._id === createdChat.data._id);
 
     // If that chat already existed in database then we don't add it to our chats list again. 
@@ -60,9 +58,7 @@ export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', asyn
 export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({ chatName, users }) => {
   try {
     let allChats = await axios.get('/api/chat');
-
     const createdGroupChat = await axios.post('/api/chat/group', { chatName, users });
-
     const isChatExists = allChats.data.find((chat) => chat._id === createdGroupChat.data._id);
 
     // If that chat already existed in database then we don't add it to our chats list again. 
@@ -130,14 +126,14 @@ const chatSlice = createSlice({
       state.selectedChat = action.payload
     },
 
-    // Set STATE for 'notifications'.
-    resetNotifications: (state, action) => {
-      if (Array.isArray(action.payload) === false) {
-        state.notifications = [...state.notifications, action.payload];
-      } else {
-        state.notifications = action.payload;
-      };
-    },
+    // // Set STATE for 'notifications'.
+    // resetNotifications: (state, action) => {
+    //   if (Array.isArray(action.payload) === false) {
+    //     state.notifications = [...state.notifications, action.payload];
+    //   } else {
+    //     state.notifications = action.payload;
+    //   };
+    // },
 
     // Set STATE for 'isUserOnline'.
     onlineUsers: (state, action) => {
@@ -279,5 +275,8 @@ const chatSlice = createSlice({
   },
 });
 
-export const { resetSelectedChatState, resetNotifications, onlineUsers } = chatSlice.actions;
+export const { 
+  resetSelectedChatState, 
+  // resetNotifications, 
+  onlineUsers } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

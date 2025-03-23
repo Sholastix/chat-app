@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Avatar,
@@ -28,18 +28,17 @@ import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
 import SettingsModal from '../ModalWindows/SettingsModal/SettingsModal';
 
 // Functions.
-import { signout } from '../../features/auth/authSlice';
-import { resetNotifications, resetSelectedChatState } from '../../features/chat/chatSlice';
+import { signout, updateUser } from '../../features/auth/authSlice';
+import { 
+  // resetNotifications, 
+  resetSelectedChatState 
+} from '../../features/chat/chatSlice';
 import { getSender } from '../../helpers/chatLogic';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
-  });
-
-  const chatState = useSelector((state) => {
-    return state.chatReducer;
   });
 
   // This constant will be used to dispatch ACTIONS when we need it.
@@ -51,6 +50,11 @@ const Header = () => {
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    setNotifications(authState.user.notifications);
+  }, [authState.user]);
 
   // User menu.
   const openUserMenu = Boolean(anchorUserMenu);
@@ -144,7 +148,7 @@ const Header = () => {
             onClick={handleNotificationsMenuClick}
           >
             <Badge
-              badgeContent={chatState.notifications.length}
+              badgeContent={notifications.length}
               max={99}
               color='primary'
               sx={{
@@ -187,7 +191,7 @@ const Header = () => {
           >
             <MenuList disablePadding>
               {
-                !chatState.notifications.length
+                notifications.length === 0
                 &&
                 <Box
                   component='div'
@@ -201,7 +205,7 @@ const Header = () => {
               }
 
               {
-                chatState.notifications.map((notification) => (
+                notifications.map((notification) => (
                   <MenuItem
                     key={notification._id}
                     sx={{ fontSize: '1.4rem' }}
@@ -209,9 +213,13 @@ const Header = () => {
                       // Redirect to chat with new message.
                       dispatch(resetSelectedChatState(notification.chat));
 
-                      // Clear the message from notifications menu.
-                      const updatedNotifications = chatState.notifications.filter((element) => element._id !== notification._id);
-                      dispatch(resetNotifications(updatedNotifications));
+                      const id = authState.user._id;
+                      console.log('H_ID: ', id);
+
+                      // Clear the message from notifications menu. ATTENTION!!! NOT DONE YET!!!
+                      const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
+                      console.log('H_UPD_NOTIFICATIONS: ', updNotifications);
+                      dispatch(updateUser({ id, updNotifications }));
                     }}
                   >
                     {
@@ -249,8 +257,13 @@ const Header = () => {
             id='user-menu'
             anchorEl={anchorUserMenu}
             open={openUserMenu}
-            MenuListProps={{
-              'aria-labelledby': 'user-menu-button',
+            // MenuListProps={{
+            //   'aria-labelledby': 'user-menu-button',
+            // }}
+            slotProps={{
+              list: {
+                'aria-labelledby': 'user-menu-button'
+              }
             }}
             onClose={handleUserMenuClose}
             anchorOrigin={{
