@@ -13,12 +13,11 @@ import typingAnimation from '../../assets/animations/typing.json';
 
 // Functions.
 import {
-  check,
-  isEndOfMessagesBlock,
   isLastMessage,
+  isMyMessage,
   isNewDay,
-  isSameSender,
-  isNotSameTime
+  isNotSameSender,
+  isSameTime
 } from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
@@ -72,17 +71,20 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
           <div key={message._id}>
             {
               isNewDay(messages, message, index)
-              &&
-              <Divider
-                sx={{ fontSize: '1.4rem' }}
+              && <Divider
+                sx={{ 
+                  fontSize: '1.4rem',
+                  marginTop: '2rem',
+                }}
               >
                 {
-                  new Date(message.createdAt).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })
+                  new Date(message.createdAt)
+                    .toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })
                 }
               </Divider>
             }
@@ -92,14 +94,19 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
               component='div'
               sx={{
                 display: 'flex',
-                justifyContent: `${message.sender._id === userId ? 'flex-end' : 'flex-start'}`,
+                justifyContent: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
                 margin: '0.5rem 0rem'
               }}
             >
               {
-                (isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId))
-                &&
-                <Tooltip
+                (
+                  !isLastMessage(messages, index)
+                  && !isMyMessage(messages, index, userId)
+                  && isNotSameSender(messages, message, index)
+                  ||
+                  isLastMessage(messages, index)
+                  && !isMyMessage(messages, index, userId)
+                ) && <Tooltip
                   title={message.sender.username}
                   placement='bottom-start'
                   arrow
@@ -125,28 +132,37 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  marginBottom: `${isEndOfMessagesBlock(messages, message, index) ? '3rem' : '0rem'}`,
-                  marginLeft: `${isSameSender(messages, message, index, userId) || isLastMessage(messages, index, userId) ? '0rem' : '5rem'}`,
+                  marginBottom: `${!isLastMessage(messages, index) && isNotSameSender(messages, message, index) ? '1rem' : '0rem'}`,
+                  marginLeft: `${!isLastMessage(messages, index)
+                    && !isMyMessage(messages, index, userId)
+                    && isNotSameSender(messages, message, index)
+                    ||
+                    isLastMessage(messages, index)
+                    && !isMyMessage(messages, index, userId)
+                    ? '0rem'
+                    : '5rem'}`,
                   maxWidth: '50%',
                 }}
               >
                 {
-                  isNotSameTime(messages, message, index)
-                  &&
-                  <Box
+                  !isSameTime(messages, message, index)
+                  && <Box
                     component='span'
                     sx={{
-                      alignSelf: `${check(messages, message, index, userId) ? 'flex-start' : 'flex-end'}`,
+                      alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
                       fontSize: '1.2rem',
                       margin: '0.5rem 0rem'
                     }}
                   >
                     {
-                      isSameSender(messages, message, index, userId) && message.sender.username + ', '
+                      !isMyMessage(messages, index, userId)
+                      && isNotSameSender(messages, message, index)
+                      && message.sender.username + ', '
                     }
 
                     {
-                      new Date(message.createdAt).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
+                      new Date(message.createdAt)
+                        .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
                     }
                   </Box>
                 }
@@ -155,9 +171,9 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   component='span'
                   sx={{
                     alignContent: 'center',
-                    alignSelf: `${check(messages, message, index, userId) ? 'flex-start' : 'flex-end'}`,
-                    backgroundColor: `${message.sender._id === userId ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                    borderRadius: `${message.sender._id === userId ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                    alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                    backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                    borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
                     fontSize: '1.6rem',
                     overflowWrap: 'break-word',
                     padding: '1rem',
@@ -167,7 +183,6 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   {message.content}
                 </Box>
               </Box>
-
             </Box>
           </div>
         ))
