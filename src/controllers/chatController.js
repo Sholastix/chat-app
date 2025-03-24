@@ -1,5 +1,3 @@
-const ObjectId = require('mongoose').Types.ObjectId;
-
 // Models.
 const ChatModel = require('../models/ChatModel');
 const MessageModel = require('../models/MessageModel');

@@ -1,9 +1,9 @@
 // Set our environment variables in '.env.local' instead of '.env'.
 require('dotenv').config({ path: '.env.local' });
-const cors = require('cors');
-const express = require('express');
 const { createServer } = require('node:http');
 const path = require('node:path');
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
 const server = createServer(app);

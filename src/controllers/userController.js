@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Models.
 const UserModel = require('../models/UserModel');
 
 // Register new user.
@@ -35,9 +36,7 @@ const signup = async (req, res) => {
     });
 
     // Create jsonwebtoken for user.
-    const jwtPayload = {
-      id: user._id,
-    };
+    const jwtPayload = { id: user._id };
     const jwtSecret = process.env.JWT_SECRET;
     const jwtLifespan = '10h';
 
@@ -79,9 +78,7 @@ const signin = async (req, res) => {
     };
 
     // Create jsonwebtoken for user.
-    const jwtPayload = {
-      id: user._id,
-    };
+    const jwtPayload = { id: user._id };
     const jwtSecret = process.env.JWT_SECRET;
     const jwtLifespan = '10h';
 
@@ -103,8 +100,7 @@ const signin = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const keyword = req.query.search
-      ?
-      {
+      ? {
         $or: [
           { username: { $regex: req.query.search, $options: 'i' } },
           // { email: { $regex: req.query.search, $options: 'i' } },
@@ -126,13 +122,12 @@ const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const { picture, username, updNotifications } = req.body;
-    console.log('REQ_BODY: ', req.body);
 
     // If we updating picture and name from 'user profile' form (in that case 'notifications' from req.body will be 'undefined').
     if (picture && username) {
-      const updatedUser = await UserModel.findByIdAndUpdate(id, { 
-        avatar: picture, 
-        username: username 
+      const updatedUser = await UserModel.findByIdAndUpdate(id, {
+        avatar: picture,
+        username: username
       }, { new: true });
 
       res.status(200).json(updatedUser);
@@ -141,8 +136,7 @@ const updateUser = async (req, res) => {
       const updatedUser = await UserModel.findByIdAndUpdate(id, {
         notifications: updNotifications,
       }, { new: true });
-  
-      console.log('NOTIFICATIONS_UPDATED: ', updatedUser);
+
       res.status(200).json(updatedUser);
     };
   } catch (err) {
