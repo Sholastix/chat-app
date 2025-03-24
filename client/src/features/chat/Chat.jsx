@@ -20,8 +20,7 @@ const Chat = () => {
     <Fragment>
       {
         !authState.loading && authState.user
-          ?
-          <Box
+          ? <Box
             component='div'
             sx={{ width: '100vw' }}
           >
@@ -41,8 +40,7 @@ const Chat = () => {
               <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
             </Box>
           </Box>
-          :
-          <Box
+          : <Box
             sx={{
               alignItems: 'center',
               display: 'flex',

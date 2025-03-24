@@ -29,11 +29,8 @@ import SettingsModal from '../ModalWindows/SettingsModal/SettingsModal';
 
 // Functions.
 import { signout, updateUser } from '../../features/auth/authSlice';
-import { 
-  // resetNotifications, 
-  resetSelectedChatState 
-} from '../../features/chat/chatSlice';
 import { getSender } from '../../helpers/chatLogic';
+import { resetSelectedChatState } from '../../features/chat/chatSlice';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -59,33 +56,63 @@ const Header = () => {
   // User menu.
   const openUserMenu = Boolean(anchorUserMenu);
 
+  // Open user menu.
   const handleUserMenuClick = (event) => {
-    setAnchorUserMenu(event.currentTarget);
+    try {
+      setAnchorUserMenu(event.currentTarget);
+    } catch (error) {
+      console.error(err);
+    };
   };
 
+  // Close user menu.
   const handleUserMenuClose = () => {
-    setAnchorUserMenu(null);
+    try {
+      setAnchorUserMenu(null);
+    } catch (error) {
+      console.error(err);
+    };
   };
 
+  // Open user's profile modal window in user's menu.
   const handleProfileModalOpen = () => {
-    setIsProfileModalOpen(true);
-    setAnchorUserMenu(null);
+    try {
+      setIsProfileModalOpen(true);
+      setAnchorUserMenu(null);
+    } catch (error) {
+      console.error(err);
+    };
   };
 
+  // Open user's settings modal window in user's menu.
   const handleSettingsModalOpen = () => {
-    setIsSettingsModalOpen(true);
-    setAnchorUserMenu(null);
+    try {
+      setIsSettingsModalOpen(true);
+      setAnchorUserMenu(null);
+    } catch (error) {
+      console.error(err);
+    };
   };
 
   // Notifications menu.
   const openNotificationsMenu = Boolean(anchorNotificationsMenu);
 
+  // Notifications list open.
   const handleNotificationsMenuClick = (event) => {
-    setAnchorNotificationsMenu(event.currentTarget);
+    try {
+      setAnchorNotificationsMenu(event.currentTarget);
+    } catch (error) {
+      console.error(err);
+    };
   };
 
+  // Notifications list close.
   const handleNotificationsMenuClose = () => {
-    setAnchorNotificationsMenu(null);
+    try {
+      setAnchorNotificationsMenu(null);
+    } catch (error) {
+      console.error(err);
+    };
   };
 
   // Sign out user.
@@ -167,13 +194,11 @@ const Header = () => {
               />
             </Badge>
           </IconButton>
+
           <Menu
             id='notifications-menu'
             anchorEl={anchorNotificationsMenu}
             open={openNotificationsMenu}
-            // MenuListProps={{
-            //   'aria-labelledby': 'notifications-button',
-            // }}
             slotProps={{
               list: {
                 'aria-labelledby': 'notifications-button'
@@ -214,11 +239,9 @@ const Header = () => {
                       dispatch(resetSelectedChatState(notification.chat));
 
                       const id = authState.user._id;
-                      console.log('H_ID: ', id);
 
                       // Clear the message from notifications menu. ATTENTION!!! NOT DONE YET!!!
                       const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
-                      console.log('H_UPD_NOTIFICATIONS: ', updNotifications);
                       dispatch(updateUser({ id, updNotifications }));
                     }}
                   >
@@ -257,9 +280,6 @@ const Header = () => {
             id='user-menu'
             anchorEl={anchorUserMenu}
             open={openUserMenu}
-            // MenuListProps={{
-            //   'aria-labelledby': 'user-menu-button',
-            // }}
             slotProps={{
               list: {
                 'aria-labelledby': 'user-menu-button'

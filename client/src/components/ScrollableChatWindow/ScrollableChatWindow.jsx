@@ -113,7 +113,6 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                     sx={{
                       cursor: 'pointer',
                       height: '4rem',
-                      // marginRight: '1rem',
                       margin: '0.5rem 1rem 0rem 0rem',
                       width: '4rem'
                     }}
@@ -142,8 +141,13 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                       margin: '0.5rem 0rem'
                     }}
                   >
-                    {isSameSender(messages, message, index, userId) && message.sender.username + ', '}
-                    {new Date(message.createdAt).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })}
+                    {
+                      isSameSender(messages, message, index, userId) && message.sender.username + ', '
+                    }
+
+                    {
+                      new Date(message.createdAt).toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
+                    }
                   </Box>
                 }
 

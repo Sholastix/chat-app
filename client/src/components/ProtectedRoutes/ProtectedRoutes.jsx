@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
 import { useSelector, useDispatch } from 'react-redux';
 
+// Functions.
 import { isUserSignedIn } from '../../features/auth/authSlice';
 
 // 'children' is the component (route's element), which wrapped by 'ProtectedRoute'.

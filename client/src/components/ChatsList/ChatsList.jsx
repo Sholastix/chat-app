@@ -16,8 +16,8 @@ import GroupChatModal from '../ModalWindows/GroupChatModal/GroupChatModal';
 import ListLoading from '../ListLoading/ListLoading';
 
 // Functions.
-import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
 import { getFullSender, getSender } from '../../helpers/chatLogic';
+import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
 
 const ChatsList = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -29,14 +29,23 @@ const ChatsList = (props) => {
     return state.chatReducer;
   });
 
-  // STATE.
-  const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
-
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
+  // STATE.
+  const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
+
+  useEffect(() => {
+    getAllChats();
+  }, [props.fetchAgain]);
+
+  // Open group chat's modal window.
   const handleGroupChatModalOpen = () => {
-    setIsGroupChatModalOpen(true);
+    try {
+      setIsGroupChatModalOpen(true);
+    } catch (error) {
+      console.error(err);
+    };
   };
 
   // Get all chats of the current user from DB.
@@ -56,10 +65,6 @@ const ChatsList = (props) => {
       console.error(err);
     };
   };
-
-  useEffect(() => {
-    getAllChats();
-  }, [props.fetchAgain]);
 
   return (
     <Box
@@ -131,8 +136,7 @@ const ChatsList = (props) => {
       >
         {
           chatState.chats
-            ?
-            <Stack
+            ? <Stack
               sx={{
                 width: '100%'
               }}
@@ -172,17 +176,14 @@ const ChatsList = (props) => {
                       }}
                     >
                       {
-                        !chat.isGroupChat
-                          ? getSender(authState.user, chat.users)
-                          : (chat.chatName)
+                        !chat.isGroupChat ? getSender(authState.user, chat.users) : (chat.chatName)
                       }
                     </Typography>
                   </Box>
                 ))
               }
             </Stack>
-            :
-            <ListLoading />
+            : <ListLoading />
         }
       </Box>
 

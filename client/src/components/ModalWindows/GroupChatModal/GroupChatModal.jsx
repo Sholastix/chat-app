@@ -254,8 +254,7 @@ const GroupChatModal = (props) => {
 
           {
             searchLoading
-              ?
-              <Box
+              ? <Box
                 component='div'
                 sx={{
                   display: 'flex',
@@ -268,8 +267,7 @@ const GroupChatModal = (props) => {
               >
                 <Spinner />
               </Box>
-              :
-              <Stack
+              : <Stack
                 sx={{
                   minHeight: 'auto',
                   maxHeight: '20rem',

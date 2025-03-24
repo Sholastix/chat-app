@@ -24,11 +24,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Functions.
 import { updateUser } from '../../features/auth/authSlice';
-import { 
-  // resetNotifications, 
-  resetSelectedChatState, 
-  onlineUsers } from '../../features/chat/chatSlice';
 import { getSender, getFullSender } from '../../helpers/chatLogic';
+import { resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -44,18 +41,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const dispatch = useDispatch();
 
   // STATE.
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [isTypingIndicatorVisible, setIsTypingIndicatorVisible] = useState(false);
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [selectedChatCompare, setSelectedChatCompare] = useState(null);
+  const [typing, setTyping] = useState(false);
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
-
-  const [isSocketConnected, setIsSocketConnected] = useState(false);
-  const [selectedChatCompare, setSelectedChatCompare] = useState(null);
-
-  const [typing, setTyping] = useState(false);
-  const [isTypingIndicatorVisible, setIsTypingIndicatorVisible] = useState(false);
 
   // User connects to the app.
   useEffect(() => {
@@ -92,8 +87,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           const newNotification = data;
           const updNotifications = [...notifications, newNotification];
 
-          console.log('SC_UPD_NOTIFICATIONS: ', updNotifications);
-
           dispatch(updateUser({ id, updNotifications }));
           setFetchAgain(!fetchAgain);
         };
@@ -110,7 +103,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
   useEffect(() => {
     fetchMessages();
-
     setSelectedChatCompare(chatState.selectedChat);
   }, [chatState.selectedChat]);
 
@@ -164,11 +156,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       };
 
       const chatId = chatState.selectedChat._id;
-
       setMessageLoading(true);
 
       const { data } = await axios.get(`/api/chat/messages/${chatId}`);
-
       console.log('FETCH_MESSAGES: ', data);
 
       setMessages(data);
@@ -209,8 +199,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     <Fragment>
       {
         chatState.loading
-          ?
-          <Box
+          ? <Box
             component='div'
             sx={{
               alignItems: 'center',
@@ -222,9 +211,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           >
             <Spinner />
           </Box>
-          :
-          chatState.selectedChat ? (
-            <Box
+          : chatState.selectedChat
+            ? (<Box
               component='div'
               sx={{
                 display: 'flex',
@@ -258,34 +246,36 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
                 {
                   !chatState.selectedChat.isGroupChat
-                    ?
-                    <Fragment>
+                    ? <Fragment>
                       {
                         getSender(authState.user, chatState.selectedChat.users)
                       }
+
                       <IconButton
                         sx={{ marginLeft: '1rem' }}
                         onClick={() => { setIsProfileModalOpen(true) }}
                       >
                         <VisibilityIcon sx={{ fontSize: '2rem' }} />
                       </IconButton>
+
                       <ProfileModal
                         isProfileModalOpen={isProfileModalOpen}
                         setIsProfileModalOpen={setIsProfileModalOpen}
                         user={getFullSender(authState.user, chatState.selectedChat.users)}
                       />
                     </Fragment>
-                    :
-                    <Fragment>
+                    : <Fragment>
                       {
                         chatState.selectedChat.chatName
                       }
+
                       <IconButton
                         sx={{ marginLeft: '1rem' }}
                         onClick={() => { setIsUpdateGroupChatModalOpen(true) }}
                       >
                         <VisibilityIcon sx={{ fontSize: '2rem' }} />
                       </IconButton>
+
                       <UpdateGroupChatModal
                         isUpdateGroupChatModalOpen={isUpdateGroupChatModalOpen}
                         setIsUpdateGroupChatModalOpen={setIsUpdateGroupChatModalOpen}
@@ -304,14 +294,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   flexDirection: 'column',
                   height: '100%',
                   justifyContent: 'flex-end',
-                  overflowY: 'hidden',
-                  // padding: '1rem'
+                  overflowY: 'hidden'
                 }}
               >
                 {
                   messageLoading
-                    ?
-                    <Box
+                    ? <Box
                       component='div'
                       sx={{
                         alignItems: 'center',
@@ -323,8 +311,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     >
                       <Spinner />
                     </Box>
-                    :
-                    <ScrollableChatWindow messages={messages} isTypingIndicatorVisible={isTypingIndicatorVisible} />
+                    : <ScrollableChatWindow messages={messages} isTypingIndicatorVisible={isTypingIndicatorVisible} />
                 }
               </Box>
 
@@ -350,24 +337,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 </TextField>
               </FormControl>
             </Box>
-          ) : (
-            <Box
-              sx={{
-                alignItems: 'center',
-                display: 'flex',
-                height: '100%',
-                justifyContent: 'center',
-                width: '100%'
-              }}>
-              <Typography
+            ) : (
+              <Box
                 sx={{
-                  fontSize: '3rem',
-                }}
-              >
-                Please select collocutor from chats list.
-              </Typography>
-            </Box>
-          )
+                  alignItems: 'center',
+                  display: 'flex',
+                  height: '100%',
+                  justifyContent: 'center',
+                  width: '100%'
+                }}>
+                <Typography
+                  sx={{
+                    fontSize: '3rem',
+                  }}
+                >
+                  Please select collocutor from chats list.
+                </Typography>
+              </Box>
+            )
       }
     </Fragment>
   );

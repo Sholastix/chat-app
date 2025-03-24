@@ -12,7 +12,11 @@ import CloseIcon from '@mui/icons-material/Close';
 const SettingsModal = (props) => {
   // Close 'Settings' modal window.
   const handleSettingsModalClose = () => {
-    props.setIsSettingsModalOpen(false);
+    try {
+      props.setIsSettingsModalOpen(false);
+    } catch (err) {
+      console.log(err);
+    };
   };
 
   return (

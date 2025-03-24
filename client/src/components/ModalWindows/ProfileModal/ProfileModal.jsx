@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
   Avatar,
   Box,
@@ -20,11 +20,13 @@ const ProfileModal = (props) => {
     return state.authReducer
   });
 
-  // This constant will be used to dispatch ACTIONS when we need it.
-  const dispatch = useDispatch();
-
+  // Close profile modal window.
   const handleProfileModalClose = () => {
-    props.setIsProfileModalOpen(false);
+    try {
+      props.setIsProfileModalOpen(false);
+    } catch (err) {
+      console.error(err);
+    };
   };
 
   return (

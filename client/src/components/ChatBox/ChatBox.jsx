@@ -1,12 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-
 import { Box } from '@mui/material';
 
 // Components.
 import SingleChat from '../SingleChat/SingleChat';
 
 const ChatBox = (props) => {
+  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const chatState = useSelector((state) => {
     return state.chatReducer;
   });

@@ -168,10 +168,8 @@ const LeftDrawer = (props) => {
 
         {
           searchLoading
-            ?
-            <ListLoading />
-            :
-            searchResult?.map((user) => (
+            ? <ListLoading />
+            : searchResult?.map((user) => (
               <UserListItem
                 key={user._id}
                 user={user}
@@ -181,7 +179,8 @@ const LeftDrawer = (props) => {
         }
 
         {
-          chatState.loading &&
+          chatState.loading 
+          &&
           <Box
             component='div'
             sx={{

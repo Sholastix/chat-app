@@ -29,22 +29,20 @@ const SettingsModal = () => {
     return state.authReducer
   });
 
-  // General STATE.
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // STATE.
   const [picture, setPicture] = useState('');
+  const [pictureLoading, setPictureLoading] = useState(false);
   const [picturePreview, setPicturePreview] = useState('');
   const [username, setUsername] = useState('');
-
-  // STATE for loadings.
-  const [pictureLoading, setPictureLoading] = useState(false);
 
   // STATE for alerts.
   const [uploadPictureAlert, setUploadPictureAlert] = useState(false);
   const [usernameInputError, setUsernameInputError] = useState(false);
   const [usernameInputHelperText, setUsernameInputHelperText] = useState('');
 
-  // Hooks initializing.
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -144,7 +142,6 @@ const SettingsModal = () => {
       const id = authState.user._id;
 
       dispatch(updateUser({ id, picture, username }));
-
       navigate('/chat');
     } catch (err) {
       console.error(err);
@@ -167,8 +164,7 @@ const SettingsModal = () => {
     <Fragment>
       {
         authState.loading
-          ?
-          <Box
+          ? <Box
             component='div'
             sx={{
               alignItems: 'center',
@@ -180,8 +176,7 @@ const SettingsModal = () => {
           >
             <Spinner />
           </Box>
-          :
-          <Box
+          : <Box
             component='form'
             autoComplete='off'
             noValidate

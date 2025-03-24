@@ -24,11 +24,7 @@ import UserBadgeItem from '../../UserBadgeItem/UserBadgeItem';
 import UserListItem from '../../UserListItem/UserListItem';
 
 // Functions.
-import {
-  addUserToGroupChat,
-  removeUserFromGroupChat,
-  renameGroupChat
-} from '../../../features/chat/chatSlice';
+import { addUserToGroupChat, removeUserFromGroupChat, renameGroupChat } from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -346,38 +342,34 @@ const UpdateGroupChatModal = (props) => {
 
             {
               chatState.loading
-                ?
-                (
-                  <Box
-                    component='div'
-                    sx={{
-                      height: '5.3rem',
-                      margin: '0rem 0rem 2rem 0.5rem',
-                      padding: '0rem 1.6rem'
-                    }}
-                  >
-                    <Spinner />
-                  </Box>
-                ) : (
-                  <Button
-                    type='submit'
-                    variant='outlined'
-                    sx={{
-                      borderColor: 'lightgray',
-                      color: 'black',
-                      fontSize: '1.4rem',
-                      fontWeight: '400',
-                      height: '5.3rem',
-                      margin: '0rem 0rem 2rem 0.5rem',
-                      padding: '0.5rem 2rem',
-                      textTransform: 'none',
-                      ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
-                    }}
-                    onClick={handleRenameGroupChat}
-                  >
-                    Rename
-                  </Button>
-                )
+                ? <Box
+                  component='div'
+                  sx={{
+                    height: '5.3rem',
+                    margin: '0rem 0rem 2rem 0.5rem',
+                    padding: '0rem 1.6rem'
+                  }}
+                >
+                  <Spinner />
+                </Box>
+                : <Button
+                  type='submit'
+                  variant='outlined'
+                  sx={{
+                    borderColor: 'lightgray',
+                    color: 'black',
+                    fontSize: '1.4rem',
+                    fontWeight: '400',
+                    height: '5.3rem',
+                    margin: '0rem 0rem 2rem 0.5rem',
+                    padding: '0.5rem 2rem',
+                    textTransform: 'none',
+                    ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
+                  }}
+                  onClick={handleRenameGroupChat}
+                >
+                  Rename
+                </Button>
             }
           </Box>
 
@@ -418,8 +410,7 @@ const UpdateGroupChatModal = (props) => {
 
           {
             searchLoading
-              ?
-              <Box
+              ? <Box
                 component='div'
                 sx={{
                   display: 'flex',
@@ -432,8 +423,7 @@ const UpdateGroupChatModal = (props) => {
               >
                 <Spinner />
               </Box>
-              :
-              <Box
+              : <Box
                 component='div'
                 sx={{
                   minHeight: 'auto',
