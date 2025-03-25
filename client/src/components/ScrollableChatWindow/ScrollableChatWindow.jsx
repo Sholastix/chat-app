@@ -8,8 +8,11 @@ import {
 } from '@mui/material';
 import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
 
-// Assets (typing animation).
+// Assets.
 import typingAnimation from '../../assets/animations/typing.json';
+
+// Components.
+import ScrollToBottomButton from '../ScrollToBottomButton/ScrollToBottomButton';
 
 // Functions.
 import {
@@ -29,7 +32,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
   // Current user's ID.
   const userId = authState.user._id;
 
-  // const [scrollbarPosition, setScrollbarPosition] = useState(0);
+  const [scrollbarPosition, setScrollbarPosition] = useState(0);
 
   const chatEndRef = useRef(null);
 
@@ -37,13 +40,12 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
     scrollToBottom();
   }, [messages]);
 
-  // // Calculate the scrollbar position in percentage.
-  // const handleScroll = (event) => {
-  //   const { scrollTop, scrollHeight, clientHeight } = event.target;
-  //   const position = Math.ceil((scrollTop / (scrollHeight - clientHeight)) * 100);
-  //   // console.log('POSITION: ', position);
-  //   setScrollbarPosition(position);
-  // };
+  // Calculate the scrollbar position in percentage.
+  const handleScroll = (event) => {
+    const { scrollTop, scrollHeight, clientHeight } = event.target;
+    const position = Math.ceil((scrollTop / (scrollHeight - clientHeight)) * 100);
+    setScrollbarPosition(position);
+  };
 
   // Auto-scrolling chat to the end.
   const scrollToBottom = () => {
@@ -64,15 +66,16 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
         padding: '1rem',
         scrollbarWidth: 'none',
       }}
-    // onScroll={handleScroll}
+      onScroll={handleScroll}
     >
       {
         messages.map((message, index) => (
           <div key={message._id}>
             {
               isNewDay(messages, message, index)
-              && <Divider
-                sx={{ 
+              &&
+              <Divider
+                sx={{
                   fontSize: '1.4rem',
                   marginTop: '2rem',
                 }}
@@ -106,7 +109,9 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   ||
                   isLastMessage(messages, index)
                   && !isMyMessage(messages, index, userId)
-                ) && <Tooltip
+                )
+                &&
+                <Tooltip
                   title={message.sender.username}
                   placement='bottom-start'
                   arrow
@@ -146,7 +151,8 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
               >
                 {
                   !isSameTime(messages, message, index)
-                  && <Box
+                  &&
+                  <Box
                     component='span'
                     sx={{
                       alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
@@ -206,6 +212,8 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
           </Box>
         }
       </Box>
+
+      <ScrollToBottomButton scrollbarPosition={scrollbarPosition} scrollToBottom={scrollToBottom} />
     </Box>
   );
 };
