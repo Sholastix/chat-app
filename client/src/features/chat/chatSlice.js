@@ -7,7 +7,6 @@ const initialState = {
   error: '',
   chats: [],
   selectedChat: null,
-  // notifications: [],
   usersOnline: []
 };
 
@@ -126,15 +125,6 @@ const chatSlice = createSlice({
       state.selectedChat = action.payload
     },
 
-    // // Set STATE for 'notifications'.
-    // resetNotifications: (state, action) => {
-    //   if (Array.isArray(action.payload) === false) {
-    //     state.notifications = [...state.notifications, action.payload];
-    //   } else {
-    //     state.notifications = action.payload;
-    //   };
-    // },
-
     // Set STATE for 'isUserOnline'.
     onlineUsers: (state, action) => {
       state.usersOnline = action.payload;
@@ -171,14 +161,12 @@ const chatSlice = createSlice({
     builder.addCase(fetchChat.fulfilled, (state, action) => {
       state.loading = false,
       state.error = '',
-      // state.chats = [...state.chats],
       state.selectedChat = action.payload
     });
 
     builder.addCase(fetchChat.rejected, (state, action) => {
       state.loading = false,
       state.error = action.error.message,
-      // state.chats = [...state.chats],
       state.selectedChat = null
     });
 
@@ -198,7 +186,6 @@ const chatSlice = createSlice({
     builder.addCase(createPrivateChat.rejected, (state, action) => {
       state.loading = false,
       state.error = action.error.message,
-      // state.chats = [...state.chats],
       state.selectedChat = null
     });
 
@@ -218,7 +205,6 @@ const chatSlice = createSlice({
     builder.addCase(createGroupChat.rejected, (state, action) => {
       state.loading = false,
       state.error = action.error.message,
-      // state.chats = [...state.chats],
       state.selectedChat = null
     });
 

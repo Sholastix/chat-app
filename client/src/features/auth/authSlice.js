@@ -51,9 +51,6 @@ export const signin = createAsyncThunk('auth/signin', async (props) => {
 
 // Update user's profile.
 export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture, username, updNotifications }) => {
-  console.log('PROPS_CURRENT_USER_ID: ', id);
-  console.log('NOTIFICATIONS_UPDATE: ', updNotifications);
-
   // If we updating picture and name from 'user profile' form.
   if (picture && username) {
     const { data } = await axios.put(`/api/user/${id}`, {
@@ -68,7 +65,6 @@ export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, pictu
       updNotifications: updNotifications
     });
   
-    console.log('NOTIFICATIONS_UPDATED: ', data);
     return data;
   }
 });
@@ -178,7 +174,6 @@ const authSlice = createSlice({
     });
 
     builder.addCase(updateUser.fulfilled, (state, action) => {
-      console.log('UPDATE_USER_ACTION_PAYLOAD');
       state.loading = false;
       state.error = '';
       state.user = action.payload;
