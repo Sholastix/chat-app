@@ -50,7 +50,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
   // Auto-scrolling chat to the end.
   const scrollToBottom = () => {
     try {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      chatEndRef.current?.scrollIntoView({ behavior: 'instant' });
     } catch (err) {
       console.error(err);
     };
@@ -64,7 +64,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
         height: '100%',
         overflowY: 'scroll',
         padding: '1rem',
-        scrollbarWidth: 'none',
+        scrollbarWidth: 'thin',
       }}
       onScroll={handleScroll}
     >
