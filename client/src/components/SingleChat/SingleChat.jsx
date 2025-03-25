@@ -12,6 +12,9 @@ import {
 // Socket.IO
 import { socket } from '../../socket/socket';
 
+// Assets.
+import messageSound from '../../assets/sounds/messageSound.mp3';
+
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -80,6 +83,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket.on('message_received', (data) => {
+      // Incoming message will have pop-up sound (only if the chat window is unfocused).
+      !document.hasFocus() && messageNotificationSound();
+
       if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
         if (!authState.user.notifications.includes(data)) {
           const id = authState.user._id;
@@ -190,6 +196,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket.emit('stop_typing', chatState.selectedChat._id);
         setTyping(false);
       };
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // This part for 'pop-up message sound' functionality.
+  const messageNotificationSound = () => {
+    try {
+      const sound = new Audio(messageSound);
+
+      // Here we lowering initial sound's volume to 50% of it's initial value.
+      sound.volume = 0.5;
+      sound.play();
     } catch (err) {
       console.error(err);
     };

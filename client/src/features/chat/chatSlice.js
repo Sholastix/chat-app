@@ -261,8 +261,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { 
-  resetSelectedChatState, 
-  // resetNotifications, 
-  onlineUsers } = chatSlice.actions;
+export const { resetSelectedChatState, onlineUsers } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;
