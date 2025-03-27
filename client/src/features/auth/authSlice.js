@@ -22,14 +22,14 @@ export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () =
     setAuthToken();
   };
 
-  const user = await axios.get('/api/auth');
+  const user = await axios.get('http://localhost:5000/api/auth');
 
   return user.data;
 });
 
 // Signup.
 export const signup = createAsyncThunk('auth/signup', async (props) => {
-  const user = await axios.post('/api/signup', {
+  const user = await axios.post('http://localhost:5000/api/signup', {
     username: props.username,
     email: props.email,
     password: props.password,
@@ -41,7 +41,7 @@ export const signup = createAsyncThunk('auth/signup', async (props) => {
 
 // Signin.
 export const signin = createAsyncThunk('auth/signin', async (props) => {
-  const user = await axios.post('/api/signin', {
+  const user = await axios.post('http://localhost:5000/api/signin', {
     email: props.email,
     password: props.password
   });
@@ -53,7 +53,7 @@ export const signin = createAsyncThunk('auth/signin', async (props) => {
 export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture, username, updNotifications }) => {
   // If we updating picture and name from 'user profile' form.
   if (picture && username) {
-    const { data } = await axios.put(`/api/user/${id}`, {
+    const { data } = await axios.put(`http://localhost:5000/api/user/${id}`, {
       picture: picture,
       username: username
     });
@@ -61,7 +61,7 @@ export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, pictu
     return data;
   } else {
     // If we updating only notifications.
-    const { data } = await axios.put(`/api/user/${id}`, {
+    const { data } = await axios.put(`http://localhost:5000/api/user/${id}`, {
       updNotifications: updNotifications
     });
   

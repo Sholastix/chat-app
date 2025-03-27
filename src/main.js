@@ -26,11 +26,11 @@ app.use(express.urlencoded({ extended: true }));
 // Use the client app from distributive.
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// // THIS CORS FUNCTIONALITY DISABLED BECAUSE WE SET THE PROXY SERVER IN VITE.
-// // Сross-origin resource sharing permission.
-// app.use(cors({
-//   origin: ['http://localhost:5173']
-// }));
+// IF WE SET THE PROXY SERVER IN VITE - WE NEED TO DISABLE THIS CORS FUNCTIONALITY.
+// Сross-origin resource sharing permission.
+app.use(cors({
+  origin: ['http://localhost:5173']
+}));
 
 // Handle all routes in one file 'index.js' for import convinience.
 const routes = require('./routes/api/index');
