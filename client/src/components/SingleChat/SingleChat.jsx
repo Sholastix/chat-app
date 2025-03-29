@@ -57,6 +57,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   // User connects to the app.
   useEffect(() => {
+    socket.connect();
+    console.log('SOCKET_STATUS: ', socket.connected);
+
     socket.emit('user_add', authState.user);
 
     socket.on('connected', (data) => {
@@ -73,11 +76,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       dispatch(onlineUsers(data));
     });
 
+    socket.on('disconnect', (reason) => {
+      console.log(reason);
+      console.log('SOCKET_STATUS: ', socket.connected);
+    });
+
     return () => {
       socket.off('connected');
       socket.off('typing');
       socket.off('stop_typing');
       socket.off('users_online');
+      socket.off('disconnect');
     };
   }, []);
 

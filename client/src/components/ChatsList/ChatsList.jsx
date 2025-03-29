@@ -13,6 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 // Components.
 import GroupChatModal from '../ModalWindows/GroupChatModal/GroupChatModal';
+import OnlineStatus from '../OnlineStatus/OnlineStatus';
 import ListLoading from '../ListLoading/ListLoading';
 
 // Functions.
@@ -34,10 +35,15 @@ const ChatsList = (props) => {
 
   // STATE.
   const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
+  const [online, setOnline] = useState([]);
 
   useEffect(() => {
     getAllChats();
   }, [props.fetchAgain]);
+
+  useEffect(() => {
+    allOnlineUsers();
+  }, [chatState.usersOnline]);
 
   // Open group chat's modal window.
   const handleGroupChatModalOpen = () => {
@@ -64,6 +70,11 @@ const ChatsList = (props) => {
     } catch (err) {
       console.error(err);
     };
+  };
+
+  // Get all online users.
+  const allOnlineUsers = () => {
+    setOnline(chatState.usersOnline);
   };
 
   return (
@@ -160,14 +171,23 @@ const ChatsList = (props) => {
                     }}
                     onClick={() => getOneChat(chat._id)}
                   >
-                    <Avatar
-                      src={
-                        !chat.isGroupChat
-                          ? getFullSender(authState.user, chat.users).avatar
-                          : 'https://img.icons8.com/parakeet-line/48/group.png'
+                    <Box
+                      component='div'
+                      sx={{ display: 'flex', marginRight: `${chat.isGroupChat && '2.5rem'}` }}
+                    >
+                      <Avatar
+                        src={
+                          !chat.isGroupChat
+                            ? getFullSender(authState.user, chat.users).avatar
+                            : 'https://img.icons8.com/parakeet-line/48/group.png'
+                        }
+                        sx={{ fontSize: '2rem' }}
+                      />
+
+                      {
+                        !chat.isGroupChat && <OnlineStatus online={online} chat={chat} />
                       }
-                      sx={{ fontSize: '2rem', marginRight: '2rem' }}
-                    />
+                    </Box>
 
                     <Typography
                       sx={{
