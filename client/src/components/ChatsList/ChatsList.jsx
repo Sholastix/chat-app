@@ -147,32 +147,32 @@ const ChatsList = (props) => {
                     component='div'
                     key={chat._id}
                     sx={{
+                      alignItems: 'center',
                       backgroundColor: 'white',
                       border: '0.1rem solid lightgray',
                       borderRadius: '0.5rem',
                       color: 'black',
                       cursor: 'pointer',
                       display: 'flex',
-                      alignItems: 'center',
                       marginBottom: '1rem',
                       padding: '1rem 2rem',
                       ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
                     }}
                     onClick={() => getOneChat(chat._id)}
                   >
-                    {
-                      !chat.isGroupChat
-                        ? <Avatar
-                          src={getFullSender(authState.user, chat.users).avatar}
-                          sx={{ fontSize: '2rem', marginRight: '2rem' }}
-                        />
-                        : null
-                    }
+                    <Avatar
+                      src={
+                        !chat.isGroupChat
+                          ? getFullSender(authState.user, chat.users).avatar
+                          : 'https://img.icons8.com/parakeet-line/48/group.png'
+                      }
+                      sx={{ fontSize: '2rem', marginRight: '2rem' }}
+                    />
 
                     <Typography
                       sx={{
                         fontSize: '1.4rem',
-                        fontWeight: '500',
+                        fontWeight: '500'
                       }}
                     >
                       {
