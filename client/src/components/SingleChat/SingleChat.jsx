@@ -377,6 +377,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <Tooltip
                   title='Send message'
                   arrow
+                  enterDelay={500}
+                  enterNextDelay={500}
                   slotProps={{
                     tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
                     arrow: { sx: { color: 'rgb(93, 109, 126)' } }
