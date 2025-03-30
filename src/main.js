@@ -28,9 +28,7 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // IF WE SET THE PROXY SERVER IN VITE - WE NEED TO DISABLE THIS CORS FUNCTIONALITY.
 // Сross-origin resource sharing permission.
-app.use(cors({
-  origin: ['http://localhost:5173']
-}));
+app.use(cors());
 
 // Handle all routes in one file 'index.js' for import convinience.
 const routes = require('./routes/api/index');
