@@ -18,9 +18,30 @@ export const getFullSender = (loggedInUser, users) => {
   };
 };
 
-// Check if message is the last message in chat (returns "true" if yes).
-export const isLastMessage = (messages, index) => {
+// Check if message is the first message in chat.
+export const isFirstMessageInChat = (messages, index) => {
   try {
+    // Is previous message exists (returns "true" if no).
+    return !messages[index - 1];
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check if current message is the first message in block of consecutive messages from the our collocutor (returns "true" if yes).
+export const isFirstMessageInBlock = (messages, index, userId) => {
+  try {
+    // Is previous message ours (returns "true" if yes).
+    return messages[index - 1].sender._id === userId;
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check if message is the last message in chat.
+export const isLastMessageInChat = (messages, index) => {
+  try {
+    // Is index of current message equal to number of messages in chat (returns "true" if yes).
     return index === messages.length - 1;
   } catch (err) {
     console.error(err);

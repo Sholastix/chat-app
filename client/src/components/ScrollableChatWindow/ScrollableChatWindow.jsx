@@ -16,7 +16,9 @@ import ScrollToBottomButton from '../ScrollToBottomButton/ScrollToBottomButton';
 
 // Functions.
 import {
-  isLastMessage,
+  isFirstMessageInChat,
+  isFirstMessageInBlock,
+  isLastMessageInChat,
   isMyMessage,
   isNewDay,
   isNotSameSender,
@@ -103,12 +105,15 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
             >
               {
                 (
-                  !isLastMessage(messages, index)
+                  isFirstMessageInChat(messages, index)
                   && !isMyMessage(messages, index, userId)
-                  && isNotSameSender(messages, message, index)
                   ||
-                  isLastMessage(messages, index)
+                  isLastMessageInChat(messages, index)
                   && !isMyMessage(messages, index, userId)
+                  ||
+                  !isFirstMessageInChat(messages, index)
+                  && !isMyMessage(messages, index, userId)
+                  && isFirstMessageInBlock(messages, index, userId)
                 )
                 &&
                 <Tooltip
@@ -139,15 +144,17 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  marginBottom: `${!isLastMessage(messages, index) && isNotSameSender(messages, message, index) ? '1rem' : '0rem'}`,
-                  marginLeft: `${!isLastMessage(messages, index)
-                    && !isMyMessage(messages, index, userId)
-                    && isNotSameSender(messages, message, index)
-                    ||
-                    isLastMessage(messages, index)
-                    && !isMyMessage(messages, index, userId)
-                    ? '0rem'
-                    : '5rem'}`,
+                  marginBottom: `${!isLastMessageInChat(messages, index) && isNotSameSender(messages, message, index) ? '1rem' : '0rem'}`,
+                  marginLeft: `${
+                      !isFirstMessageInChat(messages, index)
+                      && !isMyMessage(messages, index, userId)
+                      && isFirstMessageInBlock(messages, index, userId)
+                      ||
+                      isFirstMessageInChat(messages, index)
+                      && !isMyMessage(messages, index, userId)
+                      ? '0rem'
+                      : '5rem'
+                    }`,
                   maxWidth: '50%',
                 }}
               >
@@ -164,7 +171,8 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   >
                     {
                       !isMyMessage(messages, index, userId)
-                      && isNotSameSender(messages, message, index)
+                      // && isNotSameSender(messages, message, index)
+                      && messages[index - 1]?.sender._id !== message.sender._id
                       && message.sender.username + ', '
                     }
 
