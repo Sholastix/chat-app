@@ -116,6 +116,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   arrow
                   enterDelay={500}
                   enterNextDelay={500}
+                  placement='bottom'
                   slotProps={{
                     tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
                     arrow: { sx: { color: 'rgb(93, 109, 126)' } }

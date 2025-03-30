@@ -143,12 +143,13 @@ const Header = () => {
         }}
       >
         <Tooltip
-          title='Search user by username.'
+          title='Search user by username'
           arrow
           enterDelay={500}
           enterNextDelay={500}
+          placement='bottom-end'
           slotProps={{
-            tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
+            tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
             arrow: { sx: { color: 'rgb(93, 109, 126)' } }
           }}
         >
