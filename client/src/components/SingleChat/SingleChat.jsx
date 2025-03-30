@@ -6,6 +6,7 @@ import {
   FormControl,
   IconButton,
   TextField,
+  Tooltip,
   Typography
 } from '@mui/material';
 
@@ -17,6 +18,7 @@ import messageSound from '../../assets/sounds/messageSound.mp3';
 
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
 // Components.
 import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
@@ -188,7 +190,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // Send message (maybe later we will put this logic in REDUX).
   const sendMessage = async (event) => {
     try {
-      if (event.key === 'Enter' && newMessage.trim().length > 0) {
+      if (newMessage.trim().length > 0) {
         const chatId = chatState.selectedChat._id;
 
         const { data } = await axios.post('http://localhost:5000/api/chat/message', {
@@ -343,7 +345,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 }
               </Box>
 
-              <FormControl>
+              <FormControl
+                component='div'
+                sx={{
+                  alignItems: 'flex-end',
+                  display: 'flex',
+                  flexDirection: 'row', // default value for <FormControl /> Component is 'column', so we need to change it... or we can use <Box /> Component instead.
+                  padding: '1rem 1rem 1rem 0rem'
+                }}
+              >
                 <TextField
                   autoComplete='off'
                   label='Type your message...'
@@ -354,15 +364,72 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   }}
                   sx={{
                     backgroundColor: 'white',
-                    margin: '0rem 1rem 1rem',
+                    margin: '0rem 1rem',
+                    width: '100%',
                     '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
                     '.MuiInputBase-input': { fontSize: '1.4rem' },
                   }}
                   value={newMessage}
                   onChange={handleTyping}
-                  onKeyDown={sendMessage}
                 >
                 </TextField>
+
+                <Tooltip
+                  title='Send message'
+                  arrow
+                  slotProps={{
+                    tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
+                    arrow: { sx: { color: 'rgb(93, 109, 126)' } }
+                  }}
+                >
+                  <IconButton
+                    sx={{
+                      alignItems: 'center',
+                      backgroundColor: 'rgb(93, 109, 126)',
+                      border: 'none',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      height: '5rem',
+                      width: '5rem',
+                      ':hover': {
+                        backgroundColor: 'rgb(93, 109, 126)',
+                        boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
+                        cursor: 'pointer'
+                      }
+                    }}
+                    onClick={sendMessage}
+                  >
+                    <SendRoundedIcon sx={{
+                      color: 'white',
+                      height: '2.5rem',
+                      width: '2.5rem'
+                    }}
+                    />
+                  </IconButton>
+
+                  {/* <Box
+                    component='button'
+                    sx={{
+                      alignItems: 'center',
+                      backgroundColor: 'rgb(93, 109, 126)',
+                      border: 'none',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      height: '5rem',
+                      width: '5rem',
+                      ':hover': {
+                        boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
+                        cursor: 'pointer'
+                      }
+                    }}
+                    onClick={sendMessage}
+                  >
+                    <SendRoundedIcon sx={{ color: 'white', fontSize: '2.5rem' }} />
+                  </Box> */}
+                </Tooltip>
+
               </FormControl>
             </Box>
             ) : (
