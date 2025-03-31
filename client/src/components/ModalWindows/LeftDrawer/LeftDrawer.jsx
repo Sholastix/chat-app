@@ -64,7 +64,7 @@ const LeftDrawer = (props) => {
       setSearchLoading(true);
 
       // Return users from database accordingly to search parameters.
-      const { data } = await axios.get(`http://localhost:5000/api/users?search=${search}`);
+      const { data } = await axios.get(`/api/users?search=${search}`);
 
       setInputError(false);
       setInputHelperText('');

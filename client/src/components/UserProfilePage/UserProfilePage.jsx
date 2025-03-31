@@ -11,9 +11,6 @@ import {
   Typography
 } from '@mui/material';
 
-// // Environment variables.
-// const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 

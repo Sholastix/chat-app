@@ -13,7 +13,7 @@ const initialState = {
 // Get all chats of the current user.
 export const fetchChats = createAsyncThunk('chat/fetchChats', async () => {
   try {
-    const { data } = await axios.get('http://localhost:5000/api/chat');
+    const { data } = await axios.get('/api/chat');
 
     return data;
   } catch (err) {
@@ -24,7 +24,7 @@ export const fetchChats = createAsyncThunk('chat/fetchChats', async () => {
 // Get one specific chat of the current user.
 export const fetchChat = createAsyncThunk('chat/fetchChat', async (chatId) => {
   try {
-    const { data } = await axios.get(`http://localhost:5000/api/chat/${chatId}`);
+    const { data } = await axios.get(`/api/chat/${chatId}`);
 
     return data;
   } catch (err) {
@@ -35,8 +35,8 @@ export const fetchChat = createAsyncThunk('chat/fetchChat', async (chatId) => {
 // Create new private chat or return it if it exists already.
 export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', async (userId) => {
   try {
-    let allChats = await axios.get('http://localhost:5000/api/chat');
-    const createdChat = await axios.post('http://localhost:5000/api/chat', { userId });
+    let allChats = await axios.get('/api/chat');
+    const createdChat = await axios.post('/api/chat', { userId });
     const isChatExists = allChats.data.find((chat) => chat._id === createdChat.data._id);
 
     // If that chat already existed in database then we don't add it to our chats list again. 
@@ -56,8 +56,8 @@ export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', asyn
 // Create group chat.
 export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({ chatName, users }) => {
   try {
-    let allChats = await axios.get('http://localhost:5000/api/chat');
-    const createdGroupChat = await axios.post('http://localhost:5000/api/chat/group', { chatName, users });
+    let allChats = await axios.get('/api/chat');
+    const createdGroupChat = await axios.post('/api/chat/group', { chatName, users });
     const isChatExists = allChats.data.find((chat) => chat._id === createdGroupChat.data._id);
 
     // If that chat already existed in database then we don't add it to our chats list again. 
@@ -77,7 +77,7 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
 // Rename group chat.
 export const renameGroupChat = createAsyncThunk('chat/renameGroupChat', async ({ chatId, chatName }) => {
   try {
-    const { data } = await axios.put('http://localhost:5000/api/chat/group/rename', { chatId, chatName });
+    const { data } = await axios.put('/api/chat/group/rename', { chatId, chatName });
 
     return data;
   } catch (err) {
@@ -88,7 +88,7 @@ export const renameGroupChat = createAsyncThunk('chat/renameGroupChat', async ({
 // Add user to group chat.
 export const addUserToGroupChat = createAsyncThunk('chat/addUserToGroupChat', async ({ chatId, userId }) => {
   try {
-    const { data } = await axios.put('http://localhost:5000/api/chat/group/add', { chatId, userId });
+    const { data } = await axios.put('/api/chat/group/add', { chatId, userId });
 
     return data;
   } catch (err) {
@@ -99,7 +99,7 @@ export const addUserToGroupChat = createAsyncThunk('chat/addUserToGroupChat', as
 // Remove user from group chat.
 export const removeUserFromGroupChat = createAsyncThunk('chat/removeUserFromGroupChat', async ({ chatId, userId, currentUserId }) => {
   try {
-    const { data } = await axios.put('http://localhost:5000/api/chat/group/remove', { chatId, userId });
+    const { data } = await axios.put('/api/chat/group/remove', { chatId, userId });
 
     if (userId === currentUserId) {
       return null;

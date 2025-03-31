@@ -11,6 +11,8 @@ const dbMigrationAddField = async () => {
   };
 };
 
+// dbMigrationAddField();
+
 // Migration script to remove specific field from all existing documents in 'users' collection.
 const dbMigrationRemoveField = async () => {
   try {
@@ -22,7 +24,4 @@ const dbMigrationRemoveField = async () => {
   };
 };
 
-module.exports = {
-  dbMigrationAddField,
-  dbMigrationRemoveField
-};
+// dbMigrationRemoveField();

@@ -8,17 +8,12 @@ const cors = require('cors');
 const app = express();
 const server = createServer(app);
 
-// Imports.
-const { dbMigrationAddField, dbMigrationRemoveField } = require('./config/dbMigration');
+// Functions.
 const dbConnection = require('./config/dbConnection');
 const socket = require('./socket/socket');
 
-// DB migration functions.
-// dbMigrationAddField();
-// dbMigrationRemoveField();
-
 // Environment variables.
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 // Initialize the middleware.
 app.use(express.json());
@@ -26,18 +21,14 @@ app.use(express.urlencoded({ extended: true }));
 // Use the client app from distributive.
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// IF WE SET THE PROXY SERVER IN VITE - WE NEED TO DISABLE THIS CORS FUNCTIONALITY.
-// Сross-origin resource sharing permission.
-app.use(cors());
-
 // Handle all routes in one file 'index.js' for import convinience.
 const routes = require('./routes/api/index');
 
 // Set the routes.
-app.use('/api/', routes.authRoute);
-app.use('/api/', routes.chatRoute);
-app.use('/api/', routes.messageRoute);
-app.use('/api/', routes.userRoute);
+app.use('/api', routes.authRoute);
+app.use('/api', routes.chatRoute);
+app.use('/api', routes.messageRoute);
+app.use('/api', routes.userRoute);
 
 // Render client for any path.
 if (process.env.NODE_ENV === 'production') {
@@ -49,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // Starting the server.
 server.listen(PORT, () => {
-  console.log(`\nServer running at 'http://localhost:${PORT}'.`);
+  console.log(`\nServer running at port: ${PORT}`);
 });
 
 // Database connection.

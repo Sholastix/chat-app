@@ -175,7 +175,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       const chatId = chatState.selectedChat._id;
       setMessageLoading(true);
 
-      const { data } = await axios.get(`http://localhost:5000/api/chat/messages/${chatId}`);
+      const { data } = await axios.get(`/api/chat/messages/${chatId}`);
       console.log('FETCH_MESSAGES: ', data);
 
       setMessages(data);
@@ -193,7 +193,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       if (newMessage.trim().length > 0) {
         const chatId = chatState.selectedChat._id;
 
-        const { data } = await axios.post('http://localhost:5000/api/chat/message', {
+        const { data } = await axios.post('/api/chat/message', {
           chatId: chatId,
           messageContent: newMessage
         });
