@@ -59,8 +59,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   // User connects to the app.
   useEffect(() => {
-    socket.connect();
     console.log('SOCKET_STATUS: ', socket.connected);
+
+    if (socket.connected === false) {
+      socket.connect();
+    };
 
     socket.emit('user_add', authState.user);
 

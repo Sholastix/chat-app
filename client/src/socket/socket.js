@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const URL = import.meta.env.MODE === 'development' ? 'http://localhost:5000' : '/';
+const URL = import.meta.env.VITE_HOST;
 console.log('URL: ', URL);
 
-export const socket = io(URL, { autoConnect: false });
+export const socket = io(URL, { autoConnect: true });
