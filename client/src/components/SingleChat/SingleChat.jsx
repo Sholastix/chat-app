@@ -64,7 +64,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     if (socket.connected === false) {
       socket.connect();
     };
-  }, [isSocketConnected]);
+  });
   
   // User connects to the app.
   useEffect(() => {
