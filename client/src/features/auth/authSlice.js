@@ -20,55 +20,76 @@ const initialState = {
 // We can listen to this ACTION types with an EXTRA_REDUCER and performes the necessary STATE transitions.
 // Auth check.
 export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () => {
-  if (localStorage.token) {
-    setAuthToken();
+  try {
+    if (localStorage.token) {
+      setAuthToken();
+    };
+
+    const user = await axios.get('/api/auth');
+
+    if (user) {
+      // Connect to socket server.
+      socket.connect();
+    };
+
+    return user.data;
+  } catch (err) {
+    console.error(err);
   };
-
-  const user = await axios.get('/api/auth');
-
-  return user.data;
 });
 
 // Signup.
 export const signup = createAsyncThunk('auth/signup', async (props) => {
-  const user = await axios.post('/api/signup', {
-    username: props.username,
-    email: props.email,
-    password: props.password,
-    confirmPassword: props.confirmPassword
-  });
+  try {
+    const user = await axios.post('/api/signup', {
+      username: props.username,
+      email: props.email,
+      password: props.password,
+      confirmPassword: props.confirmPassword
+    });
 
-  return user.data;
+    return user.data;
+  } catch (err) {
+    console.error(err);
+  };
 });
 
 // Signin.
 export const signin = createAsyncThunk('auth/signin', async (props) => {
-  const user = await axios.post('/api/signin', {
-    email: props.email,
-    password: props.password
-  });
+  try {
+    const user = await axios.post('/api/signin', {
+      email: props.email,
+      password: props.password
+    });
 
-  return user.data;
+    return user.data;
+  } catch (err) {
+    console.error(err);
+  };
 });
 
 // Update user's profile.
 export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture, username, updNotifications }) => {
-  // If we updating picture and name from 'user profile' form.
-  if (picture && username) {
-    const { data } = await axios.put(`/api/user/${id}`, {
-      picture: picture,
-      username: username
-    });
-
-    return data;
-  } else {
-    // If we updating only notifications.
-    const { data } = await axios.put(`/api/user/${id}`, {
-      updNotifications: updNotifications
-    });
+  try {
+    // If we updating picture and name from 'user profile' form.
+    if (picture && username) {
+      const { data } = await axios.put(`/api/user/${id}`, {
+        picture: picture,
+        username: username
+      });
   
-    return data;
-  }
+      return data;
+    } else {
+      // If we updating only notifications.
+      const { data } = await axios.put(`/api/user/${id}`, {
+        updNotifications: updNotifications
+      });
+  
+      return data;
+    };
+  } catch (err) {
+    console.error(err);
+  };
 });
 
 // Create slice of the STORE for 'User'.
@@ -107,8 +128,8 @@ const authSlice = createSlice({
       state.error = '',
       state.user = action.payload,
       state.isAuthenticated = true
-      // Connect to socket server.
-      socket.connect();
+      // // Connect to socket server.
+      // socket.connect();
     });
 
     builder.addCase(isUserSignedIn.rejected, (state, action) => {
