@@ -104,6 +104,11 @@ const authSlice = createSlice({
       state.error = '',
       state.user = action.payload,
       state.isAuthenticated = true
+      // Connect to socket server.
+      console.log('SUCCESS_AUTH_SOCKET_CONNECTION: ', socket.connected);
+      if (socket.connected === false) {
+        socket.connect();
+      };
     });
 
     builder.addCase(isUserSignedIn.rejected, (state, action) => {
@@ -114,6 +119,11 @@ const authSlice = createSlice({
       state.token = null,
       // Remove token from local storage.
       localStorage.removeItem('token')
+      // Disconnect from socket server.
+      console.log('FAILURE_AUTH_SOCKET_CONNECTION: ', socket.connected);
+        if (socket.connected === true) {
+          socket.disconnect();
+        };
     });
 
     // -------------------------------   SIGNUP   -------------------------------
@@ -130,8 +140,6 @@ const authSlice = createSlice({
       state.token = action.payload.token,
       // Put token in local storage.
       localStorage.setItem('token', action.payload.token)
-      // Connect to socket server.
-      socket.connect();
     });
 
     builder.addCase(signup.rejected, (state, action) => {
@@ -158,8 +166,6 @@ const authSlice = createSlice({
       state.token = action.payload.token,
       // Put token in local storage.
       localStorage.setItem('token', action.payload.token)
-      // Connect to socket server.
-      socket.connect();
     });
 
     builder.addCase(signin.rejected, (state, action) => {
