@@ -27,11 +27,6 @@ export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () =
 
     const user = await axios.get('/api/auth');
 
-    if (user) {
-      // Connect to socket server.
-      socket.connect();
-    };
-
     return user.data;
   } catch (err) {
     console.error(err);
