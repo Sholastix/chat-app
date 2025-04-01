@@ -57,20 +57,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
-  // User connects to the app.
   useEffect(() => {
     console.log('SOCKET_STATUS: ', socket.connected);
 
     if (socket.connected === false) {
       socket.connect();
     };
-
-    socket.emit('user_add', authState.user);
-
+  }, [socket]);
+  
+  // User connects to the app.
+  useEffect(() => {
     socket.on('connected', (data) => {
       setIsSocketConnected(true);
       console.log('CONNECTED: ', data);
     });
+
+    socket.emit('user_add', authState.user);
 
     socket.on('typing', () => setIsTypingIndicatorVisible(true));
 
