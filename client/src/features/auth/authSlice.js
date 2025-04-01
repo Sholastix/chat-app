@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import setAuthToken from '../../helpers/setAuthToken';
+import { socket } from '../../socket/socket';
 
 // Initial STATE for 'User'.
 const initialState = {
@@ -129,6 +130,8 @@ const authSlice = createSlice({
       state.token = action.payload.token,
       // Put token in local storage.
       localStorage.setItem('token', action.payload.token)
+      // Connect to socket server.
+      socket.connect();
     });
 
     builder.addCase(signup.rejected, (state, action) => {
@@ -155,6 +158,8 @@ const authSlice = createSlice({
       state.token = action.payload.token,
       // Put token in local storage.
       localStorage.setItem('token', action.payload.token)
+      // Connect to socket server.
+      socket.connect();
     });
 
     builder.addCase(signin.rejected, (state, action) => {
