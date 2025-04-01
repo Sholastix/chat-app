@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import setAuthToken from '../../helpers/setAuthToken';
-import { socket } from '../../socket/socket';
 
 // Initial STATE for 'User'.
 const initialState = {
