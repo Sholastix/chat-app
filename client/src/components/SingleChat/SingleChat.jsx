@@ -46,7 +46,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const dispatch = useDispatch();
 
   // STATE.
-  const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [isTypingIndicatorVisible, setIsTypingIndicatorVisible] = useState(false);
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
@@ -57,19 +56,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
 
-  useEffect(() => {
-    console.log('SOCKET_STATUS: ', socket.connected);
-    console.log('IS_SOCKET_CONNECTED: ', isSocketConnected);
-
-    if (socket.connected === false) {
-      socket.connect();
-    };
-  });
-  
   // User connects to the app.
   useEffect(() => {
+    console.log('SOCKET_STATUS: ', socket.connected);
+
     socket.on('connected', (data) => {
-      setIsSocketConnected(true);
       console.log('CONNECTED: ', data);
     });
 
@@ -85,7 +76,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
 
     socket.on('disconnect', (reason) => {
-      setIsSocketConnected(false);
       console.log(reason);
       console.log('SOCKET_STATUS: ', socket.connected);
     });
@@ -145,7 +135,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setNewMessage(event.target.value);
 
       // Logic for typing indication.
-      if (!isSocketConnected) {
+      if (!socket.connected) {
         return;
       };
 

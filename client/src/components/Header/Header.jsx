@@ -15,9 +15,6 @@ import {
   Typography,
 } from '@mui/material';
 
-// Socket.IO
-import { socket } from '../../socket/socket';
-
 // MUI Icons.
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Logout from '@mui/icons-material/Logout';
@@ -123,9 +120,6 @@ const Header = () => {
     try {
       dispatch(resetSelectedChatState(null));
       dispatch(signout());
-      
-      // Disconnect from socket server.
-      socket.disconnect();
     } catch (err) {
       console.error(err);
     };

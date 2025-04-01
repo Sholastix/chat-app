@@ -1,7 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+// Functions.
 import setAuthToken from '../../helpers/setAuthToken';
+import { socket } from '../../socket/socket';
 
 // Initial STATE for 'User'.
 const initialState = {
@@ -87,6 +89,8 @@ const authSlice = createSlice({
       state.token = null
       // Remove token from local storage.
       localStorage.removeItem('token')
+      // Disconnect from socket server.
+      socket.disconnect();
     }
   },
   // Specify the EXTRA_REDUCERS.
@@ -103,6 +107,8 @@ const authSlice = createSlice({
       state.error = '',
       state.user = action.payload,
       state.isAuthenticated = true
+      // Connect to socket server.
+      socket.connect();
     });
 
     builder.addCase(isUserSignedIn.rejected, (state, action) => {
@@ -113,6 +119,8 @@ const authSlice = createSlice({
       state.token = null,
       // Remove token from local storage.
       localStorage.removeItem('token')
+      // Disconnect from socket server.
+      socket.disconnect();
     });
 
     // -------------------------------   SIGNUP   -------------------------------
