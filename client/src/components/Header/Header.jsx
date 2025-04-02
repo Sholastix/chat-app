@@ -27,6 +27,9 @@ import LeftDrawer from '../ModalWindows/LeftDrawer/LeftDrawer';
 import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
 import SettingsModal from '../ModalWindows/SettingsModal/SettingsModal';
 
+// Socket.IO
+import { socket } from '../../socket/socket';
+
 // Functions.
 import { signout, updateUser } from '../../features/auth/authSlice';
 import { getSender } from '../../helpers/chatLogic';
@@ -120,6 +123,11 @@ const Header = () => {
     try {
       dispatch(resetSelectedChatState(null));
       dispatch(signout());
+
+      // Close socket connection.
+      if (socket.connected) {
+        socket.disconnect();
+      };
     } catch (err) {
       console.error(err);
     };

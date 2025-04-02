@@ -10,9 +10,6 @@ import {
   Typography
 } from '@mui/material';
 
-// Socket.IO
-import { socket } from '../../socket/socket';
-
 // Assets.
 import messageSound from '../../assets/sounds/messageSound.mp3';
 
@@ -26,6 +23,9 @@ import ScrollableChatWindow from '../ScrollableChatWindow/ScrollableChatWindow';
 import Spinner from '../Spinner/Spinner';
 import UpdateGroupChatModal from '../ModalWindows/UpdateGroupChatModal/UpdateGroupChatModal';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+
+// Socket.IO
+import { socket } from '../../socket/socket';
 
 // Functions.
 import { updateUser } from '../../features/auth/authSlice';
@@ -59,6 +59,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // User connects to the app.
   useEffect(() => {
     console.log('SOCKET_STATUS: ', socket.connected);
+    // Connect to socket server.
+    socket.connect();
 
     socket.on('connected', (data) => {
       console.log('CONNECTED: ', data);
