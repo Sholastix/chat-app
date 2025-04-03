@@ -4,6 +4,7 @@ const socket = (server) => {
   try {
     const io = new Server(server, {
       pingTimeout: 30000,
+      transports: ['websocket'],
       cors: {
         origin: '*',
         methods: ['GET', 'POST']

@@ -59,7 +59,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // User connects to the app.
   useEffect(() => {
     console.log('SOCKET_STATUS: ', socket.connected);
-    
+
     // Connect to socket server.
     if (!socket.connected) {
       socket.connect();
@@ -81,7 +81,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
 
     socket.on('disconnect', (reason) => {
-      console.log(reason);
+      console.log(`DISCONNECTED: '${reason}'`);
       console.log('SOCKET_STATUS: ', socket.connected);
     });
 
