@@ -42,7 +42,7 @@ export const isLastMessageInChat = (messages, index) => {
 export const isFirstMessageInBlock = (messages, index) => {
   try {
     // Is previous message from different sender (returns "true" if yes).
-    return messages[index - 1].sender._id !== messages[index].sender._id;
+    return messages[index - 1]?.sender._id !== messages[index].sender._id;
   } catch (err) {
     console.error(err);
   };
@@ -52,7 +52,7 @@ export const isFirstMessageInBlock = (messages, index) => {
 export const isLastMessageInBlock = (messages, index) => {
   try {
     // Is next message from different sender (returns "true" if yes).
-    return messages[index + 1].sender._id !== messages[index].sender._id;
+    return messages[index + 1]?.sender._id !== messages[index].sender._id;
   } catch (err) {
     console.error(err);
   };
@@ -88,16 +88,6 @@ export const isNewDay = (messages, message, index) => {
     console.error(err);
   };
 };
-
-// // Check if the next message has the same sender as the current message ("true" if no).
-// // If true then this is the end of message block of the specific user.
-// export const isNotSameSender = (messages, message, index) => {
-//   try {
-//     return messages[index + 1]?.sender._id !== message.sender._id;
-//   } catch (err) {
-//     console.error(err);
-//   };
-// };
 
 // Check if at least 1 minute passed after previous message in chat.
 export const isSameTime = (messages, message, index) => {

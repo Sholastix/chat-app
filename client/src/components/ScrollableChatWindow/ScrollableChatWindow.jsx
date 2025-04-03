@@ -22,7 +22,6 @@ import {
   isLastMessageInBlock,
   isMyMessage,
   isNewDay,
-  // isNotSameSender,
   isSameTime
 } from '../../helpers/chatLogic';
 
@@ -80,7 +79,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
               <Divider
                 sx={{
                   fontSize: '1.4rem',
-                  marginTop: '2rem',
+                  margin: '2rem 0rem'
                 }}
               >
                 {
@@ -101,7 +100,12 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
               sx={{
                 display: 'flex',
                 justifyContent: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                margin: '0.5rem 0rem'
+                marginTop: '0.5rem',
+                marginBottom: `${message.chat.isGroupChat
+                  && !isLastMessageInChat(messages, index)
+                  && isLastMessageInBlock(messages, index)
+                  ? '3rem'
+                  : '0.5rem'}`,
               }}
             >
               {
@@ -118,7 +122,6 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   && isFirstMessageInBlock(messages, index)
                   ||
                   message.chat.isGroupChat
-                  // && message.sender._id !== messages[index - 1].sender._id
                   && isFirstMessageInBlock(messages, index)
                 )
                 &&
@@ -150,29 +153,18 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  marginBottom: `${!isLastMessageInChat(messages, index)
-                    // && isNotSameSender(messages, message, index)
-                    && isLastMessageInBlock(messages, index)
-                    ? '1rem'
-                    : '0rem'
-                    }`,
+                  marginBottom: `${!isLastMessageInChat(messages, index) && isLastMessageInBlock(messages, index) ? '1rem' : '0rem'}`,
                   marginLeft: `${!isMyMessage(messages, index, userId)
                     && !isFirstMessageInChat(messages, index)
                     && isFirstMessageInBlock(messages, index)
                     ||
-                    !isMyMessage(messages, index, userId)
-                    && isFirstMessageInChat(messages, index)
+                    !isMyMessage(messages, index, userId) && isFirstMessageInChat(messages, index)
                     ||
-                    isLastMessageInChat(messages, index)
-                    && isNewDay(messages, message, index)
+                    isLastMessageInChat(messages, index) && isNewDay(messages, message, index)
                     ||
-                    // Check if that a group chat.
-                    message.chat.isGroupChat
-                    // Sender of current message !== sender of the previous message.
-                    && message.sender._id !== messages[index - 1].sender._id
+                    message.chat.isGroupChat && isFirstMessageInBlock(messages, index)
                     ? '0rem'
-                    : '5rem'
-                    }`,
+                    : '5rem'}`,
                   maxWidth: '50%',
                 }}
               >
@@ -186,7 +178,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                 >
                   {
                     !isMyMessage(messages, index, userId)
-                    && messages[index - 1]?.sender._id !== message.sender._id
+                    && isFirstMessageInBlock(messages, index)
                     && message.sender.username + ' '
                   }
 
