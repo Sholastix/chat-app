@@ -73,6 +73,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
       {
         messages.map((message, index) => (
           <div key={message._id}>
+            {console.log('MESSAGE: ', message)}
             {
               isNewDay(messages, message, index)
               &&
@@ -105,15 +106,20 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
             >
               {
                 (
-                  isFirstMessageInChat(messages, index)
-                  && !isMyMessage(messages, index, userId)
+                  !isMyMessage(messages, index, userId)
+                  && isFirstMessageInChat(messages, index)
                   ||
-                  isLastMessageInChat(messages, index)
-                  && !isMyMessage(messages, index, userId)
+                  !isMyMessage(messages, index, userId)
+                  && isLastMessageInChat(messages, index)
+                  && isNewDay(messages, message, index)
                   ||
-                  !isFirstMessageInChat(messages, index)
-                  && !isMyMessage(messages, index, userId)
+                  !isMyMessage(messages, index, userId)
+                  && !isFirstMessageInChat(messages, index)
                   && isFirstMessageInBlock(messages, index, userId)
+                  ||
+                  message.chat.isGroupChat
+                  && message.sender._id !== messages[index - 1].sender._id
+                  // && isFirstMessageInBlock(messages, index, userId)
                 )
                 &&
                 <Tooltip
@@ -144,44 +150,56 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  marginBottom: `${!isLastMessageInChat(messages, index) && isNotSameSender(messages, message, index) ? '1rem' : '0rem'}`,
-                  marginLeft: `${
-                      !isFirstMessageInChat(messages, index)
-                      && !isMyMessage(messages, index, userId)
-                      && isFirstMessageInBlock(messages, index, userId)
-                      ||
-                      isFirstMessageInChat(messages, index)
-                      && !isMyMessage(messages, index, userId)
-                      ? '0rem'
-                      : '5rem'
+                  marginBottom: `${!isLastMessageInChat(messages, index)
+                    && isNotSameSender(messages, message, index)
+                    ? '1rem'
+                    : '0rem'
+                    }`,
+                  marginLeft: `${!isMyMessage(messages, index, userId)
+                    && !isFirstMessageInChat(messages, index)
+                    && isFirstMessageInBlock(messages, index, userId)
+                    ||
+                    !isMyMessage(messages, index, userId)
+                    && isFirstMessageInChat(messages, index)
+                    ||
+                    isLastMessageInChat(messages, index)
+                    && isNewDay(messages, message, index)
+                    ||
+                    // Check if that a group chat.
+                    message.chat.isGroupChat
+                    // Sender of current message !== sender of the previous message.
+                    && message.sender._id !== messages[index - 1].sender._id
+                    ? '0rem'
+                    : '5rem'
                     }`,
                   maxWidth: '50%',
                 }}
               >
-                {
-                  !isSameTime(messages, message, index)
-                  &&
-                  <Box
-                    component='span'
-                    sx={{
-                      alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
-                      fontSize: '1.2rem',
-                      margin: '0.5rem 0rem'
-                    }}
-                  >
-                    {
-                      !isMyMessage(messages, index, userId)
-                      // && isNotSameSender(messages, message, index)
-                      && messages[index - 1]?.sender._id !== message.sender._id
-                      && message.sender.username + ', '
-                    }
+                <Box
+                  component='span'
+                  sx={{
+                    alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
+                    fontSize: '1.2rem',
+                    margin: '0.5rem 0rem'
+                  }}
+                >
+                  {
+                    !isMyMessage(messages, index, userId)
+                    && messages[index - 1]?.sender._id !== message.sender._id
+                    && message.sender.username + ' '
+                  }
 
-                    {
-                      new Date(message.createdAt)
-                        .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
-                    }
-                  </Box>
-                }
+                  {
+                    !isSameTime(messages, message, index)
+                    &&
+                    <Box component='span'>
+                      {
+                        new Date(message.createdAt)
+                          .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
+                      }
+                    </Box>
+                  }
+                </Box>
 
                 <Box
                   component='span'
