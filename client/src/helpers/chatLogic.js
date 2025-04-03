@@ -28,21 +28,31 @@ export const isFirstMessageInChat = (messages, index) => {
   };
 };
 
-// Check if current message is the first message in block of consecutive messages from the our collocutor (returns "true" if yes).
-export const isFirstMessageInBlock = (messages, index, userId) => {
-  try {
-    // Is previous message ours (returns "true" if yes).
-    return messages[index - 1].sender._id === userId;
-  } catch (err) {
-    console.error(err);
-  };
-};
-
 // Check if message is the last message in chat.
 export const isLastMessageInChat = (messages, index) => {
   try {
     // Is index of current message equal to number of messages in chat (returns "true" if yes).
     return index === messages.length - 1;
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check if current message is the first message in block of consecutive messages from specific user (returns "true" if yes).
+export const isFirstMessageInBlock = (messages, index) => {
+  try {
+    // Is previous message from different sender (returns "true" if yes).
+    return messages[index - 1].sender._id !== messages[index].sender._id;
+  } catch (err) {
+    console.error(err);
+  };
+};
+
+// Check if current message is the last message in block of consecutive messages from specific user (returns "true" if yes).
+export const isLastMessageInBlock = (messages, index) => {
+  try {
+    // Is next message from different sender (returns "true" if yes).
+    return messages[index + 1].sender._id !== messages[index].sender._id;
   } catch (err) {
     console.error(err);
   };
@@ -79,15 +89,15 @@ export const isNewDay = (messages, message, index) => {
   };
 };
 
-// Check if the next message has the same sender as the current message ("true" if no).
-// If true then this is the end of message block of the specific user.
-export const isNotSameSender = (messages, message, index) => {
-  try {
-    return messages[index + 1]?.sender._id !== message.sender._id;
-  } catch (err) {
-    console.error(err);
-  };
-};
+// // Check if the next message has the same sender as the current message ("true" if no).
+// // If true then this is the end of message block of the specific user.
+// export const isNotSameSender = (messages, message, index) => {
+//   try {
+//     return messages[index + 1]?.sender._id !== message.sender._id;
+//   } catch (err) {
+//     console.error(err);
+//   };
+// };
 
 // Check if at least 1 minute passed after previous message in chat.
 export const isSameTime = (messages, message, index) => {

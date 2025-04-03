@@ -19,9 +19,10 @@ import {
   isFirstMessageInChat,
   isFirstMessageInBlock,
   isLastMessageInChat,
+  isLastMessageInBlock,
   isMyMessage,
   isNewDay,
-  isNotSameSender,
+  // isNotSameSender,
   isSameTime
 } from '../../helpers/chatLogic';
 
@@ -73,7 +74,6 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
       {
         messages.map((message, index) => (
           <div key={message._id}>
-            {console.log('MESSAGE: ', message)}
             {
               isNewDay(messages, message, index)
               &&
@@ -115,11 +115,11 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   ||
                   !isMyMessage(messages, index, userId)
                   && !isFirstMessageInChat(messages, index)
-                  && isFirstMessageInBlock(messages, index, userId)
+                  && isFirstMessageInBlock(messages, index)
                   ||
                   message.chat.isGroupChat
-                  && message.sender._id !== messages[index - 1].sender._id
-                  // && isFirstMessageInBlock(messages, index, userId)
+                  // && message.sender._id !== messages[index - 1].sender._id
+                  && isFirstMessageInBlock(messages, index)
                 )
                 &&
                 <Tooltip
@@ -151,13 +151,14 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
                   display: 'flex',
                   flexDirection: 'column',
                   marginBottom: `${!isLastMessageInChat(messages, index)
-                    && isNotSameSender(messages, message, index)
+                    // && isNotSameSender(messages, message, index)
+                    && isLastMessageInBlock(messages, index)
                     ? '1rem'
                     : '0rem'
                     }`,
                   marginLeft: `${!isMyMessage(messages, index, userId)
                     && !isFirstMessageInChat(messages, index)
-                    && isFirstMessageInBlock(messages, index, userId)
+                    && isFirstMessageInBlock(messages, index)
                     ||
                     !isMyMessage(messages, index, userId)
                     && isFirstMessageInChat(messages, index)
