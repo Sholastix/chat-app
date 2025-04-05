@@ -25,7 +25,7 @@ import {
   isSameTime
 } from '../../helpers/chatLogic';
 
-const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
+const ScrollableChatWindow = ({ messages, isTyping }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -34,6 +34,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
   // Current user's ID.
   const userId = authState.user._id;
 
+  // STATE.
   const [scrollbarPosition, setScrollbarPosition] = useState(0);
 
   const chatEndRef = useRef(null);
@@ -221,7 +222,7 @@ const ScrollableChatWindow = ({ messages, isTypingIndicatorVisible }) => {
         sx={{ height: '5rem' }}
       >
         {
-          isTypingIndicatorVisible
+          isTyping
           &&
           <Box component='div'>
             <Lottie

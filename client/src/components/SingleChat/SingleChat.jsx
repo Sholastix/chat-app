@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -46,15 +46,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const dispatch = useDispatch();
 
   // STATE.
-  const [isTypingIndicatorVisible, setIsTypingIndicatorVisible] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [selectedChatCompare, setSelectedChatCompare] = useState(null);
-  const [typing, setTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState('');
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
+
+  const typingTimeoutRef = useRef(null);
 
   // User connects to the app.
   useEffect(() => {
@@ -71,9 +73,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     socket.emit('user_add', authState.user);
 
-    socket.on('typing', () => setIsTypingIndicatorVisible(true));
+    // Listen for typing event
+    socket.on('typing', (username) => {
+      setIsTyping(true);
+      setTypingUser(username);
 
-    socket.on('stop_typing', () => setIsTypingIndicatorVisible(false));
+      // Clear any existing timeout if typing has resumed.
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      };
+
+      // Set a new timeout to hide the typing indicator after 3 seconds.
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+        setTypingUser('');
+      }, 3000);
+    });
 
     socket.on('users_online', (data) => {
       console.log('USERS_ONLINE: ', data);
@@ -81,16 +96,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
 
     socket.on('disconnect', (reason) => {
-      console.log(`DISCONNECTED: '${reason}'`);
+      console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
       console.log('SOCKET_STATUS: ', socket.connected);
     });
 
     return () => {
       socket.off('connected');
       socket.off('typing');
-      socket.off('stop_typing');
       socket.off('users_online');
       socket.off('disconnect');
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      };
     };
   }, []);
 
@@ -144,59 +162,40 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         return;
       };
 
-      if (!typing) {
-        setTyping(true);
-        socket.emit('typing', chatState.selectedChat._id);
-      };
-
-      const timeout = 3000;
-      const lastTypingTime = new Date().getTime();
-
-      // Disable typing indicator after 3 second of user's typing inactivity.
-      setTimeout(() => {
-        const currentTime = new Date().getTime();
-        const timeDifference = currentTime - lastTypingTime;
-
-        if (timeDifference >= timeout && typing) {
-          socket.emit('stop_typing', chatState.selectedChat._id);
-          setTyping(false);
-        };
-      }, timeout);
+      // Emit typing event to the server (to the specific room) when the user is typing.
+      socket.emit('typing', chatState.selectedChat._id, authState.user.username);
     } catch (err) {
       console.error(err);
     };
   };
 
   // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
-  const fetchMessages = async (event) => {
+  const fetchMessages = async () => {
     try {
       if (!chatState.selectedChat) {
         return;
       };
 
-      const chatId = chatState.selectedChat._id;
       setMessageLoading(true);
 
-      const { data } = await axios.get(`/api/chat/messages/${chatId}`);
+      const { data } = await axios.get(`/api/chat/messages/${chatState.selectedChat._id}`);
       console.log('FETCH_MESSAGES: ', data);
 
       setMessages(data);
       setMessageLoading(false);
 
-      socket.emit('room_join', chatId);
+      socket.emit('room_join', chatState.selectedChat._id);
     } catch (err) {
       console.error(err);
     };
   };
 
   // Send message (maybe later we will put this logic in REDUX).
-  const sendMessage = async (event) => {
+  const sendMessage = async () => {
     try {
       if (newMessage.trim().length > 0) {
-        const chatId = chatState.selectedChat._id;
-
         const { data } = await axios.post('/api/chat/message', {
-          chatId: chatId,
+          chatId: chatState.selectedChat._id,
           messageContent: newMessage
         });
 
@@ -205,9 +204,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket.emit('message_send', data);
         setMessages([...messages, data]);
         setNewMessage('');
-
-        socket.emit('stop_typing', chatState.selectedChat._id);
-        setTyping(false);
       };
     } catch (err) {
       console.error(err);
@@ -343,7 +339,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     >
                       <Spinner />
                     </Box>
-                    : <ScrollableChatWindow messages={messages} isTypingIndicatorVisible={isTypingIndicatorVisible} />
+                    : <ScrollableChatWindow messages={messages} isTyping={isTyping} />
                 }
               </Box>
 
@@ -412,29 +408,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     }}
                     />
                   </IconButton>
-
-                  {/* <Box
-                    component='button'
-                    sx={{
-                      alignItems: 'center',
-                      backgroundColor: 'rgb(93, 109, 126)',
-                      border: 'none',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      height: '5rem',
-                      width: '5rem',
-                      ':hover': {
-                        boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
-                        cursor: 'pointer'
-                      }
-                    }}
-                    onClick={sendMessage}
-                  >
-                    <SendRoundedIcon sx={{ color: 'white', fontSize: '2.5rem' }} />
-                  </Box> */}
                 </Tooltip>
-
               </FormControl>
             </Box>
             ) : (

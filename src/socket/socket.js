@@ -37,7 +37,7 @@ const socket = (server) => {
 
       // // Add socket to counter.
       // connectionsCounter.add(socket.id);
-      // console.log(`Number of active sockets: ${connectionsCounter.size}\n`);
+      // console.log(`\nNumber of active sockets: ${connectionsCounter.size}`);
 
       // Add user to 'online users'.
       socket.on('user_add', (user) => {
@@ -53,13 +53,10 @@ const socket = (server) => {
         console.log(`SOCKET_EVENT: user joined room '${room}'.`);
       });
 
-      // Typing indication.
-      socket.on('typing', (room) => {
-        socket.in(room).emit('typing');
-      });
-
-      socket.on('stop_typing', (room) => {
-        socket.in(room).emit('stop_typing');
+      // Listen for typing event.
+      socket.on('typing', (room, username) => {
+        // Emit typing event to everyone in the same room.
+        socket.to(room).emit('typing', username);
       });
 
       // Send message to all connected clients except the sender.
@@ -73,7 +70,7 @@ const socket = (server) => {
 
         // // Remove socket from counter.
         // connectionsCounter.delete(socket.id);
-        // console.log(`Number of active sockets: ${connectionsCounter.size}\n`);
+        // console.log(`\nNumber of active sockets: ${connectionsCounter.size}`);
 
         // Remove user from 'online users'.
         removeUser(socket.id);
