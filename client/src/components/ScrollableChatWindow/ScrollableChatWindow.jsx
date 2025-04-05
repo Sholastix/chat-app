@@ -4,7 +4,8 @@ import {
   Avatar,
   Box,
   Divider,
-  Tooltip
+  Tooltip,
+  Typography
 } from '@mui/material';
 import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
 
@@ -25,7 +26,7 @@ import {
   isSameTime
 } from '../../helpers/chatLogic';
 
-const ScrollableChatWindow = ({ messages, isTyping }) => {
+const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -219,17 +220,30 @@ const ScrollableChatWindow = ({ messages, isTyping }) => {
       <Box
         component='div'
         ref={chatEndRef}
-        sx={{ height: '5rem' }}
+        height='5rem'
       >
         {
           isTyping
           &&
-          <Box component='div'>
+          <Box
+            component='div'
+            sx={{
+              display: 'flex',
+              height: '3rem',
+              marginTop: '3rem'
+            }}
+          >
+            <Typography
+              component='p'
+              sx={{ fontSize: '1.4rem' }}
+            >
+              {`${typingUser} is typing`}
+            </Typography>
+
             <Lottie
               loop={true}
               animationData={typingAnimation}
               play={true}
-              style={{ width: 50, height: 50 }}
             />
           </Box>
         }

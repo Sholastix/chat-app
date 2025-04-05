@@ -339,7 +339,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     >
                       <Spinner />
                     </Box>
-                    : <ScrollableChatWindow messages={messages} isTyping={isTyping} />
+                    : <ScrollableChatWindow messages={messages} isTyping={isTyping} typingUser={typingUser}/>
                 }
               </Box>
 
