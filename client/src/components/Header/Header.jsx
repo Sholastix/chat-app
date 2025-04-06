@@ -52,9 +52,9 @@ const Header = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
-    setNotifications(authState.user.notifications);
-  }, [authState.user]);
+  // useEffect(() => {
+  //   setNotifications(authState.user.notifications);
+  // }, [authState.user]);
 
   // User menu.
   const openUserMenu = Boolean(anchorUserMenu);
@@ -186,7 +186,7 @@ const Header = () => {
             onClick={handleNotificationsMenuClick}
           >
             <Badge
-              badgeContent={notifications.length}
+              badgeContent={notifications.length ? notifications.length : 0}
               max={99}
               color='primary'
               sx={{
@@ -241,28 +241,28 @@ const Header = () => {
               }
 
               {
-                notifications.map((notification) => (
-                  <MenuItem
-                    key={notification._id}
-                    sx={{ fontSize: '1.4rem' }}
-                    onClick={() => {
-                      // Redirect to chat with new message.
-                      dispatch(resetSelectedChatState(notification.chat));
+                // notifications.map((notification) => (
+                //   <MenuItem
+                //     key={notification._id}
+                //     sx={{ fontSize: '1.4rem' }}
+                //     onClick={() => {
+                //       // Redirect to chat with new message.
+                //       dispatch(resetSelectedChatState(notification.chat));
 
-                      const id = authState.user._id;
+                //       const id = authState.user._id;
 
-                      // Clear the message from notifications menu. ATTENTION!!! NOT DONE YET!!!
-                      const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
-                      dispatch(updateUser({ id, updNotifications }));
-                    }}
-                  >
-                    {
-                      notification.chat.isGroupChat
-                        ? `New message in '${notification.chat.chatName}' chat`
-                        : `New message from '${getSender(authState.user, notification.chat.users)}'`
-                    }
-                  </MenuItem>
-                ))
+                //       // Clear the message from notifications menu. ATTENTION!!! NOT DONE YET!!!
+                //       const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
+                //       dispatch(updateUser({ id, updNotifications }));
+                //     }}
+                //   >
+                //     {
+                //       notification.chat.isGroupChat
+                //         ? `New message in '${notification.chat.chatName}' chat`
+                //         : `New message from '${getSender(authState.user, notification.chat.users)}'`
+                //     }
+                //   </MenuItem>
+                // ))
               }
             </MenuList>
           </Menu>

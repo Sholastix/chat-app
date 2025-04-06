@@ -116,20 +116,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on('message_received', (data) => {
       // Incoming message will have pop-up sound (only if the chat window is unfocused).
       !document.hasFocus() && messageNotificationSound();
+      setMessages([...messages, data]);
 
-      if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
-        if (!authState.user.notifications.includes(data)) {
-          const id = authState.user._id;
-          const notifications = authState.user.notifications;
-          const newNotification = data;
-          const updNotifications = [...notifications, newNotification];
+      // if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
+      //   if (!authState.user.notifications.includes(data)) {
+      //     const id = authState.user._id;
+      //     const notifications = authState.user.notifications;
+      //     const newNotification = data;
+      //     const updNotifications = [...notifications, newNotification];
 
-          dispatch(updateUser({ id, updNotifications }));
-          setFetchAgain(!fetchAgain);
-        };
-      } else {
-        setMessages([...messages, data]);
-      };
+      //     dispatch(updateUser({ id, updNotifications }));
+      //     setFetchAgain(!fetchAgain);
+      //   };
+      // } else {
+      //   setMessages([...messages, data]);
+      // };
     });
 
     return () => {

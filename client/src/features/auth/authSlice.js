@@ -51,19 +51,12 @@ export const signin = createAsyncThunk('auth/signin', async (props) => {
 });
 
 // Update user's profile.
-export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture, username, updNotifications }) => {
-  // If we updating picture and name from 'user profile' form.
+export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, picture, username }) => {
+  // Updating picture and name from 'user profile' form.
   if (picture && username) {
     const { data } = await axios.put(`/api/user/${id}`, {
       picture: picture,
       username: username
-    });
-
-    return data;
-  } else {
-    // If we updating only notifications.
-    const { data } = await axios.put(`/api/user/${id}`, {
-      updNotifications: updNotifications
     });
 
     return data;
