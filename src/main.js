@@ -28,6 +28,7 @@ const routes = require('./routes/api/index');
 app.use('/api', routes.authRoute);
 app.use('/api', routes.chatRoute);
 app.use('/api', routes.messageRoute);
+app.use('/api', routes.notificationRoute);
 app.use('/api', routes.userRoute);
 
 // Render client for any path.

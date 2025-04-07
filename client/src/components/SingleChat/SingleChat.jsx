@@ -113,24 +113,29 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, []);
 
   useEffect(() => {
-    socket.on('message_received', (data) => {
+    socket.on('message_received', async (data) => {
       // Incoming message will have pop-up sound (only if the chat window is unfocused).
       !document.hasFocus() && messageNotificationSound();
+
+      if (!data.chat.isGroupChat) {
+        // Determine who exactly is the recipient for our message.
+        const recipientId = data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id;
+        console.log('MESSAGE_RECEIVED_RECIPIENT_ID: ', recipientId);
+
+        // If recipient currently not in any chat or in another chat (not in chat with sender of this message).
+        if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
+          // Create new notification.
+          const notification = await axios.post(`/api/chat/notifications/${recipientId}/create`, {
+            senderId: authState.user._id,
+            senderName: authState.user.username,
+            messageId: data._id
+          });
+
+          console.log('MESSAGE_RECEIVED_NOTIFICATION: ', notification);
+        };
+      };
+
       setMessages([...messages, data]);
-
-      // if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
-      //   if (!authState.user.notifications.includes(data)) {
-      //     const id = authState.user._id;
-      //     const notifications = authState.user.notifications;
-      //     const newNotification = data;
-      //     const updNotifications = [...notifications, newNotification];
-
-      //     dispatch(updateUser({ id, updNotifications }));
-      //     setFetchAgain(!fetchAgain);
-      //   };
-      // } else {
-      //   setMessages([...messages, data]);
-      // };
     });
 
     return () => {
@@ -201,6 +206,39 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         });
 
         console.log('SEND_MESSAGE: ', data);
+
+        // // Determine who exactly is the recipient for our message.
+        // const recipientId = !data.chat.isGroupChat
+        //   ? data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id
+        //   : data.chat.users.filter((element) => element._id !== authState.user._id);
+        // console.log('RECIPIENT_ID: ', recipientId);
+
+        // // Check if the recipient is online.
+        // const isRecipientOnline = !data.chat.isGroupChat
+        //   ? chatState.usersOnline.some((element) => element.userId === recipientId)
+        //   : chatState.usersOnline.map((element) => element.userId === recipientId)
+        // console.log('IS_RECIPIENT_ONLINE: ', isRecipientOnline);
+
+        if (!data.chat.isGroupChat) {
+          // Determine who exactly is the recipient for our message.
+          const recipientId = data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id;
+          console.log('RECIPIENT_ID: ', recipientId);
+
+          // Check if the recipient is online.
+          const isRecipientOnline = chatState.usersOnline.some((element) => element.userId === recipientId);
+          console.log('IS_RECIPIENT_ONLINE: ', isRecipientOnline);
+
+          if (!isRecipientOnline) {
+            // Create new notification.
+            const notification = await axios.post(`/api/chat/notifications/${recipientId}/create`, {
+              senderId: authState.user._id,
+              senderName: authState.user.username,
+              messageId: data._id
+            });
+
+            console.log('NOTIFICATION: ', notification);
+          };
+        };
 
         socket.emit('message_send', data);
         setMessages([...messages, data]);
@@ -340,7 +378,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     >
                       <Spinner />
                     </Box>
-                    : <ScrollableChatWindow messages={messages} isTyping={isTyping} typingUser={typingUser}/>
+                    : <ScrollableChatWindow messages={messages} isTyping={isTyping} typingUser={typingUser} />
                 }
               </Box>
 

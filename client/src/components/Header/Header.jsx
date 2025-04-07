@@ -1,5 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 import {
   Avatar,
   Badge,
@@ -52,9 +53,39 @@ const Header = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
+  const userId = authState.user._id;
+  console.log('USER_ID: ', userId);
+
+  // // Fetch notifications from the backend when the component mounts
   // useEffect(() => {
-  //   setNotifications(authState.user.notifications);
-  // }, [authState.user]);
+  //   const fetchNotifications = async () => {
+  //     try {
+  //       const response = await axios.get(`/api/chat/notifications/${userId}`);
+  //       setNotifications(response.data);
+  //     } catch (err) {
+  //       console.error(err);
+  //     };
+  //   };
+
+  //   fetchNotifications();
+  // }, [userId]);
+
+  const handleNotificationClickNew = async (notificationId, messageId) => {
+    try {
+      // // Mark notification as read
+      // await axios.put(`/api/notifications/${notificationId}/read`);
+
+      // // Remove the notification from the UI
+      // setNotifications((prevNotifications) =>
+      //   prevNotifications.filter((notification) => notification._id !== notificationId)
+      // );
+
+      // // Redirect to the message
+      // window.location.href = `/chat/${messageId}`;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
 
   // User menu.
   const openUserMenu = Boolean(anchorUserMenu);
@@ -241,28 +272,30 @@ const Header = () => {
               }
 
               {
-                // notifications.map((notification) => (
-                //   <MenuItem
-                //     key={notification._id}
-                //     sx={{ fontSize: '1.4rem' }}
-                //     onClick={() => {
-                //       // Redirect to chat with new message.
-                //       dispatch(resetSelectedChatState(notification.chat));
+                notifications.map((notification) => (
+                  <MenuItem
+                    key={notification._id}
+                    sx={{ fontSize: '1.4rem' }}
+                    // onClick={() => {
+                    //   // Redirect to chat with new message.
+                    //   dispatch(resetSelectedChatState(notification.chat));
 
-                //       const id = authState.user._id;
+                    //   const id = authState.user._id;
 
-                //       // Clear the message from notifications menu. ATTENTION!!! NOT DONE YET!!!
-                //       const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
-                //       dispatch(updateUser({ id, updNotifications }));
-                //     }}
-                //   >
-                //     {
-                //       notification.chat.isGroupChat
-                //         ? `New message in '${notification.chat.chatName}' chat`
-                //         : `New message from '${getSender(authState.user, notification.chat.users)}'`
-                //     }
-                //   </MenuItem>
-                // ))
+                    //   // Clear the message from notifications menu. ATTENTION!!! NOT DONE YET!!!
+                    //   const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
+                    //   dispatch(updateUser({ id, updNotifications }));
+                    // }}
+                    href='#'
+                    onClick={() => handleNotificationClickNew(notification._id, notification.messageId)}
+                  >
+                    {
+                      notification.chat.isGroupChat
+                        ? `New message in '${notification.chat.chatName}' chat`
+                        : `New message from '${getSender(authState.user, notification.chat.users)}'`
+                    }
+                  </MenuItem>
+                ))
               }
             </MenuList>
           </Menu>
