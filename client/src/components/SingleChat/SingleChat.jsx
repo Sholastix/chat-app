@@ -114,6 +114,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket.on('message_received', async (data) => {
+      console.log('MR_DATA: ', data);
+      console.log('MR_DATA_SENDER_ID: ', data.sender._id);
+      console.log('MR_DATA_SENDER_USERNAME: ', data.sender.username);
       // Incoming message will have pop-up sound (only if the chat window is unfocused).
       !document.hasFocus() && messageNotificationSound();
 
@@ -126,8 +129,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
           // Create new notification.
           const notification = await axios.post(`/api/chat/notifications/${recipientId}/create`, {
-            senderId: authState.user._id,
-            senderName: authState.user.username,
+            senderId: data.sender._id,
+            senderName: data.sender.username,
             messageId: data._id
           });
 
