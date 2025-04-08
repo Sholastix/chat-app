@@ -28,7 +28,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { socket } from '../../socket/socket';
 
 // Functions.
-import { updateUser } from '../../features/auth/authSlice';
 import { getSender, getFullSender } from '../../helpers/chatLogic';
 import { resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 
@@ -115,15 +114,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket.on('message_received', async (data) => {
       console.log('MR_DATA: ', data);
-      console.log('MR_DATA_SENDER_ID: ', data.sender._id);
-      console.log('MR_DATA_SENDER_USERNAME: ', data.sender.username);
+      console.log('MR_SENDER_ID: ', data.sender._id);
+      console.log('MR_SENDER_USERNAME: ', data.sender.username);
+
       // Incoming message will have pop-up sound (only if the chat window is unfocused).
       !document.hasFocus() && messageNotificationSound();
 
       if (!data.chat.isGroupChat) {
         // Determine who exactly is the recipient for our message.
-        const recipientId = data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id;
-        console.log('MESSAGE_RECEIVED_RECIPIENT_ID: ', recipientId);
+        const recipientId = data.chat.users.filter((element) => element._id !== data.sender._id)[0]._id;
+        console.log('MR_RECIPIENT_ID: ', recipientId);
 
         // If recipient currently not in any chat or in another chat (not in chat with sender of this message).
         if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
@@ -134,11 +134,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             messageId: data._id
           });
 
-          console.log('MESSAGE_RECEIVED_NOTIFICATION: ', notification);
+          console.log('MR_NOTIFICATION: ', notification.data);
         };
       };
 
       setMessages([...messages, data]);
+      setIsTyping(false);
+      setTypingUser('');
     });
 
     return () => {
@@ -188,7 +190,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setMessageLoading(true);
 
       const { data } = await axios.get(`/api/chat/messages/${chatState.selectedChat._id}`);
-      console.log('FETCH_MESSAGES: ', data);
 
       setMessages(data);
       setMessageLoading(false);
@@ -208,28 +209,28 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           messageContent: newMessage
         });
 
-        console.log('SEND_MESSAGE: ', data);
+        console.log('MS_DATA: ', data);
 
         // // Determine who exactly is the recipient for our message.
         // const recipientId = !data.chat.isGroupChat
         //   ? data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id
         //   : data.chat.users.filter((element) => element._id !== authState.user._id);
-        // console.log('RECIPIENT_ID: ', recipientId);
+        // console.log('MS_RECIPIENT_ID: ', recipientId);
 
         // // Check if the recipient is online.
         // const isRecipientOnline = !data.chat.isGroupChat
         //   ? chatState.usersOnline.some((element) => element.userId === recipientId)
         //   : chatState.usersOnline.map((element) => element.userId === recipientId)
-        // console.log('IS_RECIPIENT_ONLINE: ', isRecipientOnline);
+        // console.log('MS_IS_RECIPIENT_ONLINE: ', isRecipientOnline);
 
         if (!data.chat.isGroupChat) {
           // Determine who exactly is the recipient for our message.
           const recipientId = data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id;
-          console.log('RECIPIENT_ID: ', recipientId);
+          console.log('MS_RECIPIENT_ID: ', recipientId);
 
           // Check if the recipient is online.
           const isRecipientOnline = chatState.usersOnline.some((element) => element.userId === recipientId);
-          console.log('IS_RECIPIENT_ONLINE: ', isRecipientOnline);
+          console.log('MS_IS_RECIPIENT_ONLINE: ', isRecipientOnline);
 
           if (!isRecipientOnline) {
             // Create new notification.
@@ -239,7 +240,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               messageId: data._id
             });
 
-            console.log('NOTIFICATION: ', notification);
+            console.log('MS_NOTIFICATION: ', notification.data);
           };
         };
 
