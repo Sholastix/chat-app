@@ -53,15 +53,18 @@ const socket = (server) => {
         console.log(`SOCKET_EVENT: user joined room '${room}'.`);
       });
 
-      // Listen for typing event.
+      // Listen for 'typing' event.
       socket.on('typing', (room, username) => {
-        // Emit typing event to everyone in the same room.
+        console.log('TYPING_TO_ROOM: ', room);
+        // Emit 'typing event' to specific room.
         socket.to(room).emit('typing', username);
       });
 
-      // Send message to all connected clients except the sender.
-      socket.on('message_send', (data) => {
-        socket.broadcast.emit('message_received', data);
+      // Listen for 'message_send' event.
+      socket.on('message_send', (room, data) => {
+        console.log('MESSAGE_SEND_IN_ROOM: ', room);
+        // Emit 'message_received' event to specific room.
+        socket.to(room).emit('message_received', data);
       });
 
       // User disconnects from the app.

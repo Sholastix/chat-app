@@ -244,7 +244,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           };
         };
 
-        socket.emit('message_send', data);
+        socket.emit('message_send', chatState.selectedChat._id, data);
         setMessages([...messages, data]);
         setNewMessage('');
       };
