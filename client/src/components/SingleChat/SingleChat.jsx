@@ -152,6 +152,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     fetchMessages();
     setSelectedChatCompare(chatState.selectedChat);
+
+    socket.emit('room_join', chatState.selectedChat?._id, authState.user.username);
   }, [chatState.selectedChat]);
 
   // Reset STATE for selected chat.
@@ -159,6 +161,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       dispatch(resetSelectedChatState(null));
       setNewMessage('');
+
+      socket.emit('room_leave', chatState.selectedChat._id, authState.user.username);
     } catch (err) {
       console.error(err);
     };
@@ -195,7 +199,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setMessages(data);
       setMessageLoading(false);
 
-      socket.emit('room_join', chatState.selectedChat._id);
+      // socket.emit('room_join', chatState.selectedChat._id, authState.user.username);
     } catch (err) {
       console.error(err);
     };

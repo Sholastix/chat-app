@@ -48,9 +48,20 @@ const socket = (server) => {
 
       // Join chat room.
       // We need this to know if the sender and receiver in the same room. If they are - then no need to add new UI notification of unread message.
-      socket.on('room_join', (room) => {
-        socket.join(room);
-        console.log(`SOCKET_EVENT: user joined room '${room}'.`);
+      socket.on('room_join', (room, username) => {
+        if (room !== null) {
+          socket.join(room);
+          console.log(`SOCKET_EVENT: ${username} joined the room '${room}'.`);
+        };
+      });
+
+      // Leave chat room.
+      // We need this to know if the sender and receiver in the same room. If they are - then no need to add new UI notification of unread message.
+      socket.on('room_leave', (room, username) => {
+        if (room !== null) {
+          socket.join(room);
+          console.log(`SOCKET_EVENT: ${username} left the room '${room}'.`);
+        };
       });
 
       // Listen for 'typing' event.
