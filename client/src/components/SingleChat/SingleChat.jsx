@@ -158,6 +158,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const resetSelectedChat = () => {
     try {
       dispatch(resetSelectedChatState(null));
+      setNewMessage('');
     } catch (err) {
       console.error(err);
     };
