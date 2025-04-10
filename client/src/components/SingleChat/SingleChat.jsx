@@ -113,30 +113,30 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket.on('message_received', async (data) => {
-      console.log('MR_DATA: ', data);
-      console.log('MR_SENDER_ID: ', data.sender._id);
-      console.log('MR_SENDER_USERNAME: ', data.sender.username);
+      // console.log('MR_DATA: ', data);
+      // console.log('MR_SENDER_ID: ', data.sender._id);
+      // console.log('MR_SENDER_USERNAME: ', data.sender.username);
 
       // Incoming message will have pop-up sound (only if the chat window is unfocused).
       !document.hasFocus() && messageNotificationSound();
 
-      if (!data.chat.isGroupChat) {
-        // Determine who exactly is the recipient for our message.
-        const recipientId = data.chat.users.filter((element) => element._id !== data.sender._id)[0]._id;
-        console.log('MR_RECIPIENT_ID: ', recipientId);
+      // if (!data.chat.isGroupChat) {
+      //   // Determine who exactly is the recipient for our message.
+      //   const recipientId = data.chat.users.filter((element) => element._id !== data.sender._id)[0]._id;
+      //   console.log('MR_RECIPIENT_ID: ', recipientId);
 
-        // If recipient currently not in any chat or in another chat (not in chat with sender of this message).
-        if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
-          // Create new notification.
-          const notification = await axios.post(`/api/chat/notifications/${recipientId}/create`, {
-            senderId: data.sender._id,
-            senderName: data.sender.username,
-            messageId: data._id
-          });
+      //   // If recipient currently not in any chat or in another chat (not in chat with sender of this message).
+      //   if (selectedChatCompare === null || selectedChatCompare._id !== data.chat._id) {
+      //     // Create new notification.
+      //     const notification = await axios.post(`/api/chat/notifications/${recipientId}/create`, {
+      //       senderId: data.sender._id,
+      //       senderName: data.sender.username,
+      //       messageId: data._id
+      //     });
 
-          console.log('MR_NOTIFICATION: ', notification.data);
-        };
-      };
+      //     console.log('MR_NOTIFICATION: ', notification.data);
+      //   };
+      // };
 
       setMessages([...messages, data]);
       setIsTyping(false);
@@ -153,7 +153,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     fetchMessages();
     setSelectedChatCompare(chatState.selectedChat);
 
-    socket.emit('room_join', chatState.selectedChat?._id, authState.user.username);
+    // socket.emit('room_join', chatState.selectedChat?._id, authState.user.username);
+    socket.emit('room_join', chatState.selectedChat?._id, authState.user.username, authState.user._id);
   }, [chatState.selectedChat]);
 
   // Reset STATE for selected chat.
@@ -162,7 +163,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       dispatch(resetSelectedChatState(null));
       setNewMessage('');
 
-      socket.emit('room_leave', chatState.selectedChat._id, authState.user.username);
+      // socket.emit('room_leave', chatState.selectedChat._id, authState.user.username);
+      socket.emit('room_leave', chatState.selectedChat._id, authState.user.username, authState.user._id);
     } catch (err) {
       console.error(err);
     };
@@ -228,26 +230,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         //   : chatState.usersOnline.map((element) => element.userId === recipientId)
         // console.log('MS_IS_RECIPIENT_ONLINE: ', isRecipientOnline);
 
-        if (!data.chat.isGroupChat) {
-          // Determine who exactly is the recipient for our message.
-          const recipientId = data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id;
-          console.log('MS_RECIPIENT_ID: ', recipientId);
+        // if (!data.chat.isGroupChat) {
+        //   // Determine who exactly is the recipient for our message.
+        //   const recipientId = data.chat.users.filter((element) => element._id !== authState.user._id)[0]._id;
+        //   console.log('MS_RECIPIENT_ID: ', recipientId);
 
-          // Check if the recipient is online.
-          const isRecipientOnline = chatState.usersOnline.some((element) => element.userId === recipientId);
-          console.log('MS_IS_RECIPIENT_ONLINE: ', isRecipientOnline);
+        //   // Check if the recipient is online.
+        //   const isRecipientOnline = chatState.usersOnline.some((element) => element.userId === recipientId);
+        //   console.log('MS_IS_RECIPIENT_ONLINE: ', isRecipientOnline);
 
-          if (!isRecipientOnline) {
-            // Create new notification.
-            const notification = await axios.post(`/api/chat/notifications/${recipientId}/create`, {
-              senderId: authState.user._id,
-              senderName: authState.user.username,
-              messageId: data._id
-            });
+        //   if (!isRecipientOnline) {
+        //     // Create new notification.
+        //     const notification = await axios.post(`/api/chat/notifications/${recipientId}/create`, {
+        //       senderId: authState.user._id,
+        //       senderName: authState.user.username,
+        //       messageId: data._id
+        //     });
 
-            console.log('MS_NOTIFICATION: ', notification.data);
-          };
-        };
+        //     console.log('MS_NOTIFICATION: ', notification.data);
+        //   };
+        // };
 
         socket.emit('message_send', chatState.selectedChat._id, data);
         setMessages([...messages, data]);
