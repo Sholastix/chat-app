@@ -54,21 +54,20 @@ const Header = () => {
   const [notifications, setNotifications] = useState([]);
 
   const userId = authState.user._id;
-  console.log('USER_ID: ', userId);
 
-  // // Fetch notifications from the backend when the component mounts
-  // useEffect(() => {
-  //   const fetchNotifications = async () => {
-  //     try {
-  //       const response = await axios.get(`/api/chat/notifications/${userId}`);
-  //       setNotifications(response.data);
-  //     } catch (err) {
-  //       console.error(err);
-  //     };
-  //   };
+  // Fetch notifications from the backend when the component mounts
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(`/api/chat/notifications/${userId}`);
+        setNotifications(response.data);
+      } catch (err) {
+        console.error(err);
+      };
+    };
 
-  //   fetchNotifications();
-  // }, [userId]);
+    fetchNotifications();
+  }, [userId]);
 
   const handleNotificationClickNew = async (notificationId, messageId) => {
     try {
@@ -275,7 +274,6 @@ const Header = () => {
                 notifications.map((notification) => (
                   <MenuItem
                     key={notification._id}
-                    sx={{ fontSize: '1.4rem' }}
                     // onClick={() => {
                     //   // Redirect to chat with new message.
                     //   dispatch(resetSelectedChatState(notification.chat));
@@ -286,14 +284,16 @@ const Header = () => {
                     //   const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
                     //   dispatch(updateUser({ id, updNotifications }));
                     // }}
+                    
                     href='#'
                     onClick={() => handleNotificationClickNew(notification._id, notification.messageId)}
                   >
-                    {
-                      notification.chat.isGroupChat
-                        ? `New message in '${notification.chat.chatName}' chat`
-                        : `New message from '${getSender(authState.user, notification.chat.users)}'`
-                    }
+                    <Typography
+                      component='div'
+                      sx={{ fontSize: '1.4rem' }}
+                    >
+                      {notification.content}
+                    </Typography>
                   </MenuItem>
                 ))
               }

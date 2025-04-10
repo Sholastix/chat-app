@@ -20,34 +20,6 @@ const fetchNotifications = async (req, res) => {
   };
 };
 
-// Create notification for a specific user.
-const createNotification = async (req, res) => {
-  try {
-    // Recipient ID from request params.
-    const { recipientId } = req.params;
-    console.log('RECEPIENT_ID: ', recipientId);
-
-    // Sender ID from request.
-    const { messageId, senderId, senderName } = req.body;
-    console.log('SENDER_ID: ', senderId);
-    console.log('SENDER_NAME: ', senderName);
-    console.log('MESSAGE_ID: ', messageId);
-
-    const notification = await NotificationModel.create({
-      user: recipientId,
-      messageId: messageId,
-      content: `New message from ${senderName}`
-    });
-
-    console.log('NEW_NOTIFICATION: ', notification);
-
-    res.status(200).json(notification);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(`Server error: ${err.message}`);
-  };
-};
-
 // Mark specific notification as read.
 const markNotificationAsRead = async (req, res) => {
   try {
@@ -71,8 +43,34 @@ const markNotificationAsRead = async (req, res) => {
   };
 };
 
+// // Create notification for a specific user.
+// const createNotification = async (req, res) => {
+//   try {
+//     // Recipient ID from request params.
+//     const { recipientId } = req.params;
+//     console.log('RECEPIENT_ID: ', recipientId);
+
+//     // Sender ID from request.
+//     const { messageId, senderId, senderName } = req.body;
+//     console.log('REQ_BODY: ', req.body);
+
+//     const notification = await NotificationModel.create({
+//       user: recipientId,
+//       messageId: messageId,
+//       content: `New message from ${senderName}`
+//     });
+
+//     console.log('NEW_NOTIFICATION: ', notification);
+
+//     res.status(200).json(notification);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json(`Server error: ${err.message}`);
+//   };
+// };
+
 module.exports = {
-  createNotification,
   fetchNotifications,
-  markNotificationAsRead
+  markNotificationAsRead,
+  // createNotification,
 };
