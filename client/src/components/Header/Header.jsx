@@ -32,8 +32,7 @@ import SettingsModal from '../ModalWindows/SettingsModal/SettingsModal';
 import { socket } from '../../socket/socket';
 
 // Functions.
-import { signout, updateUser } from '../../features/auth/authSlice';
-import { getSender } from '../../helpers/chatLogic';
+import { signout } from '../../features/auth/authSlice';
 import { resetSelectedChatState } from '../../features/chat/chatSlice';
 
 const Header = () => {
@@ -42,48 +41,60 @@ const Header = () => {
     return state.authReducer
   });
 
+  const chatState = useSelector((state) => {
+    return state.chatReducer;
+  });
+
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
   // STATE.
   const [anchorUserMenu, setAnchorUserMenu] = useState(null);
   const [anchorNotificationsMenu, setAnchorNotificationsMenu] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
 
   const userId = authState.user._id;
 
-  // Fetch notifications from the backend when the component mounts
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get(`/api/chat/notifications/${userId}`);
-        setNotifications(response.data);
-      } catch (err) {
-        console.error(err);
-      };
-    };
-
     fetchNotifications();
-  }, [userId]);
+  }, [chatState.selectedChat]);
 
-  const handleNotificationClickNew = async (notificationId, messageId) => {
+  // Fetch notifications from the backend when the component mounts
+  const fetchNotifications = async () => {
     try {
-      // // Mark notification as read
-      // await axios.put(`/api/notifications/${notificationId}/read`);
+      const response = await axios.get(`/api/chat/notifications/${userId}`);
+      console.log('RESPONSE: ', response);
 
-      // // Remove the notification from the UI
-      // setNotifications((prevNotifications) =>
-      //   prevNotifications.filter((notification) => notification._id !== notificationId)
-      // );
+      const filteredResponse = response.data.filter((element) => !element.read);
+      console.log('FILTERED_RESPONSE: ', filteredResponse);
+
+      setNotifications(filteredResponse);
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  const handleNotificationItemClick = async (notificationId, messageId) => {
+    try {
+      console.log('NOTIFICATION ITEM CLICK: ', notificationId);
+
+      // Mark notification as 'read'.
+      await axios.put(`/api/chat/notifications/${notificationId}/read`);
+
+      // Remove the marked notification from the UI.
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter((element) => element._id !== notificationId)
+      );
 
       // // Redirect to the message
-      // window.location.href = `/chat/${messageId}`;
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
+      // window.location.href = `/api/chat/${messageId}`;
+    } catch (err) {
+      console.error(err);
+    };
   };
 
   // User menu.
@@ -274,19 +285,8 @@ const Header = () => {
                 notifications.map((notification) => (
                   <MenuItem
                     key={notification._id}
-                    // onClick={() => {
-                    //   // Redirect to chat with new message.
-                    //   dispatch(resetSelectedChatState(notification.chat));
-
-                    //   const id = authState.user._id;
-
-                    //   // Clear the message from notifications menu. ATTENTION!!! NOT DONE YET!!!
-                    //   const updNotifications = authState.user.notifications.filter((element) => element._id !== notification._id);
-                    //   dispatch(updateUser({ id, updNotifications }));
-                    // }}
-                    
-                    href='#'
-                    onClick={() => handleNotificationClickNew(notification._id, notification.messageId)}
+                    // href='#'
+                    onClick={() => handleNotificationItemClick(notification._id, notification.messageId)}
                   >
                     <Typography
                       component='div'
