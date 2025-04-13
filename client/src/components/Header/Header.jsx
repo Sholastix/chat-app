@@ -92,9 +92,6 @@ const Header = () => {
 
       // Redirect to chat from notification.
       dispatch(fetchChat(chatId));
-
-      // // Redirect to the message
-      // window.location.href = `/api/chat/${messageId}`;
     } catch (err) {
       console.error(err);
     };
@@ -269,16 +266,26 @@ const Header = () => {
               horizontal: 'right'
             }}
           >
-            <MenuList disablePadding>
+            <MenuList
+              id='hehe'
+              component='div'
+              disablePadding
+              sx={{
+                alignContent: 'center',
+                height: 'fit-content',
+                maxHeight: '35rem',
+                minHeight: '5rem',
+                overflowY: `${notifications.length === 0 ? 'hidden' : 'auto'}`,
+                padding: '0rem 1rem',
+                scrollbarWidth: 'thin'
+              }}
+            >
               {
                 notifications.length === 0
                 &&
                 <Box
                   component='div'
-                  sx={{
-                    fontSize: '1.4rem',
-                    padding: '0rem 1rem'
-                  }}
+                  sx={{ fontSize: '1.4rem' }}
                 >
                   No new messages
                 </Box>
@@ -287,16 +294,37 @@ const Header = () => {
               {
                 notifications.map((notification) => (
                   <MenuItem
+                    divider
+                    id='menu-item'
                     key={notification._id}
-                    // href='#'
+                    sx={{ height: '5rem', width: '30rem' }}
                     onClick={() => handleNotificationItemClick(notification._id, notification.messageId)}
                   >
-                    <Typography
+                    <Box
                       component='div'
-                      sx={{ fontSize: '1.4rem' }}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflowX: 'hidden'
+                      }}
                     >
-                      {notification.content}
-                    </Typography>
+                      <Typography
+                        component='div'
+                        sx={{
+                          fontSize: '1.4rem',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {notification.content + ':'}
+                      </Typography>
+
+                      <Typography
+                        component='div'
+                        sx={{ fontSize: '1.4rem' }}
+                      >
+                        {notification.messageId.content}
+                      </Typography>
+                    </Box>
                   </MenuItem>
                 ))
               }
