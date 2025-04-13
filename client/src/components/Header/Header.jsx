@@ -33,7 +33,7 @@ import { socket } from '../../socket/socket';
 
 // Functions.
 import { signout } from '../../features/auth/authSlice';
-import { resetSelectedChatState } from '../../features/chat/chatSlice';
+import { fetchChat, resetSelectedChatState } from '../../features/chat/chatSlice';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -80,8 +80,6 @@ const Header = () => {
 
   const handleNotificationItemClick = async (notificationId, messageId) => {
     try {
-      console.log('NOTIFICATION ITEM CLICK: ', notificationId);
-
       // Mark notification as 'read'.
       await axios.put(`/api/chat/notifications/${notificationId}/read`);
 
@@ -89,6 +87,11 @@ const Header = () => {
       setNotifications((prevNotifications) =>
         prevNotifications.filter((element) => element._id !== notificationId)
       );
+
+      const chatId = messageId.chat;
+
+      // Redirect to chat from notification.
+      dispatch(fetchChat(chatId));
 
       // // Redirect to the message
       // window.location.href = `/api/chat/${messageId}`;
