@@ -23,7 +23,7 @@ const markNotificationAsRead = async (req, res) => {
     // Notification ID from request params.
     const { notificationId } = req.params;
 
-    await NotificationModel.findByIdAndUpdate(notificationId, { read: true });
+    await NotificationModel.findByIdAndUpdate(notificationId, { isRead: true });
 
     // // Remove the notification from the User's notifications array (optionally, if needed).
     // await UserModel.updateOne(

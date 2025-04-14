@@ -14,7 +14,7 @@ const notificationSchema = new mongoose.Schema(
 
     content: String,
 
-    read: { 
+    isRead: { 
       type: Boolean, 
       default: false 
     }
@@ -22,7 +22,7 @@ const notificationSchema = new mongoose.Schema(
 
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: false }
+    timestamps: { createdAt: true, updatedAt: true }
   },
 );
 

@@ -48,7 +48,8 @@ const Header = () => {
   const [anchorUserMenu, setAnchorUserMenu] = useState(null);
   const [anchorNotificationsMenu, setAnchorNotificationsMenu] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  const [notificationAlert, setNotificationAlert] = useState(false);
+  // The 'notificationRefresh' variable is the catalyst for triggering a update to notifications counter in UI.
+  const [notificationRefresh, setNotificationRefresh] = useState(false);
 
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -59,7 +60,7 @@ const Header = () => {
   // Change 'notificationAlert' STATE.
   useEffect(() => {
     socket.on('notification', () => {
-      setNotificationAlert((prev) => !prev);
+      setNotificationRefresh((prev) => !prev);
     });
 
     return () => {
@@ -70,7 +71,7 @@ const Header = () => {
   // Trigger re-fetch for notifications counter in UI.
   useEffect(() => {
     fetchNotifications();
-  }, [notificationAlert]);
+  }, [notificationRefresh]);
 
   // Fetch notifications from the backend when the component mounts
   const fetchNotifications = async () => {

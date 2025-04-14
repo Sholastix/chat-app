@@ -89,7 +89,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
 
     socket.on('users_online', (data) => {
-      console.log('USERS_ONLINE: ', data);
       dispatch(onlineUsers(data));
     });
 
