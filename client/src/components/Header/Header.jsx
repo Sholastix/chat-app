@@ -52,6 +52,7 @@ const Header = () => {
   const [anchorUserMenu, setAnchorUserMenu] = useState(null);
   const [anchorNotificationsMenu, setAnchorNotificationsMenu] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [notificationAlert, setNotificationAlert] = useState(false);
 
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -59,9 +60,21 @@ const Header = () => {
 
   const userId = authState.user._id;
 
+  // Change 'notificationAlert' STATE.
+  useEffect(() => {
+    socket.on('notification', () => {
+      setNotificationAlert((prev) => !prev);
+    });
+
+    return () => {
+      socket.off('notification');
+    };
+  }, [socket]);
+
+  // Trigger re-fetch for notifications counter in UI.
   useEffect(() => {
     fetchNotifications();
-  }, [chatState.selectedChat]);
+  }, [notificationAlert]);
 
   // Fetch notifications from the backend when the component mounts
   const fetchNotifications = async () => {

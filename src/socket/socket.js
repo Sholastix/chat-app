@@ -104,6 +104,9 @@ const socket = (server) => {
               messageId: data._id,
               content: `New message from ${data.sender.username}`
             });
+            
+            // Emit event to client when notification is created.
+            socket.broadcast.emit('notification');
           };
         };
 
