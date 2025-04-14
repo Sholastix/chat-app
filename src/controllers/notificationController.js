@@ -6,12 +6,9 @@ const fetchNotifications = async (req, res) => {
   try {
     // User ID from request params.
     const { userId } = req.params;
-    console.log('USER_ID: ', userId);
 
     const notifications = await NotificationModel.find({ user: userId })
       .populate('messageId');
-
-    console.log('NOTIFICATIONS: ', notifications);
 
     res.status(200).json(notifications);
   } catch (err) {
@@ -25,10 +22,8 @@ const markNotificationAsRead = async (req, res) => {
   try {
     // Notification ID from request params.
     const { notificationId } = req.params;
-    console.log('NOTIFICATION_ID: ', notificationId);
 
-    const markedNotification = await NotificationModel.findByIdAndUpdate(notificationId, { read: true });
-    console.log('NOTIFICATION: ', markedNotification);
+    await NotificationModel.findByIdAndUpdate(notificationId, { read: true });
 
     // // Remove the notification from the User's notifications array (optionally, if needed).
     // await UserModel.updateOne(

@@ -41,10 +41,6 @@ const Header = () => {
     return state.authReducer
   });
 
-  const chatState = useSelector((state) => {
-    return state.chatReducer;
-  });
-
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
@@ -80,10 +76,9 @@ const Header = () => {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(`/api/chat/notifications/${userId}`);
-      console.log('RESPONSE: ', response);
 
+      // Filtering all notifications and return only notifications with 'read === false' status.
       const filteredResponse = response.data.filter((element) => !element.read);
-      console.log('FILTERED_RESPONSE: ', filteredResponse);
 
       setNotifications(filteredResponse);
     } catch (err) {
