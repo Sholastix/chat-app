@@ -78,8 +78,8 @@ const Header = () => {
     try {
       const response = await axios.get(`/api/chat/notifications/${userId}`);
 
-      // Filtering all notifications and return only notifications with 'read === false' status.
-      const filteredResponse = response.data.filter((element) => !element.read);
+      // Filtering all notifications and return only notifications with 'isRead === false' status.
+      const filteredResponse = response.data.filter((element) => !element.isRead);
 
       setNotifications(filteredResponse);
     } catch (err) {
