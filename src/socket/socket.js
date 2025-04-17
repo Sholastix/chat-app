@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 
+const MessageModel = require('../models/MessageModel');
 const NotificationModel = require('../models/NotificationModel');
 
 const socket = (server) => {
@@ -53,16 +54,35 @@ const socket = (server) => {
 
       // Join chat room.
       // We need this to know if the sender and receiver in the same room. If they are - then no need to add new UI notification of unread message.
-      socket.on('room_join', (room, username, userId) => {
+      socket.on('room_join', async (room, users, username, userId) => {
         if (room !== null) {
           const socketId = socket.id;
-
+          
           if (!userRooms.some((element) => element.userId === userId)) {
             userRooms.push({ userId, room, socketId });
           };
-
+          
           socket.join(room);
           console.log(`SOCKET_EVENT: ${username} joined the room '${room}'.`);
+
+          // This will be sender of specific message. (Maybe later we will just add field 'receiver' in 'MessageModel' instead of this twisted logic).
+          const notCurrentUser = users.filter((element) => element._id !== userId)[0]._id;
+
+          // Marks all unread messages as read when the recipient of this messages enters a chat with this messages.
+          try {
+            const result = await MessageModel.updateMany(
+              {
+                chat: room,
+                sender: notCurrentUser,
+                isRead: false
+              },
+              { $set: { isRead: true } }
+            );
+
+            console.log(`Marked ${result.modifiedCount} messages as already read.`);
+          } catch (err) {
+            console.error(err);
+          };
         };
       });
 
@@ -104,7 +124,7 @@ const socket = (server) => {
               messageId: data._id,
               content: `New message from ${data.sender.username}`
             });
-            
+
             // Emit event to client when notification is created.
             socket.broadcast.emit('notification');
           };

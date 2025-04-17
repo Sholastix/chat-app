@@ -128,7 +128,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     fetchMessages();
 
-    socket.emit('room_join', chatState.selectedChat?._id, authState.user.username, authState.user._id);
+    socket.emit('room_join', chatState.selectedChat?._id, chatState.selectedChat?.users, authState.user.username, authState.user._id);
   }, [chatState.selectedChat]);
 
   // Reset STATE for selected chat.
