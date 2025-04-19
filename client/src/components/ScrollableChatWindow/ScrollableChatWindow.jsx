@@ -12,6 +12,9 @@ import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
 // Assets.
 import typingAnimation from '../../assets/animations/typing.json';
 
+// MUI Icons.
+import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+
 // Components.
 import ScrollToBottomButton from '../ScrollToBottomButton/ScrollToBottomButton';
 

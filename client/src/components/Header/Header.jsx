@@ -76,12 +76,14 @@ const Header = () => {
   // Fetch notifications from the backend when the component mounts
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(`/api/chat/notifications/${userId}`);
+      if (userId) {
+        const response = await axios.get(`/api/chat/notifications/${userId}`);
 
-      // Filtering all notifications and return only notifications with 'isRead === false' status.
-      const filteredResponse = response.data.filter((element) => !element.isRead);
+        // Filtering all notifications and return only notifications with 'isRead === false' status.
+        const filteredResponse = response.data.filter((element) => !element.isRead);
 
-      setNotifications(filteredResponse);
+        setNotifications(filteredResponse);
+      };
     } catch (err) {
       console.error(err);
     };
