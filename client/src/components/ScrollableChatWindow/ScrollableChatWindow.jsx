@@ -214,6 +214,46 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                 >
                   {message.content}
                 </Box>
+
+                <Box
+                  component='span'
+                  sx={{
+                    alignSelf: 'flex-end',
+                    fontSize: '1.2rem',
+                    margin: '0.5rem 0rem'
+                  }}
+                >
+                  {
+                    !isSameTime(messages, message, index)
+                    &&
+                    isMyMessage(messages, index, userId)
+                    &&
+                    message.isRead
+                    &&
+                    <Box
+                      component='span'
+                      sx={{
+                        alignItems: 'flex-end',
+                        display: 'flex',
+                        marginBottom: '0.5rem'
+                      }}
+                    >
+                      <Typography
+                        component='span'
+                        sx={{ fontFamily: 'Georgia', marginRight: '0.5rem' }}
+                      >
+                        {
+                          new Date(message.updatedAt)
+                            .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
+                        }
+                      </Typography>
+
+                      <DoneAllRoundedIcon
+                        sx={{ color: 'blue', fontSize: '2rem' }}
+                      />
+                    </Box>
+                  }
+                </Box>
               </Box>
             </Box>
           </div>
