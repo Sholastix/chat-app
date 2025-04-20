@@ -97,7 +97,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       console.log('SOCKET_STATUS: ', socket.connected);
     });
 
-    socket.on('message_read', (updatedMessage) => {
+    socket.on('mark_all_messages_as_read', (updatedMessage) => {
       setMessages(prevMessages =>
         prevMessages.map(msg =>
           msg._id === updatedMessage._id
@@ -107,11 +107,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       );
     });
 
+    socket.on('message_read', ({ messageId }) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg._id === messageId ? { ...msg, isRead: true } : msg
+        )
+      );
+    });
+
     return () => {
       socket.off('connected');
       socket.off('typing');
       socket.off('users_online');
       socket.off('disconnect');
+      socket.off('mark_all_messages_as_read');
       socket.off('message_read');
 
       if (typingTimeoutRef.current) {
