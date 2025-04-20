@@ -131,27 +131,14 @@ const socket = (server) => {
           // Check if the recipient in same chat with sender of this message.
           const isRecepientInSameChat = userRooms.some((element) => element.userId === recipientId && element.room === room);
 
-          // // Check if recipient currently offline or not in chat with sender of this message.
-          // if (!isRecipientOnline || !isRecepientInSameChat) {
-          //   // Create new notification.
-          //   await NotificationModel.create({
-          //     user: recipientId,
-          //     messageId: data._id,
-          //     content: `New message from ${data.sender.username}`
-          //   });
-
-          //   // Emit event to client when notification is created.
-          //   socket.broadcast.emit('notification');
-          // };
-
           if (isRecipientOnline && isRecepientInSameChat) {
-            // Recipient is actively in the same chat — message is read immediately.
+            // If recipient is online and in the same chat — then message is read immediately.
             await MessageModel.findByIdAndUpdate(data._id, { isRead: true }, { new: true });
 
             const senderSocket = usersOnline.find((user) => user.userId === data.sender._id)?.socketId;
 
             if (senderSocket) {
-              io.to(senderSocket).emit('message_read', { messageId: data._id });
+              io.to(senderSocket).emit('mark_one_message_as_read', { messageId: data._id });
             };
           } else {
             // Create new notification if offline or not in chat.

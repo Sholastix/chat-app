@@ -71,6 +71,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     socket.emit('user_add', authState.user);
 
+    socket.on('users_online', (data) => {
+      dispatch(onlineUsers(data));
+    });
+
     // Listen for typing event
     socket.on('typing', (username) => {
       setIsTyping(true);
@@ -88,8 +92,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }, 3000);
     });
 
-    socket.on('users_online', (data) => {
-      dispatch(onlineUsers(data));
+    socket.on('mark_one_message_as_read', ({ messageId }) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => msg._id === messageId
+          ? { ...msg, isRead: true }
+          : msg
+        )
+      );
+    });
+
+    socket.on('mark_all_messages_as_read', (updatedMessage) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => msg._id === updatedMessage._id
+          ? { ...msg, isRead: true }
+          : msg
+        )
+      );
     });
 
     socket.on('disconnect', (reason) => {
@@ -97,31 +115,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       console.log('SOCKET_STATUS: ', socket.connected);
     });
 
-    socket.on('mark_all_messages_as_read', (updatedMessage) => {
-      setMessages(prevMessages =>
-        prevMessages.map(msg =>
-          msg._id === updatedMessage._id
-            ? { ...msg, isRead: true }
-            : msg
-        )
-      );
-    });
-
-    socket.on('message_read', ({ messageId }) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg._id === messageId ? { ...msg, isRead: true } : msg
-        )
-      );
-    });
-
     return () => {
       socket.off('connected');
-      socket.off('typing');
       socket.off('users_online');
-      socket.off('disconnect');
+      socket.off('typing');
+      socket.off('mark_one_message_as_read');
       socket.off('mark_all_messages_as_read');
-      socket.off('message_read');
+      socket.off('disconnect');
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
