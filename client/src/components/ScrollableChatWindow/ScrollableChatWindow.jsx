@@ -224,8 +224,6 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                   }}
                 >
                   {
-                    !isSameTime(messages, message, index)
-                    &&
                     isMyMessage(messages, index, userId)
                     &&
                     message.isRead

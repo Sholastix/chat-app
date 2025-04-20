@@ -97,11 +97,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       console.log('SOCKET_STATUS: ', socket.connected);
     });
 
+    socket.on('message_read', (updatedMessage) => {
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg._id === updatedMessage._id
+            ? { ...msg, isRead: true }
+            : msg
+        )
+      );
+    });
+
     return () => {
       socket.off('connected');
       socket.off('typing');
       socket.off('users_online');
       socket.off('disconnect');
+      socket.off('message_read');
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -114,7 +125,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       // Incoming message will have pop-up sound (only if the chat window is unfocused).
       !document.hasFocus() && messageNotificationSound();
 
-      setMessages([...messages, data]);
+      setMessages((prevMessages) => [...prevMessages, data]);
       setIsTyping(false);
       setTypingUser('');
     });

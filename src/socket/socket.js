@@ -57,11 +57,11 @@ const socket = (server) => {
       socket.on('room_join', async (room, users, username, userId) => {
         if (room !== null) {
           const socketId = socket.id;
-          
+
           if (!userRooms.some((element) => element.userId === userId)) {
             userRooms.push({ userId, room, socketId });
           };
-          
+
           socket.join(room);
           console.log(`SOCKET_EVENT: ${username} joined the room '${room}'.`);
 
@@ -80,6 +80,22 @@ const socket = (server) => {
             );
 
             console.log(`Marked ${result.modifiedCount} messages as already read.`);
+
+            // Here we get all updated messages. 
+            const updatedMessages = await MessageModel.find({
+              chat: room,
+              sender: notCurrentUser,
+              isRead: true
+            });
+
+            updatedMessages.forEach((msg) => {
+              const senderSocket = usersOnline.find((user) => user.userId === msg.sender.toString())?.socketId;
+              console.log('SENDER_SOCKET: ', senderSocket)
+
+              if (senderSocket) {
+                io.to(senderSocket).emit('message_read', msg);
+              }
+            });
           } catch (err) {
             console.error(err);
           };
