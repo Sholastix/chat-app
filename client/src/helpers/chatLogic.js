@@ -127,5 +127,7 @@ export const linkifyAndSanitize = (text) => {
     return `<a href="${hyperlink}" target="_blank" rel="noopener noreferrer">${url}</a>`;
   });
 
-  return DOMPurify.sanitize(htmlWithLinks);
+  return DOMPurify.sanitize(htmlWithLinks, {
+    ADD_ATTR: ['target', 'rel']
+  });
 };
