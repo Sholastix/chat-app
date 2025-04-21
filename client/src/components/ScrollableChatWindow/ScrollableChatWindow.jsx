@@ -26,7 +26,8 @@ import {
   isLastMessageInBlock,
   isMyMessage,
   isNewDay,
-  isSameTime
+  isSameTime,
+  linkifyAndSanitize
 } from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
@@ -211,9 +212,8 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                     padding: '1rem',
                     width: 'fit-content'
                   }}
-                >
-                  {message.content}
-                </Box>
+                  dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
+                />
 
                 <Box
                   component='span'

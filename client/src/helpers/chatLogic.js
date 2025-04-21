@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 // We have 1-on-1 chat with two users. 
 // One of the users is ourself when the other user is our collocutor.
 // Basically, function returns our collocutor's name which will be the name of our 1-on-1 chat.
@@ -107,4 +109,23 @@ export const isSameTime = (messages, message, index) => {
   } catch (err) {
     console.error(err);
   };
+};
+
+/////////////////////////////////////////////////////   SAFE HYPERLINKS IN CHAT   /////////////////////////////////////////////////////
+
+// Create safe hyperlinks in chat.
+export const linkifyAndSanitize = (text) => {
+  const urlRegex = /((https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?)/gi;
+
+  const htmlWithLinks = text.replace(urlRegex, (url) => {
+    let hyperlink = url;
+
+    if (!hyperlink.match(/^https?:\/\//)) {
+      hyperlink = 'http://' + hyperlink;
+    };
+
+    return `<a href="${hyperlink}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
+
+  return DOMPurify.sanitize(htmlWithLinks);
 };
