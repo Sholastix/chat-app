@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import linkifyHtml from 'linkify-html';
 
 // We have 1-on-1 chat with two users. 
 // One of the users is ourself when the other user is our collocutor.
@@ -115,19 +116,34 @@ export const isSameTime = (messages, message, index) => {
 
 // Create safe hyperlinks in chat.
 export const linkifyAndSanitize = (text) => {
-  const urlRegex = /((https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?)/gi;
+  // const urlRegex = /((https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?)/gi;
 
-  const htmlWithLinks = text.replace(urlRegex, (url) => {
-    let hyperlink = url;
+  // const htmlWithLinks = text.replace(urlRegex, (url) => {
+  //   let hyperlink = url;
 
-    if (!hyperlink.match(/^https?:\/\//)) {
-      hyperlink = 'http://' + hyperlink;
-    };
+  //   if (!hyperlink.match(/^https?:\/\//)) {
+  //     hyperlink = 'http://' + hyperlink;
+  //   };
 
-    return `<a href="${hyperlink}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  //   return `<a href="${hyperlink}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  // });
+
+  // return DOMPurify.sanitize(htmlWithLinks, {
+  //   ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br', 'span', 'code'],
+  //   ADD_ATTR: ['target', 'rel']
+  // });
+
+  const linkified = linkifyHtml(text, {
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    defaultProtocol: 'https',
+    attributes: {
+      rel: 'nofollow noopener noreferrer',
+    }
   });
 
-  return DOMPurify.sanitize(htmlWithLinks, {
+  return DOMPurify.sanitize(linkified, {
+    ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br', 'span', 'code'],
     ADD_ATTR: ['target', 'rel']
   });
 };
