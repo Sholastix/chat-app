@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 import {
   Avatar,
   Box,
@@ -41,11 +42,30 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
 
   // STATE.
   const [scrollbarPosition, setScrollbarPosition] = useState(0);
+  const [linkPreviews, setLinkPreviews] = useState({});
 
   const chatEndRef = useRef(null);
 
   useEffect(() => {
     scrollToBottom();
+
+    const fetchPreview = async (url, messageId) => {
+      try {
+        const { data } = await axios.post('/api/chat/message/linkPreview', { url });
+
+        setLinkPreviews((prev) => ({ ...prev, [messageId]: data }));
+      } catch (err) {
+        console.error(err);
+      };
+    };
+
+    messages.forEach((msg) => {
+      const urlMatch = msg.content.match(/https?:\/\/[^\s]+/);
+
+      if (urlMatch && !linkPreviews[msg._id]) {
+        fetchPreview(urlMatch[0], msg._id);
+      };
+    });
   }, [messages]);
 
   // Calculate the scrollbar position in percentage.
@@ -214,6 +234,49 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                   }}
                   dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
                 />
+
+                {
+                  linkPreviews[message._id] && (
+                    <Box
+                      sx={{
+                        border: '1px solid #ccc',
+                        borderRadius: '0.5rem',
+                        marginTop: '0.5rem',
+                        overflow: 'hidden',
+                        maxWidth: '32rem',
+                        textDecoration: 'none',
+                        backgroundColor: '#fafafa'
+                      }}
+                      component="a"
+                      href={linkPreviews[message._id].requestUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {linkPreviews[message._id].ogImage?.url && (
+                        <Box
+                          component="img"
+                          src={linkPreviews[message._id].ogImage.url}
+                          alt="preview"
+                          sx={{ width: '100%', height: 'auto' }}
+                        />
+                      )}
+
+                      <Box sx={{ padding: '0.8rem' }}>
+                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.4rem' }}>
+                          {linkPreviews[message._id].ogTitle}
+                        </Typography>
+
+                        <Typography sx={{ fontSize: '1.2rem', color: 'gray' }}>
+                          {linkPreviews[message._id].ogDescription}
+                        </Typography>
+
+                        <Typography sx={{ fontSize: '1.1rem', color: '#777', marginTop: '0.3rem' }}>
+                          {linkPreviews[message._id].requestUrl}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )
+                }
 
                 <Box
                   component='span'

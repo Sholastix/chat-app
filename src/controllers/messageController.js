@@ -1,3 +1,5 @@
+const ogs = require('open-graph-scraper');
+
 // Models.
 const ChatModel = require('../models/ChatModel');
 const MessageModel = require('../models/MessageModel');
@@ -18,6 +20,24 @@ const fetchMessages = async (req, res) => {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
   };
+};
+
+// Show preview for hyperlink in message.
+const fetchLinkPreview = async (req, res) => {
+  const { url } = req.body;
+
+  try {
+    const { error, result } = await ogs({ url });
+
+    if (error) {
+      return res.status(400).json({ error: 'Could not fetch preview.' });
+    };
+
+    return res.json(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error' });
+  }
 };
 
 // Send message.
@@ -64,6 +84,7 @@ const sendMessage = async (req, res) => {
 };
 
 module.exports = {
+  fetchLinkPreview,
   fetchMessages,
   sendMessage
 };
