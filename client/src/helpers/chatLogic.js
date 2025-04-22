@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import emoji from 'emoji-dictionary';
 import linkifyHtml from 'linkify-html';
 
 // We have 1-on-1 chat with two users. 
@@ -112,27 +113,98 @@ export const isSameTime = (messages, message, index) => {
   };
 };
 
-/////////////////////////////////////////////////////   SAFE HYPERLINKS IN CHAT   /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////   EMOJI FUNCTIONALITY   /////////////////////////////////////////////////////
 
-// Create safe hyperlinks in chat.
+// Emoticon-to-emoji conversion map.
+const emoticonMap = {
+  // Happy / Laughing
+  ':)': '😊',
+  ':-)': '😊',
+  ':]': '😊',
+  '=)': '😊',
+  ':D': '😄',
+  ':-D': '😄',
+  '=D': '😄',
+  'XD': '😆',
+  'xD': '😆',
+
+  // Winking / Flirty
+  ';)': '😉',
+  ';-)': '😉',
+
+  // Playful / Tongue out
+  ':P': '😛',
+  ':-P': '😛',
+  '=P': '😛',
+  ':p': '😛',
+  ':-p': '😛',
+
+  // Sad / Crying
+  ':(': '☹️',
+  ':-(': '☹️',
+  '=(': '☹️',
+  ":'(": '😢',
+  ":'‑(": '😢',
+  "T_T": '😭',
+
+  // Angry / Annoyed
+  '>:(': '😠',
+  'D:': '😧',
+
+  // Shock / Surprise
+  ':O': '😮',
+  ':-O': '😮',
+  ':o': '😮',
+  ':-o': '😮',
+
+  // Love
+  '<3': '❤️',
+  '</3': '💔',
+
+  // Cool / Sunglasses
+  '8)': '😎',
+  'B)': '😎',
+
+  // Confused / Meh
+  ':/': '😕',
+  ':-/': '😕',
+  ':\\': '😕',
+  ':-\\': '😕',
+
+  // Grinning / Mischievous
+  ':3': '😺',
+
+  // Nervous / Embarrassed
+  ':$': '😳',
+
+  // Kisses
+  ':*': '😘',
+  ':-*': '😘'
+};
+
+// Replace ASCII-style emoticons (e.g. :)) with emojis.
+const replaceEmoticons = (text) => {
+  const pattern = new RegExp(Object.keys(emoticonMap)
+    .map((element) => element.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|'), 'g');
+
+  return text.replace(pattern, match => emoticonMap[match] || match);
+};
+
+// Replace emoji shortcodes (e.g. :heart:) with emojis.
+const replaceShortcodes = (text) => {
+  return text.replace(/:([a-zA-Z0-9_+-]+):/g, (match, name) => {
+    const emojiChar = emoji.getUnicode(name);
+
+    // Fallback to original shortcode if not found.
+    return emojiChar || match;
+  });
+};
+
+/////////////////////////////////////////////////////   SAFE HYPERLINKS AND EMOJIS IN CHAT   /////////////////////////////////////////////////////
+
+// Full parser with sanitizer, hyperlinks and emojis.
 export const linkifyAndSanitize = (text) => {
-  // const urlRegex = /((https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?)/gi;
-
-  // const htmlWithLinks = text.replace(urlRegex, (url) => {
-  //   let hyperlink = url;
-
-  //   if (!hyperlink.match(/^https?:\/\//)) {
-  //     hyperlink = 'http://' + hyperlink;
-  //   };
-
-  //   return `<a href="${hyperlink}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-  // });
-
-  // return DOMPurify.sanitize(htmlWithLinks, {
-  //   ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br', 'span', 'code'],
-  //   ADD_ATTR: ['target', 'rel']
-  // });
-
   const linkified = linkifyHtml(text, {
     target: '_blank',
     rel: 'noopener noreferrer',
@@ -142,6 +214,47 @@ export const linkifyAndSanitize = (text) => {
     }
   });
 
+  // Create a temporary DOM to selectively replace emojis.
+  const container = document.createElement('div');
+  container.innerHTML = linkified;
+
+  // Walk through non-link nodes and apply emoji/emoticon replacement.
+  const walk = (node) => {
+    node.childNodes.forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        // Replace emoji shortcodes and emoticons in plain text.
+        let replaced = replaceShortcodes(replaceEmoticons(child.textContent));
+        child.textContent = replaced;
+      } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== 'A') {
+        // Recurse into non-anchor elements.
+        // For most chat messages the DOM tree is shallow and recursion is fine - stack overflow does not occur.
+        walk(child);
+      }
+    });
+  };
+
+  walk(container);
+
+  // // We can change 'walk()' function to iterative version without recursion.
+  // const walk = (root) => {
+  //   const stack = [root];
+  
+  //   while (stack.length > 0) {
+  //     const node = stack.pop();
+  
+  //     node.childNodes.forEach(child => {
+  //       if (child.nodeType === Node.TEXT_NODE) {
+  //         child.textContent = replaceShortcodes(replaceEmoticons(child.textContent));
+  //       } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== 'A') {
+  //         stack.push(child);
+  //       };
+  //     });
+  //   }
+  // };
+
+  // walk(container);
+
+  // Sanitize final output.
   return DOMPurify.sanitize(linkified, {
     ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br', 'span', 'code'],
     ADD_ATTR: ['target', 'rel']
