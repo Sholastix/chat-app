@@ -255,7 +255,7 @@ export const linkifyAndSanitize = (text) => {
   // walk(container);
 
   // Sanitize final output.
-  return DOMPurify.sanitize(linkified, {
+  return DOMPurify.sanitize(container.innerHTML, {
     ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br', 'span', 'code'],
     ADD_ATTR: ['target', 'rel']
   });
