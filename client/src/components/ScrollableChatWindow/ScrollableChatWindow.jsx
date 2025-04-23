@@ -28,7 +28,8 @@ import {
   isMyMessage,
   isNewDay,
   isSameTime,
-  linkifyAndSanitize
+  linkifyAndSanitize,
+  truncateText
 } from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
@@ -81,6 +82,16 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
       chatEndRef.current?.scrollIntoView({ behavior: 'instant' });
     } catch (err) {
       console.error(err);
+    };
+  };
+
+  // Removing anything except www + full domain name in request URL which dispays in link preview.
+  const shortRequestUrl = (messageId) => {
+    try {
+      const parsedUrl = new URL(linkPreviews[messageId]?.requestUrl);
+      return parsedUrl.hostname;
+    } catch (err) {
+      return '';
     };
   };
 
@@ -262,16 +273,36 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                       )}
 
                       <Box sx={{ padding: '0.8rem' }}>
+                        {/* Part below allow us to truncate title to 60 chars maximum */}
                         <Typography sx={{ fontWeight: 'bold', fontSize: '1.4rem' }}>
                           {linkPreviews[message._id].ogTitle}
+                          {/* {truncateText(linkPreviews[message._id].ogTitle, 60)} */}
                         </Typography>
 
-                        <Typography sx={{ fontSize: '1.2rem', color: 'gray' }}>
+                        {/* Part below allow us to truncate description to 100 chars maximum */}
+                        {/* <Typography sx={{ fontSize: '1.2rem', color: 'gray' }}>
+                          {truncateText(linkPreviews[message._id].ogDescription, 100)}
+                        </Typography> */}
+
+                        {/* Part below is alternative CSS truncating with support of wrapping + ellipsis (for a more "fixed height + scroll or clip" feel) */}
+                        <Typography
+                          sx={{
+                            fontSize: '1.2rem',
+                            color: 'gray',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                          }}
+                        >
                           {linkPreviews[message._id].ogDescription}
                         </Typography>
 
-                        <Typography sx={{ fontSize: '1.1rem', color: '#777', marginTop: '0.3rem' }}>
-                          {linkPreviews[message._id].requestUrl}
+                        {/* Part below is for displaying short version of URL from request in link preview*/}
+                        <Typography sx={{ color: '#777', fontSize: '1.1rem', marginTop: '1rem' }}>
+                          {
+                            shortRequestUrl(message._id)
+                          }
                         </Typography>
                       </Box>
                     </Box>

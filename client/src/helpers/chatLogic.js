@@ -201,7 +201,7 @@ const replaceShortcodes = (text) => {
   });
 };
 
-/////////////////////////////////////////////////////   SAFE HYPERLINKS AND EMOJIS IN CHAT   /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////   HYPERLINKS AND EMOJIS   /////////////////////////////////////////////////////
 
 // Full parser with sanitizer, hyperlinks and emojis.
 export const linkifyAndSanitize = (text) => {
@@ -238,10 +238,10 @@ export const linkifyAndSanitize = (text) => {
   // // We can change 'walk()' function to iterative version without recursion.
   // const walk = (root) => {
   //   const stack = [root];
-  
+
   //   while (stack.length > 0) {
   //     const node = stack.pop();
-  
+
   //     node.childNodes.forEach(child => {
   //       if (child.nodeType === Node.TEXT_NODE) {
   //         child.textContent = replaceShortcodes(replaceEmoticons(child.textContent));
@@ -259,4 +259,10 @@ export const linkifyAndSanitize = (text) => {
     ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br', 'span', 'code'],
     ADD_ATTR: ['target', 'rel']
   });
+};
+
+// Text truncation in hyperlinks.
+export const truncateText = (text, maxLength) => {
+  if (!text) return '';
+  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
 };
