@@ -110,12 +110,12 @@ const createGroupChat = async (req, res) => {
     let users = req.body.users ? JSON.parse(req.body.users) : req.body.users;
 
     if (!chatName || !users) {
-      console.log('Please fill all the fields.');
+      console.log('\nERROR: Please fill all the fields.');
       return res.status(400).json({ message: 'Please fill all the fields.' });
     };
 
     if (users.length < 2) {
-      console.log('Group chat requires 2 or more users.');
+      console.log('\nERROR: Group chat requires 2 or more users.');
       return res.status(400).json({ message: 'Group chat requires 2 or more users.' });
     };
 

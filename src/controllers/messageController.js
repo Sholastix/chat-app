@@ -16,7 +16,7 @@ const fetchMessages = async (req, res) => {
     res.status(200).json(messages);
   } catch (err) {
     console.error(err);
-    res.status(500).json(`Server error: ${err.message}`);
+    res.status(500).json({ error: 'Server error', message: err.message });
   };
 };
 
@@ -29,23 +29,24 @@ const fetchLinkPreview = async (req, res) => {
     const data = await response.json();
 
     if (!data || data.status !== 'success') {
+      console.log('\nERROR: Could not fetch link preview.');
       return res.status(400).json({ error: 'Could not fetch link preview.' });
     };
 
     const meta = data.data;
 
     return res.json({
-      ogTitle: meta.title,
-      ogDescription: meta.description,
-      ogImage: {
+      linkTitle: meta.title,
+      linkDescription: meta.description,
+      linkImage: {
         url: meta.image?.url || meta.screenshot?.url
       },
       requestUrl: meta.url
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Server error while fetching preview.' });
-  }
+    res.status(500).json({ error: 'Server error', message: err.message });
+  };
 };
 
 // Send message.
@@ -58,8 +59,8 @@ const sendMessage = async (req, res) => {
     const { chatId, messageContent } = req.body;
 
     if (!chatId || !messageContent) {
-      console.log('Invalid data passed into the request.');
-      return res.status(400).json('Invalid data passed into the request.');
+      console.log('\nERROR: Invalid data passed into the request.');
+      return res.status(400).json({ error: 'Invalid data passed into the request.' });
     };
 
     // Create new message.
@@ -87,7 +88,7 @@ const sendMessage = async (req, res) => {
     res.status(201).json(fullMessage);
   } catch (err) {
     console.error(err);
-    res.status(500).json(`Server error: ${err.message}`);
+    res.status(500).json({ error: 'Server error', message: err.message });
   };
 };
 

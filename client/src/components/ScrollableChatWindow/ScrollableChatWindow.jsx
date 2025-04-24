@@ -258,18 +258,18 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                         textDecoration: 'none',
                         backgroundColor: '#fafafa'
                       }}
-                      component="a"
+                      component='a'
                       href={linkPreviews[message._id].requestUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      target='_blank'
+                      rel='noopener noreferrer'
                     >
                       {
-                        linkPreviews[message._id].ogImage?.url
+                        linkPreviews[message._id].linkImage?.url
                         && (
                           <Box
-                            component="img"
-                            src={linkPreviews[message._id].ogImage.url}
-                            alt="preview"
+                            component='img'
+                            src={linkPreviews[message._id].linkImage.url}
+                            alt='preview'
                             sx={{ width: '100%', height: 'auto' }}
                             onError={(error) => {
                               error.target.style.display = 'none';
@@ -281,12 +281,12 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                       <Box sx={{ padding: '0.8rem' }}>
                         {/* Part below allow us to truncate title to 100 chars maximum */}
                         <Typography sx={{ fontWeight: 'bold', fontSize: '1.4rem' }}>
-                          {truncateText(linkPreviews[message._id].ogTitle, 100)}
+                          {truncateText(linkPreviews[message._id].linkTitle, 100)}
                         </Typography>
 
                         {/* Part below allow us to truncate description to 100 chars maximum */}
                         {/* <Typography sx={{ fontSize: '1.2rem', color: 'gray' }}>
-                          {truncateText(linkPreviews[message._id].ogDescription, 100)}
+                          {truncateText(linkPreviews[message._id].linkDescription, 100)}
                         </Typography> */}
 
                         {/* Part below is alternative CSS truncating with support of wrapping + ellipsis (for a more "fixed height + scroll or clip" feel) */}
@@ -300,7 +300,7 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                             WebkitBoxOrient: 'vertical',
                           }}
                         >
-                          {linkPreviews[message._id].ogDescription}
+                          {linkPreviews[message._id].linkDescription}
                         </Typography>
 
                         {/* Part below is for displaying short version of URL from request in link preview*/}
