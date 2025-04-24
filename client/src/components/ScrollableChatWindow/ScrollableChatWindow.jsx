@@ -263,20 +263,25 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {linkPreviews[message._id].ogImage?.url && (
-                        <Box
-                          component="img"
-                          src={linkPreviews[message._id].ogImage.url}
-                          alt="preview"
-                          sx={{ width: '100%', height: 'auto' }}
-                        />
-                      )}
+                      {
+                        linkPreviews[message._id].ogImage?.url
+                        && (
+                          <Box
+                            component="img"
+                            src={linkPreviews[message._id].ogImage.url}
+                            alt="preview"
+                            sx={{ width: '100%', height: 'auto' }}
+                            onError={(error) => {
+                              error.target.style.display = 'none';
+                            }}
+                          />
+                        )
+                      }
 
                       <Box sx={{ padding: '0.8rem' }}>
-                        {/* Part below allow us to truncate title to 60 chars maximum */}
+                        {/* Part below allow us to truncate title to 100 chars maximum */}
                         <Typography sx={{ fontWeight: 'bold', fontSize: '1.4rem' }}>
-                          {linkPreviews[message._id].ogTitle}
-                          {/* {truncateText(linkPreviews[message._id].ogTitle, 60)} */}
+                          {truncateText(linkPreviews[message._id].ogTitle, 100)}
                         </Typography>
 
                         {/* Part below allow us to truncate description to 100 chars maximum */}
@@ -300,9 +305,7 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
 
                         {/* Part below is for displaying short version of URL from request in link preview*/}
                         <Typography sx={{ color: '#777', fontSize: '1.1rem', marginTop: '1rem' }}>
-                          {
-                            shortRequestUrl(message._id)
-                          }
+                          {shortRequestUrl(message._id)}
                         </Typography>
                       </Box>
                     </Box>

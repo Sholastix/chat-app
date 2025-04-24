@@ -1,5 +1,3 @@
-const ogs = require('open-graph-scraper');
-
 // Models.
 const ChatModel = require('../models/ChatModel');
 const MessageModel = require('../models/MessageModel');
@@ -27,16 +25,26 @@ const fetchLinkPreview = async (req, res) => {
   const { url } = req.body;
 
   try {
-    const { error, result } = await ogs({ url });
+    const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}&screenshot=true&meta=true`);
+    const data = await response.json();
 
-    if (error) {
-      return res.status(400).json({ error: 'Could not fetch preview.' });
+    if (!data || data.status !== 'success') {
+      return res.status(400).json({ error: 'Could not fetch link preview.' });
     };
 
-    return res.json(result);
+    const meta = data.data;
+
+    return res.json({
+      ogTitle: meta.title,
+      ogDescription: meta.description,
+      ogImage: {
+        url: meta.image?.url || meta.screenshot?.url
+      },
+      requestUrl: meta.url
+    });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error while fetching preview.' });
   }
 };
 
