@@ -261,8 +261,16 @@ export const linkifyAndSanitize = (text) => {
   });
 };
 
-// Text truncation in hyperlinks.
+// Truncate text in hyperlinks to maxLength without cutting mid-word.
 export const truncateText = (text, maxLength) => {
   if (!text) return '';
-  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  if (text.length <= maxLength) return text;
+
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+
+  // If no space found (e.g., "cat,dog"), fallback to hard cut.
+  return lastSpace === -1
+    ? truncated + '...'
+    : truncated.slice(0, lastSpace) + '...';
 };

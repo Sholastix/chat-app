@@ -285,12 +285,12 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                         </Typography>
 
                         {/* Part below allow us to truncate description to 100 chars maximum */}
-                        {/* <Typography sx={{ fontSize: '1.2rem', color: 'gray' }}>
+                        <Typography sx={{ fontSize: '1.2rem', color: 'gray' }}>
                           {truncateText(linkPreviews[message._id].linkDescription, 100)}
-                        </Typography> */}
+                        </Typography>
 
                         {/* Part below is alternative CSS truncating with support of wrapping + ellipsis (for a more "fixed height + scroll or clip" feel) */}
-                        <Typography
+                        {/* <Typography
                           sx={{
                             fontSize: '1.2rem',
                             color: 'gray',
@@ -301,7 +301,7 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                           }}
                         >
                           {linkPreviews[message._id].linkDescription}
-                        </Typography>
+                        </Typography> */}
 
                         {/* Part below is for displaying short version of URL from request in link preview*/}
                         <Typography sx={{ color: '#777', fontSize: '1.1rem', marginTop: '1rem' }}>

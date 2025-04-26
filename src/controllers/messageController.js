@@ -3,6 +3,9 @@ const ChatModel = require('../models/ChatModel');
 const MessageModel = require('../models/MessageModel');
 const UserModel = require('../models/UserModel');
 
+// Functions.
+const { truncateWithoutCuttingWord } = require('../helpers/chatLogic');
+
 // Fetch all messages for a specific chat.
 const fetchMessages = async (req, res) => {
   try {
@@ -36,8 +39,8 @@ const fetchLinkPreview = async (req, res) => {
     const meta = data.data;
 
     return res.json({
-      linkTitle: meta.title,
-      linkDescription: meta.description,
+      linkTitle: truncateWithoutCuttingWord(meta.title, 100),
+      linkDescription: truncateWithoutCuttingWord(meta.description, 100),
       linkImage: {
         url: meta.image?.url || meta.screenshot?.url
       },
