@@ -18,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
 // Components.
+import OnlineStatus from '../OnlineStatus/OnlineStatus';
 import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
 import ScrollableChatWindow from '../ScrollableChatWindow/ScrollableChatWindow';
 import Spinner from '../Spinner/Spinner';
@@ -282,10 +283,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
                 {
                   !chatState.selectedChat.isGroupChat
-                    ? <Fragment>
-                      {
-                        getSender(authState.user, chatState.selectedChat.users)
-                      }
+                    ?
+                    <Fragment>
+                      <Box
+                        component='div'
+                        sx={{ display: 'flex' }}
+                      >
+                        {
+                          getSender(authState.user, chatState.selectedChat.users)
+                        }
+
+                        <OnlineStatus online={chatState.usersOnline} chat={chatState.selectedChat} />
+                      </Box>
 
                       <IconButton
                         sx={{ marginLeft: '1rem' }}
@@ -300,7 +309,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         user={getFullSender(authState.user, chatState.selectedChat.users)}
                       />
                     </Fragment>
-                    : <Fragment>
+                    :
+                    <Fragment>
                       {
                         chatState.selectedChat.chatName
                       }
