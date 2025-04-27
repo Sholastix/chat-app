@@ -280,7 +280,7 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
 
                       <Box sx={{ padding: '0.8rem' }}>
                         {/* Part below allow us to truncate title to 100 chars maximum */}
-                        <Typography sx={{ color: 'black', fontWeight: 500, fontSize: '1.4rem', marginBottom: '1rem' }}>
+                        <Typography sx={{ color: 'black', fontWeight: 600, fontSize: '1.4rem', marginBottom: '1rem' }}>
                           {truncateText(linkPreviews[message._id].linkTitle, 100)}
                         </Typography>
 
