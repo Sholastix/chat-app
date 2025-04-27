@@ -250,13 +250,13 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                   linkPreviews[message._id] && (
                     <Box
                       sx={{
-                        border: '1px solid #ccc',
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        border: '1px solid lightgray',
                         borderRadius: '0.5rem',
                         marginTop: '0.5rem',
-                        overflow: 'hidden',
                         maxWidth: '32rem',
+                        overflow: 'hidden',
                         textDecoration: 'none',
-                        backgroundColor: '#fafafa'
                       }}
                       component='a'
                       href={linkPreviews[message._id].requestUrl}
@@ -280,31 +280,17 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
 
                       <Box sx={{ padding: '0.8rem' }}>
                         {/* Part below allow us to truncate title to 100 chars maximum */}
-                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.4rem' }}>
+                        <Typography sx={{ color: 'black', fontWeight: 500, fontSize: '1.4rem', marginBottom: '1rem' }}>
                           {truncateText(linkPreviews[message._id].linkTitle, 100)}
                         </Typography>
 
                         {/* Part below allow us to truncate description to 100 chars maximum */}
-                        <Typography sx={{ fontSize: '1.2rem', color: 'gray' }}>
+                        <Typography sx={{ fontSize: '1.2rem', color: 'black', marginBottom: '1rem' }}>
                           {truncateText(linkPreviews[message._id].linkDescription, 100)}
                         </Typography>
 
-                        {/* Part below is alternative CSS truncating with support of wrapping + ellipsis (for a more "fixed height + scroll or clip" feel) */}
-                        {/* <Typography
-                          sx={{
-                            fontSize: '1.2rem',
-                            color: 'gray',
-                            overflow: 'hidden',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: 'vertical',
-                          }}
-                        >
-                          {linkPreviews[message._id].linkDescription}
-                        </Typography> */}
-
                         {/* Part below is for displaying short version of URL from request in link preview*/}
-                        <Typography sx={{ color: '#777', fontSize: '1.1rem', marginTop: '1rem' }}>
+                        <Typography sx={{ color: 'gray', fontSize: '1.1rem' }}>
                           {shortRequestUrl(message._id)}
                         </Typography>
                       </Box>
