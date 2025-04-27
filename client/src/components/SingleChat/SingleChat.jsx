@@ -289,9 +289,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         component='div'
                         sx={{ display: 'flex' }}
                       >
-                        {
-                          getSender(authState.user, chatState.selectedChat.users)
-                        }
+                        <Typography
+                          component='div'
+                          sx={{ fontSize: '2.5rem', marginRight: '0.5rem' }}
+                        >
+                          {
+                            getSender(authState.user, chatState.selectedChat.users)
+                          }
+                        </Typography>
 
                         <OnlineStatus online={chatState.usersOnline} chat={chatState.selectedChat} />
                       </Box>
