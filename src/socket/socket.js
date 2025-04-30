@@ -2,6 +2,7 @@ const { Server } = require('socket.io');
 
 const MessageModel = require('../models/MessageModel');
 const NotificationModel = require('../models/NotificationModel');
+const UserModel = require('../models/UserModel');
 
 const socket = (server) => {
   try {
@@ -13,9 +14,6 @@ const socket = (server) => {
         methods: ['GET', 'POST']
       }
     });
-
-    // // Create a variable to count the number of active sockets ('Set' constructor contains only unique values so no duplicates alowed).
-    // let connectionsCounter = new Set();
 
     // Create a variable to check user's online/offline status.
     let usersOnline = [];
@@ -39,17 +37,25 @@ const socket = (server) => {
 
     // User connects to the app.
     io.on('connection', (socket) => {
+      let userId = null;
       console.log(`SOCKET_CONNECTED: user with socketId '${socket.id}'.`);
 
-      // // Add socket to counter.
-      // connectionsCounter.add(socket.id);
-      // console.log(`\nNumber of active sockets: ${connectionsCounter.size}`);
-
       // Add user to 'online users'.
-      socket.on('user_add', (user) => {
-        addUser(user._id, socket.id);
-        io.emit('users_online', usersOnline);
+      socket.on('user_add', async (user) => {
+        userId = user._id;
+
+        // Add user to 'users online'.
+        addUser(userId, socket.id);
+
+        // Reset 'lastOnline' status for this user to 'null'.
+        await UserModel.findOneAndUpdate(
+          { _id: userId },
+          { $set: { lastOnline: null } },
+          { new: true }
+        );
+
         io.emit('connected', `User '${user.username}' with socketId '${socket.id}' connected.`);
+        io.emit('users_online', usersOnline);
       });
 
       // Join chat room.
@@ -172,17 +178,21 @@ const socket = (server) => {
       });
 
       // User disconnects from the app.
-      socket.on('disconnect', () => {
+      socket.on('disconnect', async () => {
         console.log(`SOCKET_DISCONNECTED: user with socketId '${socket.id}'.`);
-
-        // // Remove socket from counter.
-        // connectionsCounter.delete(socket.id);
-        // console.log(`\nNumber of active sockets: ${connectionsCounter.size}`);
 
         userRooms = userRooms.filter((element) => element.socketId !== socket.id);
 
         // Remove user from 'online users'.
         removeUser(socket.id);
+
+        // Set 'lastOnline' status for this user to datetime when he go offline.
+        await UserModel.findOneAndUpdate(
+          { _id: userId },
+          { $set: { lastOnline: new Date() } },
+          { new: true }
+        );
+
         io.emit('users_online', usersOnline);
       });
     });
