@@ -19,6 +19,10 @@ const initialState = {
 // We can listen to this ACTION types with an EXTRA_REDUCER and performes the necessary STATE transitions.
 // Auth check.
 export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () => {
+  if (localStorage.token) {
+    setAuthToken();
+  };
+
   const user = await axios.get('/api/auth');
 
   return user.data;
