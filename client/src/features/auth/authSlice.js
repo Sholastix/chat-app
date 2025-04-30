@@ -19,10 +19,6 @@ const initialState = {
 // We can listen to this ACTION types with an EXTRA_REDUCER and performes the necessary STATE transitions.
 // Auth check.
 export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () => {
-  if (localStorage.token) {
-    setAuthToken();
-  };
-
   const user = await axios.get('/api/auth');
 
   return user.data;
@@ -118,11 +114,13 @@ const authSlice = createSlice({
     builder.addCase(signup.fulfilled, (state, action) => {
       state.loading = false;
       state.error = '';
-      state.user = action.payload;
+      state.user = action.payload.user;
       state.isAuthenticated = true;
       state.token = action.payload.token;
       // Put token in local storage.
       localStorage.setItem('token', action.payload.token);
+      // Set axios auth header.
+      setAuthToken();
     });
 
     builder.addCase(signup.rejected, (state, action) => {
@@ -144,11 +142,13 @@ const authSlice = createSlice({
     builder.addCase(signin.fulfilled, (state, action) => {
       state.loading = false;
       state.error = '';
-      state.user = action.payload;
+      state.user = action.payload.user;
       state.isAuthenticated = true;
       state.token = action.payload.token;
       // Put token in local storage.
       localStorage.setItem('token', action.payload.token);
+      // Set axios auth header.
+      setAuthToken();
     });
 
     builder.addCase(signin.rejected, (state, action) => {
