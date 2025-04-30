@@ -4,7 +4,7 @@ import axios from 'axios';
 const setAuthToken = () => {
   // 'Authorization' - that's how we named this variable on server side ('middleware' dir -> 'authMdw.js').
   if (localStorage.token) {
-    axios.defaults.headers.common['Authorization'] = localStorage.token;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.token}`;
   } else {
     delete axios.defaults.headers.common['Authorization'];
   };
