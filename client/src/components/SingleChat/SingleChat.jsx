@@ -47,6 +47,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   // STATE.
   const [isTyping, setIsTyping] = useState(false);
+  const [lastOnline, setLastOnline] = useState('');
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
@@ -148,9 +149,41 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
   useEffect(() => {
     fetchMessages();
-
+    
     socket.emit('room_join', chatState.selectedChat?._id, chatState.selectedChat?.users, authState.user.username, authState.user._id);
+
+    // Fetch online status at first chat select.
+    fetchLastOnline();
+
+    // Fetch online status every 10 sec.
+    const intervalId = setInterval(() => {
+      fetchLastOnline();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
   }, [chatState.selectedChat]);
+
+  // Fetch 'lastOnline' status for our collocutor in private chat.
+  const fetchLastOnline = async () => {
+    try {
+      if (!chatState.selectedChat || chatState.selectedChat.isGroupChat) {
+        return;
+      };
+
+      const collocutor = getFullSender(authState.user, chatState.selectedChat.users);
+      const { data } = await axios.get(`/api/user/${collocutor._id}`);
+
+      if (data?.lastOnline) {
+        const formattedDate = new Date(data.lastOnline).toLocaleString();
+        setLastOnline(`Last online: ${formattedDate}`);
+      } else {
+        setLastOnline(null);
+      };
+    } catch (err) {
+      console.error(err);
+      setLastOnline('Unknown');
+    };
+  };
 
   // Reset STATE for selected chat.
   const resetSelectedChat = () => {
@@ -251,11 +284,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           : chatState.selectedChat
             ? (<Box
               component='div'
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%'
-              }}
+              sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}
             >
               <Box
                 component='div'
@@ -287,18 +316,30 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     <Fragment>
                       <Box
                         component='div'
-                        sx={{ display: 'flex' }}
+                        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                       >
-                        <Typography
+                        <Box
                           component='div'
-                          sx={{ fontSize: '2.5rem', marginRight: '0.5rem' }}
+                          sx={{ display: 'flex' }}
                         >
-                          {
-                            getSender(authState.user, chatState.selectedChat.users)
-                          }
-                        </Typography>
+                          <Typography
+                            component='div'
+                            sx={{ fontSize: '2.5rem', marginRight: '0.5rem' }}
+                          >
+                            {
+                              getSender(authState.user, chatState.selectedChat.users)
+                            }
+                          </Typography>
 
-                        <OnlineStatus online={chatState.usersOnline} chat={chatState.selectedChat} />
+                          <OnlineStatus online={chatState.usersOnline} chat={chatState.selectedChat} />
+                        </Box>
+
+                        <Typography
+                          component='p'
+                          sx={{ fontSize: '1.4rem', marginRight: '0.5rem' }}
+                        >
+                          {lastOnline}
+                        </Typography>
                       </Box>
 
                       <IconButton
@@ -424,12 +465,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     }}
                     onClick={sendMessage}
                   >
-                    <SendRoundedIcon sx={{
-                      color: 'white',
-                      height: '2.5rem',
-                      width: '2.5rem'
-                    }}
-                    />
+                    <SendRoundedIcon sx={{ color: 'white', height: '2.5rem', width: '2.5rem' }} />
                   </IconButton>
                 </Tooltip>
               </FormControl>
@@ -442,11 +478,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   height: '100%',
                   justifyContent: 'center',
                   width: '100%'
-                }}>
+                }}
+              >
                 <Typography
-                  sx={{
-                    fontSize: '3rem',
-                  }}
+                  sx={{ fontSize: '3rem' }}
                 >
                   Please select collocutor from chats list.
                 </Typography>

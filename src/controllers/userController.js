@@ -117,6 +117,20 @@ const getUsers = async (req, res) => {
   };
 };
 
+// Get specific user's profile.
+const getUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await UserModel.findById(id);
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  };
+};
+
 // Update user's profile.
 const updateUser = async (req, res) => {
   try {
@@ -139,6 +153,7 @@ const updateUser = async (req, res) => {
 };
 
 module.exports = {
+  getUser,
   getUsers,
   signin,
   signup,
