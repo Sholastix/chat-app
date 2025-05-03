@@ -149,18 +149,50 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
   useEffect(() => {
     fetchMessages();
-    
-    socket.emit('room_join', chatState.selectedChat?._id, chatState.selectedChat?.users, authState.user.username, authState.user._id);
 
     // Fetch online status at first chat select.
     fetchLastOnline();
 
-    // Fetch online status every 10 sec.
-    const intervalId = setInterval(() => {
-      fetchLastOnline();
-    }, 10000);
+    socket.emit('room_join', chatState.selectedChat?._id, chatState.selectedChat?.users, authState.user.username, authState.user._id);
 
-    return () => clearInterval(intervalId);
+    // Update 'lastOnline' status on CONNECT.
+    socket.on('user_connected_last_online_update', ({ userId, lastOnline }) => {
+      const selectedUsers = chatState.selectedChat?.users;
+      const loggedInUser = authState.user;
+
+      if (!selectedUsers || selectedUsers.length < 2 || !loggedInUser?._id) {
+        return;
+      };
+
+      const collocutor = getFullSender(loggedInUser, selectedUsers);
+
+      if (collocutor && collocutor._id === userId) {
+        setLastOnline(lastOnline);
+      };
+    });
+
+    // Update 'lastOnline' status on DISCONNECT.
+    socket.on('user_disconnected_last_online_update', ({ userId, lastOnline }) => {
+      const selectedUsers = chatState.selectedChat?.users;
+      const loggedInUser = authState.user;
+
+      if (!selectedUsers || selectedUsers.length < 2 || !loggedInUser?._id) {
+        return;
+      };
+
+      const collocutor = getFullSender(loggedInUser, selectedUsers);
+
+      if (collocutor && collocutor._id === userId) {
+        // Formatting date for display in UI.
+        const formatted = new Date(lastOnline).toLocaleString();
+        setLastOnline(`Last online: ${formatted}`);
+      };
+    });
+
+    return () => {
+      socket.off('user_connected_last_online_update');
+      socket.off('user_disconnected_last_online_update');
+    };
   }, [chatState.selectedChat]);
 
   // Fetch 'lastOnline' status for our collocutor in private chat.
@@ -174,6 +206,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       const { data } = await axios.get(`/api/user/${collocutor._id}`);
 
       if (data?.lastOnline) {
+        // Formatting date for display in UI.
         const formattedDate = new Date(data.lastOnline).toLocaleString();
         setLastOnline(`Last online: ${formattedDate}`);
       } else {
@@ -181,7 +214,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       };
     } catch (err) {
       console.error(err);
-      setLastOnline('Unknown');
     };
   };
 

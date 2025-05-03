@@ -48,11 +48,16 @@ const socket = (server) => {
         addUser(userId, socket.id);
 
         // Reset 'lastOnline' status for this user to 'null'.
-        await UserModel.findOneAndUpdate(
+        const updatedUser = await UserModel.findOneAndUpdate(
           { _id: userId },
           { $set: { lastOnline: null } },
           { new: true }
         );
+
+        io.emit('user_connected_last_online_update', {
+          userId: updatedUser?._id,
+          lastOnline: updatedUser.lastOnline
+        });
 
         io.emit('connected', `User '${user.username}' with socketId '${socket.id}' connected.`);
         io.emit('users_online', usersOnline);
@@ -187,11 +192,16 @@ const socket = (server) => {
         removeUser(socket.id);
 
         // Set 'lastOnline' status for this user to datetime when he go offline.
-        await UserModel.findOneAndUpdate(
+        const updatedUser = await UserModel.findOneAndUpdate(
           { _id: userId },
           { $set: { lastOnline: new Date() } },
           { new: true }
         );
+
+        io.emit('user_disconnected_last_online_update', {
+          userId: updatedUser?._id,
+          lastOnline: updatedUser.lastOnline
+        });
 
         io.emit('users_online', usersOnline);
       });
