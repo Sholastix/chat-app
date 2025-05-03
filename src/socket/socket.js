@@ -200,7 +200,7 @@ const socket = (server) => {
 
         io.emit('last_online_update', {
           userId: updatedUser?._id,
-          lastOnline: updatedUser.lastOnline
+          lastOnline: updatedUser?.lastOnline
         });
 
         io.emit('users_online', usersOnline);

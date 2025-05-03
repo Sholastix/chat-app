@@ -47,7 +47,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   // STATE.
   const [isTyping, setIsTyping] = useState(false);
-  const [lastOnline, setLastOnline] = useState('');
+  const [lastOnline, setLastOnline] = useState();
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
@@ -169,7 +169,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       if (collocutor?._id === userId) {
         if (lastOnline === null) {
-          setLastOnline(lastOnline);
+          setLastOnline('Online');
           return;
         };
 
@@ -199,7 +199,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         const formattedDate = new Date(data.lastOnline).toLocaleString();
         setLastOnline(`Last online: ${formattedDate}`);
       } else {
-        setLastOnline(null);
+        setLastOnline('Online');
       };
     } catch (err) {
       console.error(err);
@@ -339,25 +339,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         component='div'
                         sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                       >
-                        <Box
+                        <Typography
                           component='div'
-                          sx={{ display: 'flex' }}
+                          sx={{ display: 'flex', fontSize: '2.5rem' }}
                         >
-                          <Typography
-                            component='div'
-                            sx={{ fontSize: '2.5rem', marginRight: '0.5rem' }}
-                          >
-                            {
-                              getSender(authState.user, chatState.selectedChat.users)
-                            }
-                          </Typography>
+                          {
+                            getSender(authState.user, chatState.selectedChat.users)
+                          }
 
-                          <OnlineStatus online={chatState.usersOnline} chat={chatState.selectedChat} />
-                        </Box>
+                          {/* <OnlineStatus online={chatState.usersOnline} chat={chatState.selectedChat} /> */}
+                        </Typography>
 
                         <Typography
                           component='p'
-                          sx={{ fontSize: '1.4rem', marginRight: '0.5rem' }}
+                          sx={{ fontSize: '1.4rem', color: `${lastOnline && lastOnline === 'Online' ? 'green' : 'darkred'}` }}
                         >
                           {lastOnline}
                         </Typography>
