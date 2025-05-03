@@ -174,8 +174,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         };
 
         // Formatting date for display in UI.
-        const formatted = new Date(lastOnline).toLocaleString();
-        setLastOnline(`Last online: ${formatted}`);
+        const formattedDate = new Date(lastOnline).toLocaleString(navigator.language, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        });
+        
+        setLastOnline(`Last online: ${formattedDate}`);
       };
     });
 
@@ -196,7 +203,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       if (data?.lastOnline) {
         // Formatting date for display in UI.
-        const formattedDate = new Date(data.lastOnline).toLocaleString();
+        const formattedDate = new Date(data.lastOnline).toLocaleString(navigator.language, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        });
+
         setLastOnline(`Last online: ${formattedDate}`);
       } else {
         setLastOnline('Online');
