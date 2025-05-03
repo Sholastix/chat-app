@@ -54,7 +54,7 @@ const socket = (server) => {
           { new: true }
         );
 
-        io.emit('user_connected_last_online_update', {
+        io.emit('last_online_update', {
           userId: updatedUser?._id,
           lastOnline: updatedUser.lastOnline
         });
@@ -198,7 +198,7 @@ const socket = (server) => {
           { new: true }
         );
 
-        io.emit('user_disconnected_last_online_update', {
+        io.emit('last_online_update', {
           userId: updatedUser?._id,
           lastOnline: updatedUser.lastOnline
         });

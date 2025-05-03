@@ -155,8 +155,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     socket.emit('room_join', chatState.selectedChat?._id, chatState.selectedChat?.users, authState.user.username, authState.user._id);
 
-    // Update 'lastOnline' status on CONNECT.
-    socket.on('user_connected_last_online_update', ({ userId, lastOnline }) => {
+    // Update 'lastOnline' status on connect/disconnect.
+    socket.on('last_online_update', ({ userId, lastOnline }) => {
       const selectedUsers = chatState.selectedChat?.users;
       const loggedInUser = authState.user;
 
@@ -164,25 +164,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         return;
       };
 
+      // Defining our collocutor.
       const collocutor = getFullSender(loggedInUser, selectedUsers);
 
-      if (collocutor && collocutor._id === userId) {
-        setLastOnline(lastOnline);
-      };
-    });
+      if (collocutor?._id === userId) {
+        if (lastOnline === null) {
+          setLastOnline(lastOnline);
+          return;
+        };
 
-    // Update 'lastOnline' status on DISCONNECT.
-    socket.on('user_disconnected_last_online_update', ({ userId, lastOnline }) => {
-      const selectedUsers = chatState.selectedChat?.users;
-      const loggedInUser = authState.user;
-
-      if (!selectedUsers || selectedUsers.length < 2 || !loggedInUser?._id) {
-        return;
-      };
-
-      const collocutor = getFullSender(loggedInUser, selectedUsers);
-
-      if (collocutor && collocutor._id === userId) {
         // Formatting date for display in UI.
         const formatted = new Date(lastOnline).toLocaleString();
         setLastOnline(`Last online: ${formatted}`);
@@ -190,8 +180,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
 
     return () => {
-      socket.off('user_connected_last_online_update');
-      socket.off('user_disconnected_last_online_update');
+      socket.off('last_online_update');
     };
   }, [chatState.selectedChat]);
 
