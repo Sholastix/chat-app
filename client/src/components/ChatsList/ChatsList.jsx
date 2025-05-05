@@ -17,7 +17,7 @@ import OnlineStatus from '../OnlineStatus/OnlineStatus';
 import ListLoading from '../ListLoading/ListLoading';
 
 // Functions.
-import { getFullSender, getSender } from '../../helpers/chatLogic';
+import { getFullSender, getSender, truncateText } from '../../helpers/chatLogic';
 import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
 
 const ChatsList = (props) => {
@@ -199,7 +199,9 @@ const ChatsList = (props) => {
                       >
                         {
                           chat.lastMessage
-                            ? `${chat.lastMessage.sender._id === authState.user._id ? 'You' : chat.lastMessage.sender.username}: ${chat.lastMessage.content}`
+                            ? `${chat.lastMessage.sender._id === authState.user._id 
+                              ? 'You' 
+                              : chat.lastMessage.sender.username}: ${truncateText(chat.lastMessage.content, 40)}`
                             : <Typography
                               sx={{ color: 'darkred', fontSize: '1.4rem', fontWeight: '400' }}
                             >
