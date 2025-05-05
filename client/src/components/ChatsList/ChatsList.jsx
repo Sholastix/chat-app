@@ -103,27 +103,18 @@ const ChatsList = (props) => {
         }}
       >
         <Typography
-          sx={{
-            fontSize: '2rem'
-          }}
+          sx={{ fontSize: '2rem' }}
         >
           ChatsList
         </Typography>
 
         <Button
           endIcon={<AddIcon sx={{ color: 'black' }} />}
-          sx={{
-            backgroundColor: 'rgb(235, 235, 235)',
-            borderRadius: '0.5rem',
-          }}
+          sx={{ backgroundColor: 'rgb(235, 235, 235)', borderRadius: '0.5rem' }}
           onClick={handleGroupChatModalOpen}
         >
           <Typography
-            sx={{
-              color: 'black',
-              fontSize: '1.5rem',
-              textTransform: 'none',
-            }}
+            sx={{ color: 'black', fontSize: '1.5rem', textTransform: 'none' }}
           >
             New Group Chat
           </Typography>
@@ -148,14 +139,13 @@ const ChatsList = (props) => {
         {
           chatState.chats
             ? <Stack
-              sx={{
-                width: '100%'
-              }}
+              sx={{ width: '100%' }}
             >
               {
                 chatState.chats.map((chat) => (
                   <Box
                     component='div'
+                    id='chat-item'
                     key={chat._id}
                     sx={{
                       alignItems: 'center',
@@ -165,6 +155,7 @@ const ChatsList = (props) => {
                       color: 'black',
                       cursor: 'pointer',
                       display: 'flex',
+                      // height: '6.5rem',
                       marginBottom: '1rem',
                       padding: '1rem 2rem',
                       ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
@@ -189,16 +180,34 @@ const ChatsList = (props) => {
                       }
                     </Box>
 
-                    <Typography
-                      sx={{
-                        fontSize: '1.4rem',
-                        fontWeight: '500'
-                      }}
+                    <Box
+                      component='div'
+                      sx={{ display: 'flex', flexDirection: 'column' }}
                     >
-                      {
-                        !chat.isGroupChat ? getSender(authState.user, chat.users) : (chat.chatName)
-                      }
-                    </Typography>
+                      <Typography
+                        sx={{ fontSize: '1.4rem', fontWeight: '600' }}
+                      >
+                        {
+                          !chat.isGroupChat ? getSender(authState.user, chat.users) : chat.chatName
+                        }
+                      </Typography>
+
+                      <Typography
+                        component='div'
+                        id='last-message'
+                        sx={{ fontSize: '1.4rem', fontWeight: '400' }}
+                      >
+                        {
+                          chat.lastMessage
+                            ? `${chat.lastMessage.sender._id === authState.user._id ? 'You' : chat.lastMessage.sender.username}: ${chat.lastMessage.content}`
+                            : <Typography
+                              sx={{ color: 'darkred', fontSize: '1.4rem', fontWeight: '400' }}
+                            >
+                              No messages.
+                            </Typography>
+                        }
+                      </Typography>
+                    </Box>
                   </Box>
                 ))
               }
