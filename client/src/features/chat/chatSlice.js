@@ -101,6 +101,14 @@ const chatSlice = createSlice({
     onlineUsers: (state, action) => {
       state.usersOnline = action.payload;
     },
+
+    updateChatLastMessage: (state, action) => {
+      const updatedChat = action.payload;
+      
+      state.chats = state.chats.map(chat =>
+        chat._id === updatedChat._id ? { ...chat, lastMessage: updatedChat.lastMessage } : chat
+      );
+    },
   },
 
   // Specify the EXTRA_REDUCERS.
@@ -233,5 +241,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { resetSelectedChatState, onlineUsers } = chatSlice.actions;
+export const { resetSelectedChatState, onlineUsers, updateChatLastMessage } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

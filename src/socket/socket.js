@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 
+const ChatModel = require('../models/ChatModel');
 const MessageModel = require('../models/MessageModel');
 const NotificationModel = require('../models/NotificationModel');
 const UserModel = require('../models/UserModel');
@@ -180,6 +181,26 @@ const socket = (server) => {
 
         // Emit 'message_received' event to specific room.
         socket.to(room).emit('message_received', data);
+
+        // Here we must populate in classic way without dot notation shortening because Mongoose dot notation for nested 'populate()' doesn't work in this context,
+        // when 'lastMessage' property itself is a reference and we need to populate a path within that reference ('lastMessage.sender').
+        // This is common Mongoose limitation - Mongoose won't recursively populate unless we explicitly instruct it to using the longer form.
+        const updatedChat = await ChatModel.findByIdAndUpdate(
+          data.chat._id,
+          { lastMessage: data._id },
+          { new: true }
+        )
+          .populate({
+            path: 'lastMessage',
+            populate: {
+              path: 'sender',
+              model: 'User',
+              select: '_id avatar username' // here we can select fields we need.
+            }
+          })
+          .populate('users', '_id avatar username');
+
+        io.emit('chat_last_message_update', updatedChat);
       });
 
       // User disconnects from the app.

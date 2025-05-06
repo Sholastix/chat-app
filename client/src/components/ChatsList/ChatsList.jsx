@@ -16,9 +16,12 @@ import GroupChatModal from '../ModalWindows/GroupChatModal/GroupChatModal';
 import OnlineStatus from '../OnlineStatus/OnlineStatus';
 import ListLoading from '../ListLoading/ListLoading';
 
+// Socket.IO
+import { socket } from '../../socket/socket';
+
 // Functions.
 import { getFullSender, getSender, truncateText } from '../../helpers/chatLogic';
-import { fetchChats, fetchChat } from '../../features/chat/chatSlice';
+import { fetchChats, fetchChat, updateChatLastMessage } from '../../features/chat/chatSlice';
 
 const ChatsList = (props) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -44,6 +47,17 @@ const ChatsList = (props) => {
   useEffect(() => {
     allOnlineUsers();
   }, [chatState.usersOnline]);
+
+  useEffect(() => {
+    // Listen for real-time last message updates.
+    socket.on('chat_last_message_update', (updatedChat) => {
+      dispatch(updateChatLastMessage(updatedChat));
+    });
+
+    return () => {
+      socket.off('chat_last_message_update');
+    };
+  }, []);
 
   // Open group chat's modal window.
   const handleGroupChatModalOpen = () => {
@@ -199,8 +213,8 @@ const ChatsList = (props) => {
                       >
                         {
                           chat.lastMessage
-                            ? `${chat.lastMessage.sender._id === authState.user._id 
-                              ? 'You' 
+                            ? `${chat.lastMessage.sender._id === authState.user._id
+                              ? 'You'
                               : chat.lastMessage.sender.username}: ${truncateText(chat.lastMessage.content, 40)}`
                             : <Typography
                               sx={{ color: 'darkred', fontSize: '1.4rem', fontWeight: '400' }}

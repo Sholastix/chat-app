@@ -276,8 +276,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           messageContent: newMessage
         });
 
-        console.log('MS_DATA: ', data);
-
         socket.emit('message_send', chatState.selectedChat._id, data);
         setMessages([...messages, data]);
         setNewMessage('');
