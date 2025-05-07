@@ -34,6 +34,11 @@ const chat = async (req, res) => {
     });
 
     if (isChat.length > 0) {
+      // Unhide chat for current user if it was previously hidden.
+      await ChatModel.findByIdAndUpdate(isChat[0]._id, {
+        $pull: { hiddenBy: userId }
+      });
+
       // If chat already exists - return it.
       res.json(isChat[0]);
     } else {
@@ -63,7 +68,9 @@ const fetchChats = async (req, res) => {
     const userId = req.userId;
 
     const chats = await ChatModel.find({
-      users: { $elemMatch: { $eq: userId } }
+      users: { $elemMatch: { $eq: userId } },
+      // Don't include chats hidden by the user.
+      hiddenBy: { $ne: userId }
     })
       .populate('users', '-password')
       .populate('groupAdmin', '-password')
@@ -214,12 +221,30 @@ const removeFromGroup = async (req, res) => {
   };
 };
 
+const hideChatForUser = async (req, res) => {
+  try {
+    const { chatId, userId } = req.body;
+
+    const chat = await ChatModel.findByIdAndUpdate(
+      chatId,
+      { $addToSet: { hiddenBy: userId } },
+      { new: true }
+    );
+
+    res.status(200).json(chat);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  }
+};
+
 module.exports = {
   chat,
   addToGroup,
   createGroupChat,
   fetchChat,
   fetchChats,
+  hideChatForUser,
   removeFromGroup,
   renameGroupChat
 };

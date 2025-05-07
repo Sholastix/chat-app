@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 import {
   Avatar,
   Box,
@@ -17,6 +18,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 
 // Components.
 import GroupChatModal from '../ModalWindows/GroupChatModal/GroupChatModal';
@@ -327,16 +329,27 @@ const ChatsList = (props) => {
                             >
                               <MenuItem
                                 sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                onClick={(event) => {
+                                onClick={async (event) => {
                                   event.stopPropagation();
 
-                                  console.log('CHAT DELETED: ', chat);
-                                  
-                                  handleChatItemMenuClose();
+                                  try {
+                                    await axios.put('/api/chat/hide', {
+                                      chatId: chat._id,
+                                      userId: authState.user._id
+                                    });
+
+                                    // Refresh the chat list.
+                                    dispatch(fetchChats());
+
+                                    // Close the menu.
+                                    handleChatItemMenuClose();
+                                  } catch (err) {
+                                    console.error(err);
+                                  }
                                 }}
                               >
                                 <ListItemIcon>
-                                  <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Delete
+                                  <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
                                 </ListItemIcon>
                               </MenuItem>
                             </MenuList>

@@ -27,7 +27,13 @@ const chatSchema = new mongoose.Schema(
     groupAdmin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
-    }
+    },
+
+    hiddenBy: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: []
+    }]
   },
 
   {

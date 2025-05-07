@@ -11,6 +11,7 @@ const {
   createGroupChat,
   fetchChat,
   fetchChats,
+  hideChatForUser,
   removeFromGroup,
   renameGroupChat
 } = require('../../controllers/chatController');
@@ -49,5 +50,10 @@ router.put('/chat/group/add', authMdw, addToGroup);
 // @desc: Remove someone from group or leave the group.
 // @access: Private.
 router.put('/chat/group/remove', authMdw, removeFromGroup);
+
+// @route: PUT /api/chat/hide
+// @desc: Hide chat in chat list.
+// @access: Private.
+router.put('/chat/hide', authMdw, hideChatForUser);
 
 module.exports = router;
