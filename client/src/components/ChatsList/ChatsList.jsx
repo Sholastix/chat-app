@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Avatar,
@@ -44,7 +44,9 @@ const ChatsList = (props) => {
   const dispatch = useDispatch();
 
   // STATE.
-  const [anchorChatItemMenu, setAnchorChatItemMenu] = useState(null);
+  const [openMenuChatId, setOpenMenuChatId] = useState(null);
+  const menuAnchorElsRef = useRef({});
+
   const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
   const [online, setOnline] = useState([]);
 
@@ -99,25 +101,16 @@ const ChatsList = (props) => {
     setOnline(chatState.usersOnline);
   };
 
-  // Chat item menu.
-  const openChatItemMenu = Boolean(anchorChatItemMenu);
-
   // Open chat item menu.
-  const handleChatItemMenuClick = (event) => {
-    try {
-      setAnchorChatItemMenu(event.currentTarget);
-    } catch (err) {
-      console.error(err);
-    };
+  const handleChatItemMenuClick = (event, chatId) => {
+    event.stopPropagation();
+    menuAnchorElsRef.current[chatId] = event.currentTarget; // set ref immediately.
+    setOpenMenuChatId(chatId); // now this will render the menu right away.
   };
 
   // Close chat item menu.
   const handleChatItemMenuClose = () => {
-    try {
-      setAnchorChatItemMenu(null);
-    } catch (err) {
-      console.error(err);
-    };
+    setOpenMenuChatId(null);
   };
 
   return (
@@ -288,9 +281,9 @@ const ChatsList = (props) => {
                         <Box
                           component='button'
                           id='chat-item-menu-button'
-                          aria-controls={openChatItemMenu ? 'chat-item-menu' : undefined}
+                          aria-controls={openMenuChatId === chat._id ? 'chat-item-menu' : undefined}
                           aria-haspopup='true'
-                          aria-expanded={openChatItemMenu ? 'true' : undefined}
+                          aria-expanded={openMenuChatId === chat._id ? 'true' : undefined}
                           sx={{
                             alignItems: 'center',
                             backgroundColor: 'white',
@@ -301,57 +294,55 @@ const ChatsList = (props) => {
                             border: 'none',
                             ':hover': { cursor: 'pointer' },
                           }}
-                          onClick={(event) => {
-                            // Prevents the event from bubbling up (basically, we launching only this 'onClick' event).
-                            event.stopPropagation();
-
-                            handleChatItemMenuClick(event);
-                          }}
+                          onClick={(event) => handleChatItemMenuClick(event, chat._id)}
                         >
                           <MoreHorizRoundedIcon />
                         </Box>
                       </Tooltip>
 
-                      <Menu
-                        id='chat-item-menu'
-                        anchorEl={anchorChatItemMenu}
-                        open={openChatItemMenu}
-                        slotProps={{
-                          list: {
-                            'aria-labelledby': 'chat-item-menu-button'
-                          }
-                        }}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'right'
-                        }}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'right'
-                        }}
-                        onClose={handleChatItemMenuClose}
-                      >
-                        <MenuList
-                          disablePadding
-                          sx={{ width: '12rem' }}
-                        >
-                          <MenuItem
-                            sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                            onClick={(event) => {
-                              // Prevents the event from bubbling up (basically, we launching only this 'onClick' event).
-                              event.stopPropagation();
-
-                              console.log('CHAT DELETED.');
-
-                              handleChatItemMenuClose();
+                      {
+                        menuAnchorElsRef.current[chat._id] && (
+                          <Menu
+                            id='chat-item-menu'
+                            anchorEl={menuAnchorElsRef.current[chat._id]}
+                            open={openMenuChatId === chat._id}
+                            slotProps={{
+                              list: {
+                                'aria-labelledby': 'chat-item-menu-button'
+                              }
                             }}
+                            anchorOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'right'
+                            }}
+                            transformOrigin={{
+                              vertical: 'top',
+                              horizontal: 'right'
+                            }}
+                            onClose={handleChatItemMenuClose}
                           >
-                            <ListItemIcon>
-                              <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Delete
-                            </ListItemIcon>
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
+                            <MenuList
+                              disablePadding
+                              sx={{ width: '12rem' }}
+                            >
+                              <MenuItem
+                                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+
+                                  console.log('CHAT DELETED: ', chat);
+                                  
+                                  handleChatItemMenuClose();
+                                }}
+                              >
+                                <ListItemIcon>
+                                  <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Delete
+                                </ListItemIcon>
+                              </MenuItem>
+                            </MenuList>
+                          </Menu>
+                        )
+                      }
                     </Box>
                   </Box>
                 ))
