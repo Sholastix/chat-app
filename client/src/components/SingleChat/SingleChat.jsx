@@ -18,7 +18,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
 // Components.
-import OnlineStatus from '../OnlineStatus/OnlineStatus';
 import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
 import ScrollableChatWindow from '../ScrollableChatWindow/ScrollableChatWindow';
 import Spinner from '../Spinner/Spinner';
@@ -358,8 +357,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                           {
                             getSender(authState.user, chatState.selectedChat.users)
                           }
-
-                          {/* <OnlineStatus online={chatState.usersOnline} chat={chatState.selectedChat} /> */}
                         </Typography>
 
                         <Typography

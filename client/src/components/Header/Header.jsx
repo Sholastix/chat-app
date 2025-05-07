@@ -124,7 +124,7 @@ const Header = () => {
   const handleUserMenuClose = () => {
     try {
       setAnchorUserMenu(null);
-    } catch (error) {
+    } catch (err) {
       console.error(err);
     };
   };
@@ -134,7 +134,7 @@ const Header = () => {
     try {
       setIsProfileModalOpen(true);
       setAnchorUserMenu(null);
-    } catch (error) {
+    } catch (err) {
       console.error(err);
     };
   };
@@ -144,7 +144,7 @@ const Header = () => {
     try {
       setIsSettingsModalOpen(true);
       setAnchorUserMenu(null);
-    } catch (error) {
+    } catch (err) {
       console.error(err);
     };
   };
@@ -358,10 +358,12 @@ const Header = () => {
             }}
           >
             <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} />
+
             <Typography sx={{ fontSize: '1.4rem' }}>
               {authState.user.username}
             </Typography>
           </Button>
+
           <Menu
             id='user-menu'
             anchorEl={anchorUserMenu}
@@ -385,12 +387,15 @@ const Header = () => {
               <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
                 <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} /> Profile
               </MenuItem>
+
               <Divider />
+
               <MenuItem onClick={handleSettingsModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
                 <ListItemIcon>
                   <Settings sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Settings
                 </ListItemIcon>
               </MenuItem>
+
               <MenuItem onClick={logOut} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
                 <ListItemIcon>
                   <Logout sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Logout
