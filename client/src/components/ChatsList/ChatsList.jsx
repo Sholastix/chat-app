@@ -115,6 +115,11 @@ const ChatsList = (props) => {
     setOpenMenuChatId(null);
   };
 
+  // Sort chats by 'createdAt' property in ascension order.
+  const sortedChats = chatState.chats.length
+    ? [...chatState.chats].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    : [];
+
   return (
     <Box
       sx={{
@@ -180,7 +185,7 @@ const ChatsList = (props) => {
               sx={{ width: '100%' }}
             >
               {
-                chatState.chats.map((chat) => (
+                sortedChats.map((chat) => (
                   <Box
                     component='div'
                     id='chat-item'
