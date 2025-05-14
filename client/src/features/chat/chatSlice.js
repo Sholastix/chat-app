@@ -160,13 +160,13 @@ const chatSlice = createSlice({
       state.loading = false;
       state.error = '';
       state.chats = action.payload?.allChats;
-      state.selectedChat = action.payload?.createdChat;
+      // state.selectedChat = action.payload?.createdChat; // auto-redirect to created or existed chat.
     });
 
     builder.addCase(createPrivateChat.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message;
-      state.selectedChat = null;
+      // state.selectedChat = null;
     });
 
     // -------------------------------   CREATE GROUP CHAT   -------------------------------
@@ -179,13 +179,13 @@ const chatSlice = createSlice({
       state.loading = false;
       state.error = '';
       state.chats = action.payload?.allChats;
-      state.selectedChat = action.payload?.createdGroupChat;
+      // state.selectedChat = action.payload?.createdGroupChat; // auto-redirect to created or existed chat.
     });
 
     builder.addCase(createGroupChat.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message;
-      state.selectedChat = null;
+      // state.selectedChat = null;
     });
 
     // -------------------------------   RENAME GROUP CHAT   -------------------------------
