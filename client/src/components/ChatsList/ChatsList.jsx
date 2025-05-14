@@ -98,6 +98,26 @@ const ChatsList = (props) => {
     };
   };
 
+  // Hide one specific chat from the current user's chat list.
+  const hideChat = async (event, chatId) => {
+    event.stopPropagation();
+
+    try {
+      await axios.put('/api/chat/hide', {
+        chatId: chatId,
+        userId: authState.user._id
+      });
+
+      // Refresh the chat list.
+      dispatch(fetchChats());
+
+      // Close the menu.
+      handleChatItemMenuClose();
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
   // Get all online users.
   const allOnlineUsers = () => {
     setOnline(chatState.usersOnline);
@@ -106,6 +126,7 @@ const ChatsList = (props) => {
   // Open chat item menu.
   const handleChatItemMenuClick = (event, chatId) => {
     event.stopPropagation();
+    
     menuAnchorElsRef.current[chatId] = event.currentTarget; // set ref immediately.
     setOpenMenuChatId(chatId); // now this will render the menu right away.
   };
@@ -334,24 +355,7 @@ const ChatsList = (props) => {
                             >
                               <MenuItem
                                 sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                onClick={async (event) => {
-                                  event.stopPropagation();
-
-                                  try {
-                                    await axios.put('/api/chat/hide', {
-                                      chatId: chat._id,
-                                      userId: authState.user._id
-                                    });
-
-                                    // Refresh the chat list.
-                                    dispatch(fetchChats());
-
-                                    // Close the menu.
-                                    handleChatItemMenuClose();
-                                  } catch (err) {
-                                    console.error(err);
-                                  }
-                                }}
+                                onClick={(event) => hideChat(event, chat._id)}
                               >
                                 <ListItemIcon>
                                   <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
