@@ -9,6 +9,7 @@ const {
   chat,
   addToGroup,
   createGroupChat,
+  deleteChatForUser,
   fetchChat,
   fetchChats,
   hideChatForUser,
@@ -55,5 +56,10 @@ router.put('/chat/group/remove', authMdw, removeFromGroup);
 // @desc: Hide chat in chat list.
 // @access: Private.
 router.put('/chat/hide', authMdw, hideChatForUser);
+
+// @route: PUT /api/chat/delete
+// @desc: Delete chat from chat list.
+// @access: Private.
+router.put('/chat/delete', authMdw, deleteChatForUser);
 
 module.exports = router;

@@ -33,6 +33,12 @@ const chatSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       default: []
+    }],
+
+    deletedBy: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: []
     }]
   },
 

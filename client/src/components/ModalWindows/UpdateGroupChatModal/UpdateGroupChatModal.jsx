@@ -211,7 +211,8 @@ const UpdateGroupChatModal = (props) => {
 
       dispatch(removeUserFromGroupChat({
         chatId: chatState.selectedChat._id,
-        userId: userToRemove._id
+        userId: userToRemove._id,
+        currentUserId: authState.user._id
       }));
 
       props.setFetchAgain(!props.fetchAgain);

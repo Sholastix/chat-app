@@ -118,6 +118,29 @@ const ChatsList = (props) => {
     };
   };
 
+  // Delete one specific chat from the current user's chat list.
+  // This is a "soft deletion" of the chat (basically, we permanently hide this chat from ourselfs without means to unhide it).
+  // All correspondence from this chat will still be available to our collocutor unless he "deletes" the chat for himself (and vice versa).
+  const deleteChat = async (event, chatId) => {
+    event.stopPropagation();
+
+    try {
+      await axios.put('/api/chat/delete', {
+        chatId: chatId,
+        userId: authState.user._id,
+        currentUserId: authState.user._id
+      });
+
+      // Refresh the chat list.
+      dispatch(fetchChats());
+
+      // Close the menu.
+      handleChatItemMenuClose();
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
   // Get all online users.
   const allOnlineUsers = () => {
     setOnline(chatState.usersOnline);
@@ -357,11 +380,21 @@ const ChatsList = (props) => {
                                 sx={{ width: '12rem' }}
                               >
                                 <MenuItem
+                                  divider
                                   sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
                                   onClick={(event) => hideChat(event, chat._id)}
                                 >
                                   <ListItemIcon>
                                     <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
+                                  </ListItemIcon>
+                                </MenuItem>
+
+                                <MenuItem
+                                  sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                  onClick={(event) => deleteChat(event, chat._id)}
+                                >
+                                  <ListItemIcon>
+                                    <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Delete
                                   </ListItemIcon>
                                 </MenuItem>
                               </MenuList>

@@ -69,8 +69,12 @@ const fetchChats = async (req, res) => {
 
     const chats = await ChatModel.find({
       users: { $elemMatch: { $eq: userId } },
+
       // Don't include chats hidden by the user.
-      hiddenBy: { $ne: userId }
+      hiddenBy: { $ne: userId },
+
+      // Don't include chats deleted by the user.
+      deletedBy: { $ne: userId }
     })
       .populate('users', '-password')
       .populate('groupAdmin', '-password')
@@ -206,7 +210,11 @@ const removeFromGroup = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
-    const updatedChat = await ChatModel.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
+    const updatedChat = await ChatModel.findByIdAndUpdate(
+      chatId,
+      { $pull: { users: userId } },
+      { new: true }
+    )
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
@@ -221,6 +229,7 @@ const removeFromGroup = async (req, res) => {
   };
 };
 
+// Hide one specific chat from the current user's chat list.
 const hideChatForUser = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
@@ -231,7 +240,33 @@ const hideChatForUser = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json(chat);
+    if (!chat) {
+      throw new Error('Chat not found.');
+    } else {
+      res.status(200).json(chat);
+    };
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  }
+};
+
+// Delete one specific chat from the current user's chat list.
+const deleteChatForUser = async (req, res) => {
+  try {
+    const { chatId, userId } = req.body;
+
+    const chat = await ChatModel.findByIdAndUpdate(
+      chatId,
+      { $addToSet: { deletedBy: userId } },
+      { new: true }
+    );
+
+    if (!chat) {
+      throw new Error('Chat not found.');
+    } else {
+      res.status(200).json(chat);
+    };
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
@@ -242,6 +277,7 @@ module.exports = {
   chat,
   addToGroup,
   createGroupChat,
+  deleteChatForUser,
   fetchChat,
   fetchChats,
   hideChatForUser,
