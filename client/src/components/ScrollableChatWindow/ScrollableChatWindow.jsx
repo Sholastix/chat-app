@@ -5,6 +5,10 @@ import {
   Avatar,
   Box,
   Divider,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  MenuList,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -15,6 +19,9 @@ import typingAnimation from '../../assets/animations/typing.json';
 
 // MUI Icons.
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ReplyIcon from '@mui/icons-material/Reply';
 
 // Components.
 import ScrollToBottomButton from '../ScrollToBottomButton/ScrollToBottomButton';
@@ -44,6 +51,8 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
   // STATE.
   const [scrollbarPosition, setScrollbarPosition] = useState(0);
   const [linkPreviews, setLinkPreviews] = useState({});
+  const [openMenuMessageId, setOpenMenuMessageId] = useState(null);
+  const menuAnchorElsRef = useRef({});
 
   const chatEndRef = useRef(null);
 
@@ -93,6 +102,24 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
     } catch (err) {
       return '';
     };
+  };
+
+  // Open message item menu.
+  const handleMessageItemMenuOpen = (event, messageId) => {
+    event.stopPropagation();
+
+    // Set ref immediately.
+    menuAnchorElsRef.current[messageId] = event.currentTarget;
+
+    // Delay setting the menu open state to ensure the DOM has updated
+    setTimeout(() => {
+      setOpenMenuMessageId(messageId);
+    }, 0);
+  };
+
+  // Close chat item menu.
+  const handleMessageItemMenuClose = () => {
+    setOpenMenuMessageId(null);
   };
 
   return (
@@ -232,19 +259,76 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                 </Box>
 
                 <Box
-                  component='span'
+                  component='div'
                   sx={{
-                    alignContent: 'center',
-                    alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                    backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                    borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                    fontSize: '1.6rem',
-                    overflowWrap: 'break-word',
-                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: `${isMyMessage(messages, index, userId) ? 'row-reverse' : 'row'}`,
                     width: 'fit-content'
                   }}
-                  dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
-                />
+                >
+                  <Box
+                    component='span'
+                    id='message-box'
+                    sx={{
+                      alignContent: 'center',
+                      alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                      backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                      borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                      fontSize: '1.6rem',
+                      overflowWrap: 'break-word',
+                      padding: '1rem',
+                      width: 'fit-content'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
+                  />
+
+                  {/* Dropdown Menu Icon */}
+                  <MoreVertIcon
+                    sx={{ color: 'gray', fontSize: '2rem', cursor: 'pointer' }}
+                    onClick={(event) => handleMessageItemMenuOpen(event, message._id)}
+                  />
+
+                  {/* Dropdown Menu */}
+                  {
+                    menuAnchorElsRef.current[message._id] && openMenuMessageId === message._id && (
+                      <Menu
+                        id='message-item-menu'
+                        anchorEl={menuAnchorElsRef.current[message._id]}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: isMyMessage(messages, index, userId) ? 'left' : 'right'
+                        }}
+                        disableAutoFocusItem // Important to avoid focusing issues.
+                        open={true}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: isMyMessage(messages, index, userId) ? 'right' : 'left'
+                        }}
+                        onClose={handleMessageItemMenuClose}
+                      >
+                        <MenuList disablePadding sx={{ width: '12rem' }}>
+                          <MenuItem
+                            sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                            onClick={() => { alert(`Edit message ${message._id}`); handleMessageItemMenuClose(); }}
+                          >
+                            <ListItemIcon>
+                              <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
+                            </ListItemIcon>
+                          </MenuItem>
+
+                          <MenuItem
+                            sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                            onClick={() => { alert(`Reply to: ${message.content}`); handleMessageItemMenuClose(); }}
+                          >
+                            <ListItemIcon>
+                              <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
+                            </ListItemIcon>
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    )
+                  }
+                </Box>
 
                 {
                   linkPreviews[message._id] && (

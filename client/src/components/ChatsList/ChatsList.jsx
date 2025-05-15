@@ -359,20 +359,10 @@ const ChatsList = (props) => {
                             <Menu
                               id='chat-item-menu'
                               anchorEl={menuAnchorElsRef.current[chat._id]}
+                              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                               open={openMenuChatId === chat._id}
-                              slotProps={{
-                                list: {
-                                  'aria-labelledby': 'chat-item-menu-button'
-                                }
-                              }}
-                              anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right'
-                              }}
-                              transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right'
-                              }}
+                              slotProps={{ list: { 'aria-labelledby': 'chat-item-menu-button' } }}
+                              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                               onClose={handleChatItemMenuClose}
                             >
                               <MenuList
