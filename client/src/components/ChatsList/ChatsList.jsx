@@ -126,7 +126,7 @@ const ChatsList = (props) => {
   // Open chat item menu.
   const handleChatItemMenuClick = (event, chatId) => {
     event.stopPropagation();
-    
+
     menuAnchorElsRef.current[chatId] = event.currentTarget; // set ref immediately.
     setOpenMenuChatId(chatId); // now this will render the menu right away.
   };
@@ -291,81 +291,85 @@ const ChatsList = (props) => {
                       </Box>
                     </Box>
 
-                    <Box
-                      component='div'
-                      sx={{ display: 'flex', alignSelf: 'flex-start' }}
-                    >
-                      <Tooltip
-                        title='Options'
-                        arrow
-                        enterDelay={100}
-                        enterNextDelay={100}
-                        placement='top'
-                        slotProps={{
-                          tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
-                          arrow: { sx: { color: 'rgb(93, 109, 126)' } }
-                        }}
+                    {
+                      chat.isGroupChat === false
+                      &&
+                      <Box
+                        component='div'
+                        sx={{ display: 'flex', alignSelf: 'flex-start' }}
                       >
-                        <Box
-                          component='button'
-                          id='chat-item-menu-button'
-                          aria-controls={openMenuChatId === chat._id ? 'chat-item-menu' : undefined}
-                          aria-haspopup='true'
-                          aria-expanded={openMenuChatId === chat._id ? 'true' : undefined}
-                          sx={{
-                            alignItems: 'center',
-                            backgroundColor: 'white',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            height: '1.5rem',
-                            width: '3rem',
-                            border: 'none',
-                            ':hover': { cursor: 'pointer' },
+                        <Tooltip
+                          title='Options'
+                          arrow
+                          enterDelay={100}
+                          enterNextDelay={100}
+                          placement='top'
+                          slotProps={{
+                            tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
+                            arrow: { sx: { color: 'rgb(93, 109, 126)' } }
                           }}
-                          onClick={(event) => handleChatItemMenuClick(event, chat._id)}
                         >
-                          <MoreHorizRoundedIcon />
-                        </Box>
-                      </Tooltip>
-
-                      {
-                        menuAnchorElsRef.current[chat._id] && (
-                          <Menu
-                            id='chat-item-menu'
-                            anchorEl={menuAnchorElsRef.current[chat._id]}
-                            open={openMenuChatId === chat._id}
-                            slotProps={{
-                              list: {
-                                'aria-labelledby': 'chat-item-menu-button'
-                              }
+                          <Box
+                            component='button'
+                            id='chat-item-menu-button'
+                            aria-controls={openMenuChatId === chat._id ? 'chat-item-menu' : undefined}
+                            aria-haspopup='true'
+                            aria-expanded={openMenuChatId === chat._id ? 'true' : undefined}
+                            sx={{
+                              alignItems: 'center',
+                              backgroundColor: 'white',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              height: '1.5rem',
+                              width: '3rem',
+                              border: 'none',
+                              ':hover': { cursor: 'pointer' },
                             }}
-                            anchorOrigin={{
-                              vertical: 'bottom',
-                              horizontal: 'right'
-                            }}
-                            transformOrigin={{
-                              vertical: 'top',
-                              horizontal: 'right'
-                            }}
-                            onClose={handleChatItemMenuClose}
+                            onClick={(event) => handleChatItemMenuClick(event, chat._id)}
                           >
-                            <MenuList
-                              disablePadding
-                              sx={{ width: '12rem' }}
+                            <MoreHorizRoundedIcon />
+                          </Box>
+                        </Tooltip>
+
+                        {
+                          menuAnchorElsRef.current[chat._id] && (
+                            <Menu
+                              id='chat-item-menu'
+                              anchorEl={menuAnchorElsRef.current[chat._id]}
+                              open={openMenuChatId === chat._id}
+                              slotProps={{
+                                list: {
+                                  'aria-labelledby': 'chat-item-menu-button'
+                                }
+                              }}
+                              anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                              }}
+                              transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right'
+                              }}
+                              onClose={handleChatItemMenuClose}
                             >
-                              <MenuItem
-                                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                onClick={(event) => hideChat(event, chat._id)}
+                              <MenuList
+                                disablePadding
+                                sx={{ width: '12rem' }}
                               >
-                                <ListItemIcon>
-                                  <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
-                                </ListItemIcon>
-                              </MenuItem>
-                            </MenuList>
-                          </Menu>
-                        )
-                      }
-                    </Box>
+                                <MenuItem
+                                  sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                  onClick={(event) => hideChat(event, chat._id)}
+                                >
+                                  <ListItemIcon>
+                                    <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
+                                  </ListItemIcon>
+                                </MenuItem>
+                              </MenuList>
+                            </Menu>
+                          )
+                        }
+                      </Box>
+                    }
                   </Box>
                 ))
               }
