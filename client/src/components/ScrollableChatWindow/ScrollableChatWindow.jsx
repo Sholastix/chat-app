@@ -214,6 +214,7 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
 
               <Box
                 component='div'
+                id='message-block'
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -229,7 +230,8 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                     message.chat.isGroupChat && isFirstMessageInBlock(messages, index)
                     ? '0rem'
                     : '5rem'}`,
-                  maxWidth: '50%',
+                  // maxWidth: '50%',
+                  maxWidth: { xs: '80%', sm: '70%', md: '60%' },
                 }}
               >
                 <Box
@@ -275,8 +277,11 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                       backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
                       borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
                       fontSize: '1.6rem',
+                      maxWidth: '100%',
                       overflowWrap: 'break-word',
                       padding: '1rem',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
                       width: 'fit-content'
                     }}
                     dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}

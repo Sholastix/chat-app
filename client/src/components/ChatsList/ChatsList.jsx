@@ -297,7 +297,14 @@ const ChatsList = (props) => {
                         <Typography
                           component='div'
                           id='last-message'
-                          sx={{ fontSize: '1.4rem', fontWeight: '400' }}
+                          sx={{
+                            fontSize: '1.4rem',
+                            fontWeight: '400',
+                            maxWidth: '100%',            // Keeps it within its container.
+                            overflowWrap: 'break-word',  // Ensures long words break correctly.
+                            wordBreak: 'break-word',     // Prevents overflow from long links or strings.
+                            whiteSpace: 'pre-wrap'       // Preserves spacing, supports wrapping.
+                          }}
                         >
                           {
                             chat.lastMessage
@@ -305,7 +312,12 @@ const ChatsList = (props) => {
                                 ? 'You'
                                 : chat.lastMessage.sender.username}: ${truncateText(chat.lastMessage.content, 40)}`
                               : <Typography
-                                sx={{ color: 'darkred', fontSize: '1.4rem', fontWeight: '400' }}
+                                sx={{ 
+                                  color: 'darkred', 
+                                  fontSize: '1.4rem', 
+                                  fontWeight: '400', 
+                                  wordBreak: 'break-word' 
+                                }}
                               >
                                 No messages.
                               </Typography>
