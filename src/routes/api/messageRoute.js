@@ -5,7 +5,12 @@ const router = Router();
 const authMdw = require('../../middleware/authMdw');
 
 // Functions.
-const { fetchLinkPreview, fetchMessages, sendMessage } = require('../../controllers/messageController');
+const {
+  editMessage,
+  fetchLinkPreview,
+  fetchMessages,
+  sendMessage
+} = require('../../controllers/messageController');
 
 // @route: GET /api/chat/messages/:chatId
 // @desc: Fetch all messages for a specific chat.
@@ -21,5 +26,10 @@ router.post('/chat/message', authMdw, sendMessage);
 // @desc: Show preview for hyperlink in message.
 // @access: Private.
 router.post('/chat/message/linkPreview', authMdw, fetchLinkPreview);
+
+// @route: PUT /api/chat/message/:messageId
+// @desc: Edit existed message.
+// @access: Private.
+router.put('/chat/message/:messageId', authMdw, editMessage);
 
 module.exports = router;

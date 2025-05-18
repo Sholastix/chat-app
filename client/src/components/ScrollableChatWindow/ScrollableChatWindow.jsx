@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import {
   Avatar,
   Box,
+  Button,
   Divider,
   ListItemIcon,
   Menu,
   MenuItem,
   MenuList,
+  TextField,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -49,11 +51,14 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
   const userId = authState.user._id;
 
   // STATE.
+  const [check, setCheck] = useState(true);
   const [scrollbarPosition, setScrollbarPosition] = useState(0);
   const [linkPreviews, setLinkPreviews] = useState({});
+  const [messageBeingEdited, setMessageBeingEdited] = useState(null);
+  const [newMessageContent, setNewMessageContent] = useState('');
   const [openMenuMessageId, setOpenMenuMessageId] = useState(null);
-  const menuAnchorElsRef = useRef({});
 
+  const menuAnchorElsRef = useRef({});
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -120,6 +125,34 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
   // Close chat item menu.
   const handleMessageItemMenuClose = () => {
     setOpenMenuMessageId(null);
+  };
+
+  // Edit the message.
+  const handleEditMessage = (message) => {
+    setMessageBeingEdited(message); // Store the message being edited.
+    setNewMessageContent(message.content); // Pre-fill the content in the input field.
+    handleMessageItemMenuClose(); // Close the menu after edit is selected.
+    console.log('EDIT_WINDOW_OPENED.');
+  };
+
+  // Save the edited message.
+  const handleSaveEdit = async () => {
+    try {
+      await axios.put(`/api/chat/message/${messageBeingEdited._id}`, { content: newMessageContent });
+
+      // After saving, clear the state and update the message list.
+      setMessageBeingEdited(null);
+      setNewMessageContent('');
+    } catch (err) {
+      console.error(err);
+    };
+  };
+
+  // Cancel the message editing.
+  const handleCancelEdit = () => {
+    setMessageBeingEdited(null);
+    setNewMessageContent('');
+    console.log('EDIT_WINDOW_CLOSED.');
   };
 
   return (
@@ -234,196 +267,237 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                   maxWidth: { xs: '80%', sm: '70%', md: '60%' },
                 }}
               >
-                <Box
-                  component='span'
-                  sx={{
-                    alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
-                    fontSize: '1.2rem',
-                    margin: '0.5rem 0rem'
-                  }}
-                >
-                  {
-                    !isMyMessage(messages, index, userId)
-                    && isFirstMessageInBlock(messages, index)
-                    && message.sender.username + ' '
-                  }
-
-                  {
-                    !isSameTime(messages, message, index)
-                    &&
-                    <Box component='span'>
-                      {
-                        new Date(message.createdAt)
-                          .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
-                      }
-                    </Box>
-                  }
-                </Box>
-
-                <Box
-                  component='div'
-                  sx={{
-                    display: 'flex',
-                    flexDirection: `${isMyMessage(messages, index, userId) ? 'row-reverse' : 'row'}`,
-                    width: 'fit-content'
-                  }}
-                >
-                  <Box
-                    component='span'
-                    id='message-box'
-                    sx={{
-                      alignContent: 'center',
-                      alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                      backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                      borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                      fontSize: '1.6rem',
-                      maxWidth: '100%',
-                      overflowWrap: 'break-word',
-                      padding: '1rem',
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                      width: 'fit-content'
-                    }}
-                    dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
-                  />
-
-                  {/* Dropdown Menu Icon */}
-                  <MoreVertIcon
-                    sx={{ color: 'gray', fontSize: '2rem', cursor: 'pointer' }}
-                    onClick={(event) => handleMessageItemMenuOpen(event, message._id)}
-                  />
-
-                  {/* Dropdown Menu */}
-                  {
-                    menuAnchorElsRef.current[message._id] && openMenuMessageId === message._id && (
-                      <Menu
-                        id='message-item-menu'
-                        anchorEl={menuAnchorElsRef.current[message._id]}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: isMyMessage(messages, index, userId) ? 'left' : 'right'
-                        }}
-                        disableAutoFocusItem // Important to avoid focusing issues.
-                        open={true}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: isMyMessage(messages, index, userId) ? 'right' : 'left'
-                        }}
-                        onClose={handleMessageItemMenuClose}
-                      >
-                        <MenuList disablePadding sx={{ width: '12rem' }}>
-                          <MenuItem
-                            sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                            onClick={() => { alert(`Edit message ${message._id}`); handleMessageItemMenuClose(); }}
-                          >
-                            <ListItemIcon>
-                              <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
-                            </ListItemIcon>
-                          </MenuItem>
-
-                          <MenuItem
-                            sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                            onClick={() => { alert(`Reply to: ${message.content}`); handleMessageItemMenuClose(); }}
-                          >
-                            <ListItemIcon>
-                              <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
-                            </ListItemIcon>
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
-                    )
-                  }
-                </Box>
-
                 {
-                  linkPreviews[message._id] && (
-                    <Box
-                      sx={{
-                        backgroundColor: 'rgb(250, 250, 250)',
-                        border: '1px solid lightgray',
-                        borderRadius: '0.5rem',
-                        marginTop: '0.5rem',
-                        maxWidth: '32rem',
-                        overflow: 'hidden',
-                        textDecoration: 'none',
-                      }}
-                      component='a'
-                      href={linkPreviews[message._id].requestUrl}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                    >
-                      {
-                        linkPreviews[message._id].linkImage?.url
-                        && (
-                          <Box
-                            component='img'
-                            src={linkPreviews[message._id].linkImage.url}
-                            alt='preview'
-                            sx={{ width: '100%', height: 'auto' }}
-                            onError={(error) => {
-                              error.target.style.display = 'none';
+                  messageBeingEdited?._id === message._id
+                    ?
+                    (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                        <TextField
+                          value={newMessageContent}
+                          onChange={(e) => setNewMessageContent(e.target.value)}
+                          multiline
+                          minRows={3}
+                          sx={{
+                            marginBottom: '1rem',
+                            fontSize: '1.4rem',
+                          }}
+                        />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Button
+                            variant='outlined'
+                            onClick={handleCancelEdit}
+                            sx={{
+                              color: 'gray',
+                              borderColor: 'gray',
                             }}
-                          />
-                        )
-                      }
-
-                      <Box sx={{ padding: '0.8rem' }}>
-                        {/* Part below allow us to truncate title to 100 chars maximum */}
-                        <Typography sx={{ color: 'black', fontWeight: 600, fontSize: '1.4rem', marginBottom: '1rem' }}>
-                          {truncateText(linkPreviews[message._id].linkTitle, 100)}
-                        </Typography>
-
-                        {/* Part below allow us to truncate description to 100 chars maximum */}
-                        <Typography sx={{ fontSize: '1.2rem', color: 'black', marginBottom: '1rem' }}>
-                          {truncateText(linkPreviews[message._id].linkDescription, 100)}
-                        </Typography>
-
-                        {/* Part below is for displaying short version of URL from request in link preview*/}
-                        <Typography sx={{ color: 'gray', fontSize: '1.1rem' }}>
-                          {shortRequestUrl(message._id)}
-                        </Typography>
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={handleSaveEdit}
+                          >
+                            Save
+                          </Button>
+                        </Box>
                       </Box>
-                    </Box>
-                  )
-                }
+                    )
+                    :
+                    (
+                      <Fragment>
+                        <Box
+                          component='span'
+                          sx={{
+                            alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
+                            fontSize: '1.2rem',
+                            margin: '0.5rem 0rem'
+                          }}
+                        >
+                          {
+                            !isMyMessage(messages, index, userId)
+                            && isFirstMessageInBlock(messages, index)
+                            && message.sender.username + ' '
+                          }
 
-                <Box
-                  component='span'
-                  sx={{
-                    alignSelf: 'flex-end',
-                    fontSize: '1.2rem',
-                    margin: '0.5rem 0rem'
-                  }}
-                >
-                  {
-                    isMyMessage(messages, index, userId)
-                    &&
-                    message.isRead
-                    &&
-                    <Box
-                      component='span'
-                      sx={{
-                        alignItems: 'flex-end',
-                        display: 'flex',
-                        marginBottom: '0.5rem'
-                      }}
-                    >
-                      <Typography
-                        component='span'
-                        sx={{ fontFamily: 'Georgia', marginRight: '0.5rem' }}
-                      >
+                          {
+                            !isSameTime(messages, message, index)
+                            &&
+                            <Box component='span'>
+                              {
+                                new Date(message.createdAt)
+                                  .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
+                              }
+                            </Box>
+                          }
+                        </Box>
+                        <Box
+                          component='div'
+                          sx={{
+                            display: 'flex',
+                            flexDirection: `${isMyMessage(messages, index, userId) ? 'row-reverse' : 'row'}`,
+                            width: 'fit-content'
+                          }}
+                        >
+                          <Box
+                            component='span'
+                            id='message-box'
+                            sx={{
+                              alignContent: 'center',
+                              alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                              backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                              borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                              fontSize: '1.6rem',
+                              maxWidth: '100%',
+                              overflowWrap: 'break-word',
+                              padding: '1rem',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word',
+                              width: 'fit-content'
+                            }}
+                            dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
+                          />
+
+                          {/* Dropdown Menu Icon */}
+                          <MoreVertIcon
+                            sx={{ color: 'gray', fontSize: '2rem', cursor: 'pointer' }}
+                            onClick={(event) => handleMessageItemMenuOpen(event, message._id)}
+                          />
+
+                          {/* Dropdown Menu */}
+                          {
+                            menuAnchorElsRef.current[message._id] && openMenuMessageId === message._id && (
+                              <Menu
+                                id='message-item-menu'
+                                anchorEl={menuAnchorElsRef.current[message._id]}
+                                anchorOrigin={{
+                                  vertical: 'bottom',
+                                  horizontal: isMyMessage(messages, index, userId) ? 'left' : 'right'
+                                }}
+                                disableAutoFocusItem // Important to avoid focusing issues.
+                                open={true}
+                                transformOrigin={{
+                                  vertical: 'top',
+                                  horizontal: isMyMessage(messages, index, userId) ? 'right' : 'left'
+                                }}
+                                onClose={handleMessageItemMenuClose}
+                              >
+                                <MenuList disablePadding sx={{ width: '12rem' }}>
+                                  <MenuItem
+                                    sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                    onClick={() => handleEditMessage(message)}
+                                  >
+                                    <ListItemIcon>
+                                      <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
+                                    </ListItemIcon>
+                                  </MenuItem>
+
+                                  <MenuItem
+                                    sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                    onClick={() => { alert(`Reply to: ${message.content}`); handleMessageItemMenuClose(); }}
+                                  >
+                                    <ListItemIcon>
+                                      <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
+                                    </ListItemIcon>
+                                  </MenuItem>
+                                </MenuList>
+                              </Menu>
+                            )
+                          }
+                        </Box>
+
                         {
-                          new Date(message.updatedAt)
-                            .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
-                        }
-                      </Typography>
+                          linkPreviews[message._id] && (
+                            <Box
+                              sx={{
+                                backgroundColor: 'rgb(250, 250, 250)',
+                                border: '1px solid lightgray',
+                                borderRadius: '0.5rem',
+                                marginTop: '0.5rem',
+                                maxWidth: '32rem',
+                                overflow: 'hidden',
+                                textDecoration: 'none',
+                              }}
+                              component='a'
+                              href={linkPreviews[message._id].requestUrl}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                            >
+                              {
+                                linkPreviews[message._id].linkImage?.url
+                                && (
+                                  <Box
+                                    component='img'
+                                    src={linkPreviews[message._id].linkImage.url}
+                                    alt='preview'
+                                    sx={{ width: '100%', height: 'auto' }}
+                                    onError={(error) => {
+                                      error.target.style.display = 'none';
+                                    }}
+                                  />
+                                )
+                              }
 
-                      <DoneAllRoundedIcon
-                        sx={{ color: 'blue', fontSize: '2rem' }}
-                      />
-                    </Box>
-                  }
-                </Box>
+                              <Box sx={{ padding: '0.8rem' }}>
+                                {/* Part below allow us to truncate title to 100 chars maximum */}
+                                <Typography sx={{ color: 'black', fontWeight: 600, fontSize: '1.4rem', marginBottom: '1rem' }}>
+                                  {truncateText(linkPreviews[message._id].linkTitle, 100)}
+                                </Typography>
+
+                                {/* Part below allow us to truncate description to 100 chars maximum */}
+                                <Typography sx={{ fontSize: '1.2rem', color: 'black', marginBottom: '1rem' }}>
+                                  {truncateText(linkPreviews[message._id].linkDescription, 100)}
+                                </Typography>
+
+                                {/* Part below is for displaying short version of URL from request in link preview*/}
+                                <Typography sx={{ color: 'gray', fontSize: '1.1rem' }}>
+                                  {shortRequestUrl(message._id)}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          )
+                        }
+
+                        <Box
+                          component='span'
+                          sx={{
+                            alignSelf: 'flex-end',
+                            fontSize: '1.2rem',
+                            margin: '0.5rem 0rem'
+                          }}
+                        >
+                          {
+                            isMyMessage(messages, index, userId)
+                            &&
+                            message.isRead
+                            &&
+                            <Box
+                              component='span'
+                              sx={{
+                                alignItems: 'flex-end',
+                                display: 'flex',
+                                marginBottom: '0.5rem'
+                              }}
+                            >
+                              <Typography
+                                component='span'
+                                sx={{ fontFamily: 'Georgia', marginRight: '0.5rem' }}
+                              >
+                                {
+                                  new Date(message.updatedAt)
+                                    .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
+                                }
+                              </Typography>
+
+                              <DoneAllRoundedIcon
+                                sx={{ color: 'blue', fontSize: '2rem' }}
+                              />
+                            </Box>
+                          }
+                        </Box>
+                      </Fragment>
+                    )
+                }
               </Box>
             </Box>
           </div>

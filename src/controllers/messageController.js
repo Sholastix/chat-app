@@ -95,7 +95,20 @@ const sendMessage = async (req, res) => {
   };
 };
 
+// Edit existed message.
+const editMessage = async (req, res) => {
+  try {
+    const { messageContent } = req.body;
+
+    console.log('MESSAGE CONTENT: ', messageContent);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error', message: err.message });
+  };
+};
+
 module.exports = {
+  editMessage,
   fetchLinkPreview,
   fetchMessages,
   sendMessage
