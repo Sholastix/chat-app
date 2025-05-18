@@ -134,9 +134,12 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
   };
 
   // Save the edited message.
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (messageSenderId) => {
     try {
-      await axios.put(`/api/chat/message/${messageBeingEdited._id}`, { content: newMessageContent });
+      await axios.put(`/api/chat/message/${messageBeingEdited._id}`, {
+        senderId: messageSenderId,
+        content: newMessageContent
+      });
 
       // After saving, clear the state and update the message list.
       setMessageBeingEdited(null);
@@ -293,7 +296,8 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                           <Button
                             variant='contained'
                             color='primary'
-                            onClick={handleSaveEdit}
+                            onClick={() => handleSaveEdit(message.sender._id)}
+
                           >
                             Save
                           </Button>
@@ -380,14 +384,18 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                                 onClose={handleMessageItemMenuClose}
                               >
                                 <MenuList disablePadding sx={{ width: '12rem' }}>
-                                  <MenuItem
-                                    sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                    onClick={() => handleEditMessage(message)}
-                                  >
-                                    <ListItemIcon>
-                                      <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
-                                    </ListItemIcon>
-                                  </MenuItem>
+                                  {
+                                    message.sender._id === userId && (
+                                      <MenuItem
+                                        sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                        onClick={() => handleEditMessage(message)}
+                                      >
+                                        <ListItemIcon>
+                                          <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
+                                        </ListItemIcon>
+                                      </MenuItem>
+                                    )
+                                  }
 
                                   <MenuItem
                                     sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}

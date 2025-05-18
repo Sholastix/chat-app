@@ -99,7 +99,13 @@ const sendMessage = async (req, res) => {
 const editMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
-    const { content } = req.body;
+    const { senderId, content } = req.body;
+    const userId = req.userId;
+
+    if (senderId !== userId) {
+      console.log('\nERROR: Wrong user, access denied.');
+      return;
+    };
 
     const updatedMessage = await MessageModel.findByIdAndUpdate(
       messageId,
