@@ -98,9 +98,16 @@ const sendMessage = async (req, res) => {
 // Edit existed message.
 const editMessage = async (req, res) => {
   try {
-    const { messageContent } = req.body;
+    const { messageId } = req.params;
+    const { content } = req.body;
 
-    console.log('MESSAGE CONTENT: ', messageContent);
+    const updatedMessage = await MessageModel.findByIdAndUpdate(
+      messageId,
+      { content: content },
+      { new: true }
+    );
+
+    res.status(200).json(updatedMessage);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error', message: err.message });

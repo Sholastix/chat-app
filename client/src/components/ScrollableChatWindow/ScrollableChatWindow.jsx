@@ -51,7 +51,6 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
   const userId = authState.user._id;
 
   // STATE.
-  const [check, setCheck] = useState(true);
   const [scrollbarPosition, setScrollbarPosition] = useState(0);
   const [linkPreviews, setLinkPreviews] = useState({});
   const [messageBeingEdited, setMessageBeingEdited] = useState(null);
@@ -132,7 +131,6 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
     setMessageBeingEdited(message); // Store the message being edited.
     setNewMessageContent(message.content); // Pre-fill the content in the input field.
     handleMessageItemMenuClose(); // Close the menu after edit is selected.
-    console.log('EDIT_WINDOW_OPENED.');
   };
 
   // Save the edited message.
@@ -152,7 +150,6 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
   const handleCancelEdit = () => {
     setMessageBeingEdited(null);
     setNewMessageContent('');
-    console.log('EDIT_WINDOW_CLOSED.');
   };
 
   return (
