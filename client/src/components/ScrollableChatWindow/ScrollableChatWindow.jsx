@@ -263,7 +263,6 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                     message.chat.isGroupChat && isFirstMessageInBlock(messages, index)
                     ? '0rem'
                     : '5rem'}`,
-                  // maxWidth: '50%',
                   maxWidth: { xs: '80%', sm: '70%', md: '60%' },
                 }}
               >
@@ -271,33 +270,38 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
                   messageBeingEdited?._id === message._id
                     ?
                     (
-                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          width: '25rem',
+                        }}
+                      >
                         <TextField
-                          value={newMessageContent}
-                          onChange={(e) => setNewMessageContent(e.target.value)}
                           multiline
                           minRows={3}
                           sx={{
                             marginBottom: '1rem',
-                            fontSize: '1.4rem',
+                            '.MuiInputBase-input': { fontFamily: 'Georgia', fontSize: '1.4rem' },
                           }}
+                          value={newMessageContent}
+                          onChange={(event) => setNewMessageContent(event.target.value)}
                         />
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+
+                        <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
                           <Button
-                            variant='outlined'
+                            variant='contained'
+                            color='error'
                             onClick={handleCancelEdit}
-                            sx={{
-                              color: 'gray',
-                              borderColor: 'gray',
-                            }}
+                            sx={{ color: 'white', fontFamily: 'Georgia' }}
                           >
                             Cancel
                           </Button>
+
                           <Button
                             variant='contained'
                             color='primary'
                             onClick={() => handleSaveEdit(message.sender._id)}
-
                           >
                             Save
                           </Button>
