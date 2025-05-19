@@ -6,7 +6,6 @@ const authMdw = require('../../middleware/authMdw');
 
 // Functions.
 const {
-  editMessage,
   fetchLinkPreview,
   fetchMessages,
   sendMessage
@@ -26,10 +25,5 @@ router.post('/chat/message', authMdw, sendMessage);
 // @desc: Show preview for hyperlink in message.
 // @access: Private.
 router.post('/chat/message/linkPreview', authMdw, fetchLinkPreview);
-
-// @route: PUT /api/chat/message/:messageId
-// @desc: Edit existed message.
-// @access: Private.
-router.put('/chat/message/:messageId', authMdw, editMessage);
 
 module.exports = router;

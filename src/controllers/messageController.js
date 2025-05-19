@@ -95,33 +95,7 @@ const sendMessage = async (req, res) => {
   };
 };
 
-// Edit existed message.
-const editMessage = async (req, res) => {
-  try {
-    const { messageId } = req.params;
-    const { senderId, content } = req.body;
-    const userId = req.userId;
-
-    if (senderId !== userId) {
-      console.log('\nERROR: Wrong user, access denied.');
-      return;
-    };
-
-    const updatedMessage = await MessageModel.findByIdAndUpdate(
-      messageId,
-      { content: content },
-      { new: true }
-    );
-
-    res.status(200).json(updatedMessage);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error', message: err.message });
-  };
-};
-
 module.exports = {
-  editMessage,
   fetchLinkPreview,
   fetchMessages,
   sendMessage

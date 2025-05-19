@@ -111,6 +111,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       );
     });
 
+    socket.on('message_edited', (updatedMessage) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => msg._id === updatedMessage._id
+          ? updatedMessage
+          : msg
+        )
+      );
+    });
+
     socket.on('disconnect', (reason) => {
       console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
       console.log('SOCKET_STATUS: ', socket.connected);
@@ -122,6 +131,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.off('typing');
       socket.off('mark_one_message_as_read');
       socket.off('mark_all_messages_as_read');
+      socket.off('message_edited');
       socket.off('disconnect');
 
       if (typingTimeoutRef.current) {
@@ -180,7 +190,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           hour: 'numeric',
           minute: 'numeric'
         });
-        
+
         setLastOnline(`Last online: ${formattedDate}`);
       };
     });

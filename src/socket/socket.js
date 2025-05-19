@@ -203,6 +203,22 @@ const socket = (server) => {
         io.emit('chat_last_message_update', updatedChat);
       });
 
+      // Listen for message edit from frontend
+      socket.on('message_edit', async (editedMessage) => {
+        try {
+          const updatedMessage = await MessageModel.findByIdAndUpdate(
+            editedMessage._id,
+            { content: editedMessage.content },
+            { new: true }
+          ).populate('sender', '_id username avatar');
+
+          // Notify all users in the chat room about the updated message
+          io.to(editedMessage.chatId).emit('message_edited', updatedMessage);
+        } catch (err) {
+          console.error(err);
+        };
+      });
+
       // User disconnects from the app.
       socket.on('disconnect', async () => {
         console.log(`SOCKET_DISCONNECTED: user with socketId '${socket.id}'.`);

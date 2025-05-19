@@ -28,6 +28,9 @@ import ReplyIcon from '@mui/icons-material/Reply';
 // Components.
 import ScrollToBottomButton from '../ScrollToBottomButton/ScrollToBottomButton';
 
+// Socket.IO
+import { socket } from '../../socket/socket';
+
 // Functions.
 import {
   isFirstMessageInChat,
@@ -133,15 +136,20 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
     handleMessageItemMenuClose(); // Close the menu after edit is selected.
   };
 
-  // Save the edited message.
-  const handleSaveEdit = async (messageSenderId) => {
+  // Save the edited message and update this message in chat.
+  const handleSaveEdit = async () => {
     try {
-      await axios.put(`/api/chat/message/${messageBeingEdited._id}`, {
-        senderId: messageSenderId,
-        content: newMessageContent
-      });
+      const editedMessage = {
+        _id: messageBeingEdited._id,
+        chatId: messageBeingEdited.chat._id,
+        content: newMessageContent,
+      };
 
-      // After saving, clear the state and update the message list.
+      console.log('EDITED_MESSAGE: ', editedMessage);
+
+      // Emit via socket (no axios call needed here if socket is used).
+      socket.emit('message_edit', editedMessage);
+
       setMessageBeingEdited(null);
       setNewMessageContent('');
     } catch (err) {
