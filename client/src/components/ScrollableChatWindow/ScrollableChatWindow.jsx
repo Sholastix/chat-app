@@ -145,8 +145,6 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
         content: newMessageContent,
       };
 
-      console.log('EDITED_MESSAGE: ', editedMessage);
-
       // Emit via socket (no axios call needed here if socket is used).
       socket.emit('message_edit', editedMessage);
 
