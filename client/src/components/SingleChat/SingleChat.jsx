@@ -111,14 +111,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       );
     });
 
-    socket.on('message_edited', (updatedMessage) => {
+    // socket.on('message_edited', (updatedMessage) => {
+    //   setMessages((prevMessages) =>
+    //     prevMessages.map((msg) => msg._id === updatedMessage._id
+    //       ? updatedMessage
+    //       : msg
+    //     )
+    //   );
+    // });
+
+    const handleEditedMessage = (editedMessage) => {
       setMessages((prevMessages) =>
-        prevMessages.map((msg) => msg._id === updatedMessage._id
-          ? updatedMessage
-          : msg
+        prevMessages.map((msg) =>
+          msg._id === editedMessage._id ? { ...msg, content: editedMessage.content } : msg
         )
       );
-    });
+    };
+
+    socket.on('message_edited', handleEditedMessage);
 
     socket.on('disconnect', (reason) => {
       console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
@@ -131,7 +141,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.off('typing');
       socket.off('mark_one_message_as_read');
       socket.off('mark_all_messages_as_read');
-      socket.off('message_edited');
+      // socket.off('message_edited');
+      socket.off('message_edited', handleEditedMessage);
       socket.off('disconnect');
 
       if (typingTimeoutRef.current) {
