@@ -203,7 +203,7 @@ const socket = (server) => {
         io.emit('chat_last_message_update', updatedChat);
       });
 
-      // Listen for message edit from frontend
+      // Listen for 'message edit' event from frontend.
       socket.on('message_edit', async (editedMessage) => {
         try {
           const updatedMessage = await MessageModel.findByIdAndUpdate(

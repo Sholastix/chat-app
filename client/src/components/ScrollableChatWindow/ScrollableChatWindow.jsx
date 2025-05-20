@@ -44,7 +44,7 @@ import {
   truncateText
 } from '../../helpers/chatLogic';
 
-const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
+const ScrollableChatWindow = ({ isTyping, messages, setMessages, typingUser }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -143,10 +143,30 @@ const ScrollableChatWindow = ({ messages, isTyping, typingUser }) => {
         _id: messageBeingEdited._id,
         chatId: messageBeingEdited.chat._id,
         content: newMessageContent,
+        sender: messageBeingEdited.sender
       };
 
       // Emit via socket (no axios call needed here if socket is used).
       socket.emit('message_edit', editedMessage);
+
+      if (socket.connected) {
+        // Preferred: real-time update (emit via socket, no axios call needed here if socket is used).
+        socket.emit('message_edit', editedMessage);
+      } else {
+        // Fallback: persist via REST.
+        await axios.put(`/api/chat/message/${editedMessage._id}`, {
+          senderId: editedMessage.sender._id,
+          content: editedMessage.content,
+        });
+
+        // Optional: manually update message in state if socket isn't active.
+        setMessages((prevMessages) => {
+          return prevMessages.map((msg) => msg._id === editedMessage._id
+            ? { ...msg, content: editedMessage.content }
+            : msg
+          );
+        });
+      };
 
       setMessageBeingEdited(null);
       setNewMessageContent('');

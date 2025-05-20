@@ -438,7 +438,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     >
                       <Spinner />
                     </Box>
-                    : <ScrollableChatWindow messages={messages} isTyping={isTyping} typingUser={typingUser} />
+                    : <ScrollableChatWindow
+                      isTyping={isTyping}
+                      messages={messages}
+                      setMessages={setMessages}
+                      typingUser={typingUser}
+                    />
                 }
               </Box>
 
