@@ -115,7 +115,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on('message_edited', (editedMessage) => {
       setMessages((prevMessages) =>
         prevMessages.map((msg) => msg._id === editedMessage._id
-          ? { ...msg, content: editedMessage.content }
+          ? {
+            ...msg,
+            content: editedMessage.content,
+            isEdited: editedMessage.isEdited,
+            updatedAt: editedMessage.updatedAt
+          }
           : msg
         )
       );

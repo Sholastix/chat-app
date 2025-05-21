@@ -208,7 +208,7 @@ const socket = (server) => {
         try {
           const updatedMessage = await MessageModel.findByIdAndUpdate(
             editedMessage._id,
-            { content: editedMessage.content },
+            { content: editedMessage.content, isEdited: true },
             { new: true }
           ).populate('sender', '_id username avatar');
 

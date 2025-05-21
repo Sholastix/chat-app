@@ -125,9 +125,11 @@ const editMessage = async (req, res) => {
 
     const updatedMessage = await MessageModel.findByIdAndUpdate(
       messageId,
-      { content: content },
+      { content: content, isEdited: true },
       { new: true }
-    );
+    )
+      .populate('sender')
+      .populate('chat');
 
     res.status(200).json(updatedMessage);
   } catch (err) {

@@ -146,17 +146,15 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
         sender: messageBeingEdited.sender
       };
 
-      // Emit via socket (no axios call needed here if socket is used).
-      socket.emit('message_edit', editedMessage);
-
       if (socket.connected) {
         // Preferred: real-time update (emit via socket, no axios call needed here if socket is used).
         socket.emit('message_edit', editedMessage);
       } else {
         // Fallback: persist via REST.
         await axios.put(`/api/chat/message/${editedMessage._id}`, {
-          senderId: editedMessage.sender._id,
           content: editedMessage.content,
+          senderId: editedMessage.sender._id,
+          isEdited: true
         });
 
         // Optional: manually update message in state if socket isn't active.
@@ -400,7 +398,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                               )
                             }
 
-                            <Box
+                            {/* <Box
                               component='span'
                               id='message-box'
                               sx={{
@@ -417,7 +415,72 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                                 width: 'fit-content'
                               }}
                               dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
-                            />
+                            /> */}
+
+                            <Box
+                              component='div'
+                              id='message-box'
+                              sx={{
+                                alignContent: 'center',
+                                alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                                backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                                borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                                fontSize: '1.6rem',
+                                maxWidth: '100%',
+                                overflowWrap: 'break-word',
+                                padding: '1rem',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                width: 'fit-content',
+                                display: 'flex',
+                                flexDirection: 'column'
+                              }}
+                            >
+                              <Box
+                                component='span'
+                                sx={{ display: 'inline' }}
+                                dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
+                              />
+
+                              {
+                                message.isEdited && (
+                                  <Tooltip
+                                    key={`${message._id}-${message.updatedAt}`} // force 'Tooltip' component to re-render when message is edited.
+                                    title={`Edited at ${new Date(message.updatedAt).toLocaleString()}`}
+                                    arrow
+                                    enterDelay={100}
+                                    enterNextDelay={100}
+                                    placement='bottom'
+                                    slotProps={{
+                                      tooltip: {
+                                        sx: {
+                                          backgroundColor: 'rgb(93, 109, 126)',
+                                          color: 'white',
+                                          fontSize: '1.2rem',
+                                        }
+                                      },
+                                      arrow: {
+                                        sx: { color: 'rgb(93, 109, 126)' }
+                                      }
+                                    }}
+                                  >
+                                    <Typography
+                                      component='span'
+                                      sx={{
+                                        alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                                        color: 'gray',
+                                        fontSize: '1.1rem',
+                                        fontStyle: 'italic',
+                                        marginTop: '0.5rem',
+                                        ':hover': { cursor: 'default' }
+                                      }}
+                                    >
+                                      (edited)
+                                    </Typography>
+                                  </Tooltip>
+                                )
+                              }
+                            </Box>
                           </Box>
 
                           {/* Dropdown Menu Icon */}
