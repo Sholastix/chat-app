@@ -6,7 +6,7 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Chat'
     },
-    
+
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -18,9 +18,15 @@ const messageSchema = new mongoose.Schema(
       trim: true
     },
 
-    isRead: { 
-      type: Boolean, 
-      default: false 
+    isRead: {
+      type: Boolean,
+      default: false
+    },
+
+    replyTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Message',
+      default: null
     }
   },
 

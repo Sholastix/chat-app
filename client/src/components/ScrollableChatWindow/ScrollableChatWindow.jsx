@@ -44,7 +44,7 @@ import {
   truncateText
 } from '../../helpers/chatLogic';
 
-const ScrollableChatWindow = ({ isTyping, messages, setMessages, typingUser }) => {
+const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessage, typingUser }) => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
@@ -362,6 +362,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, typingUser }) =
                             </Box>
                           }
                         </Box>
+
                         <Box
                           component='div'
                           sx={{
@@ -371,23 +372,53 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, typingUser }) =
                           }}
                         >
                           <Box
-                            component='span'
-                            id='message-box'
-                            sx={{
-                              alignContent: 'center',
-                              alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                              backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                              borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                              fontSize: '1.6rem',
-                              maxWidth: '100%',
-                              overflowWrap: 'break-word',
-                              padding: '1rem',
-                              whiteSpace: 'pre-wrap',
-                              wordBreak: 'break-word',
-                              width: 'fit-content'
-                            }}
-                            dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
-                          />
+                            component='div'
+                            sx={{ display: 'flex', flexDirection: 'column', width: 'fit-content' }}
+                          >
+                            {
+                              message.replyTo && (
+                                <Box
+                                  sx={{
+                                    backgroundColor: 'rgba(0,0,0,0.04)',
+                                    borderLeft: '4px solid gray',
+                                    borderRadius: '0.5rem',
+                                    padding: '0.8rem',
+                                    marginBottom: '0.5rem',
+                                    fontSize: '1.4rem',
+                                    maxWidth: '100%',
+                                    color: 'gray',
+                                  }}
+                                >
+                                  <Typography sx={{ fontWeight: 600, fontSize: '1.3rem' }}>
+                                    {message.replyTo.sender?.username || 'Unknown'}
+                                  </Typography>
+
+                                  <Typography sx={{ fontSize: '1.3rem', fontStyle: 'italic' }}>
+                                    {truncateText(message.replyTo.content || 'Quoted message unavailable', 120)}
+                                  </Typography>
+                                </Box>
+                              )
+                            }
+
+                            <Box
+                              component='span'
+                              id='message-box'
+                              sx={{
+                                alignContent: 'center',
+                                alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                                backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                                borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                                fontSize: '1.6rem',
+                                maxWidth: '100%',
+                                overflowWrap: 'break-word',
+                                padding: '1rem',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                width: 'fit-content'
+                              }}
+                              dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
+                            />
+                          </Box>
 
                           {/* Dropdown Menu Icon */}
                           <MoreVertIcon
@@ -429,7 +460,10 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, typingUser }) =
 
                                   <MenuItem
                                     sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                    onClick={() => { alert(`Reply to: ${message.content}`); handleMessageItemMenuClose(); }}
+                                    onClick={() => {
+                                      setQuotedMessage(message);
+                                      handleMessageItemMenuClose();
+                                    }}
                                   >
                                     <ListItemIcon>
                                       <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply

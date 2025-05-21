@@ -28,7 +28,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { socket } from '../../socket/socket';
 
 // Functions.
-import { getSender, getFullSender } from '../../helpers/chatLogic';
+import { getSender, getFullSender, truncateText } from '../../helpers/chatLogic';
 import { resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -50,6 +50,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [quotedMessage, setQuotedMessage] = useState(null);
   const [typingUser, setTypingUser] = useState('');
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -120,6 +121,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       );
     });
 
+    window.addEventListener('keydown', cancelQuotedMessage);
+
     socket.on('disconnect', (reason) => {
       console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
       console.log('SOCKET_STATUS: ', socket.connected);
@@ -137,6 +140,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       };
+
+      window.removeEventListener('keydown', cancelQuotedMessage);
     };
   }, []);
 
@@ -282,15 +287,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       if (newMessage.trim().length > 0) {
         const { data } = await axios.post('/api/chat/message', {
           chatId: chatState.selectedChat._id,
-          messageContent: newMessage
+          messageContent: newMessage,
+          replyTo: quotedMessage?._id || null
         });
 
         socket.emit('message_send', chatState.selectedChat._id, data);
         setMessages([...messages, data]);
         setNewMessage('');
+        setQuotedMessage(null);
       };
     } catch (err) {
       console.error(err);
+    };
+  };
+
+  // Cancel quoted message by pressing 'Escape' button.
+  const cancelQuotedMessage = (event) => {
+    if (event.key === 'Escape') {
+      setQuotedMessage(null);
     };
   };
 
@@ -442,6 +456,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       isTyping={isTyping}
                       messages={messages}
                       setMessages={setMessages}
+                      setQuotedMessage={setQuotedMessage}
                       typingUser={typingUser}
                     />
                 }
@@ -456,6 +471,32 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   padding: '1rem 1rem 1rem 0rem'
                 }}
               >
+                {
+                  quotedMessage && (
+                    <Box sx={{
+                      backgroundColor: '#f0f0f0',
+                      padding: '0.5rem 1rem',
+                      margin: '0 1rem 1rem 1rem',
+                      borderRadius: '0.5rem',
+                      position: 'relative'
+                    }}>
+                      <Typography variant='body2' sx={{ fontStyle: 'italic' }}>
+                        Replying to: <strong>{quotedMessage?.sender?.username}</strong>
+                        <br />
+                        {truncateText(quotedMessage.content, 100)}
+                      </Typography>
+
+                      <IconButton
+                        size='small'
+                        onClick={() => setQuotedMessage(null)}
+                        sx={{ position: 'absolute', right: 4, top: 4 }}
+                      >
+                        ✖
+                      </IconButton>
+                    </Box>
+                  )
+                }
+
                 <TextField
                   autoComplete='off'
                   label='Type your message...'
