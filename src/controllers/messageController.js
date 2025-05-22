@@ -14,7 +14,14 @@ const fetchMessages = async (req, res) => {
 
     const messages = await MessageModel.find({ chat: chatId })
       .populate('chat')
-      .populate('sender', 'username email avatar');
+      .populate('sender', 'username email avatar')
+      .populate({
+        path: 'replyTo',
+        populate: {
+          path: 'sender',
+          select: 'username avatar'
+        }
+      });
 
     res.status(200).json(messages);
   } catch (err) {
