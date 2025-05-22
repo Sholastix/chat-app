@@ -4,17 +4,19 @@ const NotificationModel = require('../models/NotificationModel');
 // Fetch all notifications for a specific user.
 const fetchNotifications = async (req, res) => {
   try {
-    // User ID from request params.
     const { userId } = req.params;
 
-    const notifications = await NotificationModel.find({ user: userId })
+    let notifications = await NotificationModel.find({ user: userId })
       .populate('messageId');
+
+    // Remove notifications where messageId was not found.
+    notifications = notifications.filter((element) => element.messageId !== null);
 
     res.status(200).json(notifications);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Mark specific notification as read.

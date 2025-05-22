@@ -333,7 +333,7 @@ const Header = () => {
                         component='div'
                         sx={{ fontSize: '1.4rem' }}
                       >
-                        {notification.messageId.content}
+                        {notification.messageId?.content || 'Message not found.'}
                       </Typography>
                     </Box>
                   </MenuItem>
