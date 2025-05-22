@@ -132,10 +132,17 @@ const socket = (server) => {
 
       // Listen for 'message_send' event.
       socket.on('message_send', async (room, data) => {
+        console.log('CHAT_USERS:', data.chat.users);
+        console.log('SENDER:', data.sender);
+
         // Do this part only in private chat.
         if (!data.chat.isGroupChat) {
           // Determine who exactly is the recipient for our message.
-          const recipientId = data.chat.users.filter((element) => element._id !== data.sender._id)[0]._id;
+          const recipientId = data.chat.users.find(
+            (userId) => userId !== data.sender._id
+          );
+
+          console.log('RECEPIENT_ID: ', recipientId);
 
           // Check if the recipient is online.
           const isRecipientOnline = usersOnline.some((element) => element.userId === recipientId);
@@ -157,7 +164,8 @@ const socket = (server) => {
             await NotificationModel.create({
               user: recipientId,
               messageId: data._id,
-              content: `New message from ${data.sender.username}`
+              content: `New message from ${data.sender.username}`,
+              // isRead: false
             });
 
             socket.broadcast.emit('notification');
