@@ -446,7 +446,14 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                                 message.isEdited && (
                                   <Tooltip
                                     key={`${message._id}-${message.updatedAt}`} // force 'Tooltip' component to re-render when message is edited.
-                                    title={`Edited at ${new Date(message.updatedAt).toLocaleString()}`}
+                                    title={`Edited at ${new Date(message.updatedAt).toLocaleString(navigator.language, {
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                      hour: 'numeric',
+                                      minute: 'numeric',
+                                      second: 'numeric'
+                                    })}`}
                                     arrow
                                     enterDelay={100}
                                     enterNextDelay={100}
