@@ -457,7 +457,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                                     arrow
                                     enterDelay={100}
                                     enterNextDelay={100}
-                                    placement='bottom'
+                                    placement='bottom-start'
                                     slotProps={{
                                       tooltip: {
                                         sx: {
