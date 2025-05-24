@@ -371,20 +371,27 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                         >
                           <Box
                             component='div'
-                            sx={{ display: 'flex', flexDirection: 'column', width: 'fit-content' }}
+                            sx={{
+                              backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
+                              borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              padding: '0.5rem',
+                              width: 'fit-content'
+                            }}
                           >
                             {
                               message.replyTo && (
                                 <Box
                                   sx={{
-                                    backgroundColor: 'rgba(0,0,0,0.04)',
-                                    borderLeft: '4px solid gray',
-                                    borderRadius: '0.5rem',
-                                    padding: '0.8rem',
-                                    marginBottom: '0.5rem',
+                                    backgroundColor: 'rgb(250, 250, 250)',
+                                    borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                                    boxShadow: '0 0.3rem 1rem 0 rgba(0, 0, 0, 0.3)',
+                                    color: 'black',
                                     fontSize: '1.4rem',
+                                    marginBottom: '1rem',
                                     maxWidth: '100%',
-                                    color: 'gray',
+                                    padding: '1rem'
                                   }}
                                 >
                                   <Typography sx={{ fontWeight: 600, fontSize: '1.3rem' }}>
@@ -398,25 +405,6 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                               )
                             }
 
-                            {/* <Box
-                              component='span'
-                              id='message-box'
-                              sx={{
-                                alignContent: 'center',
-                                alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                                backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                                borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                                fontSize: '1.6rem',
-                                maxWidth: '100%',
-                                overflowWrap: 'break-word',
-                                padding: '1rem',
-                                whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
-                                width: 'fit-content'
-                              }}
-                              dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
-                            /> */}
-
                             <Box
                               component='div'
                               id='message-box'
@@ -425,15 +413,15 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                                 alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
                                 backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
                                 borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
+                                display: 'flex',
+                                flexDirection: 'column',
                                 fontSize: '1.6rem',
                                 maxWidth: '100%',
                                 overflowWrap: 'break-word',
-                                padding: '1rem',
+                                padding: '0.5rem',
                                 whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
                                 width: 'fit-content',
-                                display: 'flex',
-                                flexDirection: 'column'
+                                wordBreak: 'break-word'
                               }}
                             >
                               <Box
@@ -475,7 +463,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                                       component='span'
                                       sx={{
                                         alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                                        color: 'gray',
+                                        color: 'blue',
                                         fontSize: '1.1rem',
                                         fontStyle: 'italic',
                                         marginTop: '0.5rem',
