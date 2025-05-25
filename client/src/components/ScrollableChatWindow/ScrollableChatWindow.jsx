@@ -273,6 +273,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                 component='div'
                 id='message-block'
                 sx={{
+                  alignItems: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
                   display: 'flex',
                   flexDirection: 'column',
                   marginBottom: `${!isLastMessageInChat(messages, index) && isLastMessageInBlock(messages, index) ? '1rem' : '0rem'}`,
@@ -536,6 +537,8 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                         {
                           linkPreviews[message._id] && (
                             <Box
+                              component='a'
+                              id='message-linkPreview-box'
                               sx={{
                                 backgroundColor: 'rgb(250, 250, 250)',
                                 border: '1px solid lightgray',
@@ -545,7 +548,6 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                                 overflow: 'hidden',
                                 textDecoration: 'none',
                               }}
-                              component='a'
                               href={linkPreviews[message._id].requestUrl}
                               target='_blank'
                               rel='noopener noreferrer'
