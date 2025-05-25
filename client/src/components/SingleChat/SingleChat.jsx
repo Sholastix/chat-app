@@ -478,13 +478,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               >
                 {
                   quotedMessage && (
-                    <Box sx={{
-                      backgroundColor: '#f0f0f0',
-                      padding: '0.5rem 1rem',
-                      margin: '0 1rem 1rem 1rem',
-                      borderRadius: '0.5rem',
-                      position: 'relative'
-                    }}>
+                    <Box
+                      component='div'
+                      id='message-quoted'
+                      sx={{
+                        backgroundColor: '#f0f0f0',
+                        padding: '0.5rem 1rem',
+                        margin: '0 1rem 1rem 1rem',
+                        borderRadius: '0.5rem',
+                        position: 'relative'
+                      }}
+                    >
                       <Typography variant='body2' sx={{ fontStyle: 'italic' }}>
                         Replying to: <strong>{quotedMessage?.sender?.username}</strong>
                         <br />
