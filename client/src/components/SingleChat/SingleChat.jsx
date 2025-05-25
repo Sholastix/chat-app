@@ -467,6 +467,39 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 }
               </Box>
 
+              {
+                quotedMessage && (
+                  <Box
+                    component='div'
+                    id='message-quoted'
+                    sx={{
+                      backgroundColor: '#f0f0f0',
+                      borderRadius: '0.5rem',
+                      borderLeft: '0.5rem solid rgb(93, 109, 126)',
+                      margin: '1rem 7rem 0rem 1rem',
+                      padding: '0.5rem 1rem',
+                      position: 'relative'
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '1.4rem', fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                      Replying to: <strong>{quotedMessage?.sender?.username}</strong>
+                    </Typography>
+
+                    <Typography sx={{ fontSize: '1.4rem', fontStyle: 'italic' }}>
+                      <strong>{truncateText(quotedMessage.content, 100)}</strong>
+                    </Typography>
+
+                    <IconButton
+                      size='small'
+                      onClick={() => setQuotedMessage(null)}
+                      sx={{ position: 'absolute', right: 4, top: 4 }}
+                    >
+                      ✖
+                    </IconButton>
+                  </Box>
+                )
+              }
+
               <FormControl
                 component='div'
                 sx={{
@@ -476,36 +509,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   padding: '1rem 1rem 1rem 0rem'
                 }}
               >
-                {
-                  quotedMessage && (
-                    <Box
-                      component='div'
-                      id='message-quoted'
-                      sx={{
-                        backgroundColor: '#f0f0f0',
-                        padding: '0.5rem 1rem',
-                        margin: '0 1rem 1rem 1rem',
-                        borderRadius: '0.5rem',
-                        position: 'relative'
-                      }}
-                    >
-                      <Typography variant='body2' sx={{ fontStyle: 'italic' }}>
-                        Replying to: <strong>{quotedMessage?.sender?.username}</strong>
-                        <br />
-                        {truncateText(quotedMessage.content, 100)}
-                      </Typography>
-
-                      <IconButton
-                        size='small'
-                        onClick={() => setQuotedMessage(null)}
-                        sx={{ position: 'absolute', right: 4, top: 4 }}
-                      >
-                        ✖
-                      </IconButton>
-                    </Box>
-                  )
-                }
-
                 <TextField
                   autoComplete='off'
                   label='Type your message...'
