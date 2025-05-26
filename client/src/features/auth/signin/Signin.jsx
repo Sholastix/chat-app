@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
 import { useSelector, useDispatch } from 'react-redux';
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 // ONLY FOR DEVELOPMENT.
@@ -125,7 +125,11 @@ const Signin = () => {
                 />
               </div>
               {errors.password?.message && <p className={styles.errorMessage}>{errors.password?.message}</p>}
-              {authState.error === 'Request failed with status code 401' && !errors.password?.message && !isSubmitSuccessful ? <p className={styles.errorMessage}>Incorrect password.</p> : null}
+              {
+                formState.submitCount > 0 && authState.error === 'Request failed with status code 401' && !errors.password?.message
+                  ? <p className={styles.errorMessage}>Incorrect password.</p>
+                  : null
+              }
 
               <div>
                 <button type='submit' className={styles.button}>Sign In</button>
