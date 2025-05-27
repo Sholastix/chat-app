@@ -175,7 +175,10 @@ const Signup = () => {
             </form>
 
             <p className={styles.footer}>Already have an account?&nbsp;&nbsp;<Link to='/signin' className={styles.link}>SignIn</Link></p>
-            <DevTool control={control} />
+
+            {
+              import.meta.env.DEV && <DevTool control={control} />
+            }
           </div>
         ) : <Spinner />
       }

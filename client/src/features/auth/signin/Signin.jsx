@@ -1,6 +1,4 @@
-import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-// 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
 import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -19,7 +17,8 @@ import { signin } from '../authSlice';
 import { checkEmail, checkPassword } from '../../../helpers/checkCredentials';
 
 const Signin = () => {
-  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
+  // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
+  // This hook accepts a selector function as its parameter. Selector function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer
   });
@@ -60,12 +59,8 @@ const Signin = () => {
     resolver: yupResolver(signinSchema)
   });
 
-  const { register, handleSubmit, formState, reset, control } = form;
-  const { errors, isSubmitSuccessful } = formState;
-
-  useEffect(() => {
-    isSubmitSuccessful && reset();
-  }, [isSubmitSuccessful]);
+  const { register, handleSubmit, formState, control } = form;
+  const { errors } = formState;
 
   // Redirect if user signed in.
   if (!authState.loading && authState.isAuthenticated) {
@@ -137,7 +132,10 @@ const Signin = () => {
             </form>
 
             <p className={styles.footer}>Don't have an account yet?&nbsp;&nbsp;<Link to='/signup' className={styles.link}>SignUp</Link></p>
-            <DevTool control={control} />
+
+            {
+              import.meta.env.DEV && <DevTool control={control} />
+            }
           </div>
         ) : <Spinner />
       }
