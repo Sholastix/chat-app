@@ -12,8 +12,8 @@ const socket = (server) => {
       transports: ['websocket'],
       cors: {
         origin: '*',
-        methods: ['GET', 'POST']
-      }
+        methods: ['GET', 'POST'],
+      },
     });
 
     // Create a variable to check user's online/offline status.
@@ -27,7 +27,7 @@ const socket = (server) => {
       // Check if user already in 'usersOnline' array. If 'YES' - skip it, if 'NO' - add it to array.
       if (!usersOnline.some((element) => element.userId === userId)) {
         usersOnline.push({ userId, socketId });
-      };
+      }
     };
 
     // Remove user from 'online users'.
@@ -57,7 +57,7 @@ const socket = (server) => {
 
         io.emit('last_online_update', {
           userId: updatedUser?._id,
-          lastOnline: updatedUser.lastOnline
+          lastOnline: updatedUser.lastOnline,
         });
 
         io.emit('connected', `User '${user.username}' with socketId '${socket.id}' connected.`);
@@ -72,7 +72,7 @@ const socket = (server) => {
 
           if (!userRooms.some((element) => element.userId === userId)) {
             userRooms.push({ userId, room, socketId });
-          };
+          }
 
           socket.join(room);
           console.log(`SOCKET_EVENT: ${username} joined the room '${room}'.`);
@@ -86,18 +86,18 @@ const socket = (server) => {
               {
                 chat: room,
                 sender: notCurrentUser,
-                isRead: false
+                isRead: false,
               },
               { $set: { isRead: true } }
             );
 
             console.log(`Marked ${result.modifiedCount} messages as already read.`);
 
-            // Here we get all updated messages. 
+            // Here we get all updated messages.
             const updatedMessages = await MessageModel.find({
               chat: room,
               sender: notCurrentUser,
-              isRead: true
+              isRead: true,
             });
 
             updatedMessages.forEach((msg) => {
@@ -109,8 +109,8 @@ const socket = (server) => {
             });
           } catch (err) {
             console.error(err);
-          };
-        };
+          }
+        }
       });
 
       // Leave chat room.
@@ -121,34 +121,29 @@ const socket = (server) => {
 
           socket.leave(room);
           console.log(`SOCKET_EVENT: ${username} left the room '${room}'.`);
-        };
+        }
       });
 
-      // Listen for 'typing' event.
+      // Listen for 'typing' event from client.
       socket.on('typing', (room, username) => {
-        // Emit 'typing event' to specific room.
+        // Emit 'typing event' to specific room to client.
         socket.to(room).emit('typing', username);
       });
 
       // Listen for 'message_send' event.
       socket.on('message_send', async (room, data) => {
-        console.log('CHAT_USERS:', data.chat.users);
-        console.log('SENDER:', data.sender);
-
         // Do this part only in private chat.
         if (!data.chat.isGroupChat) {
           // Determine who exactly is the recipient for our message.
-          const recipientId = data.chat.users.find(
-            (userId) => userId !== data.sender._id
-          );
-
-          console.log('RECEPIENT_ID: ', recipientId);
+          const recipientId = data.chat.users.find((userId) => userId !== data.sender._id);
 
           // Check if the recipient is online.
           const isRecipientOnline = usersOnline.some((element) => element.userId === recipientId);
 
           // Check if the recipient in same chat with sender of this message.
-          const isRecepientInSameChat = userRooms.some((element) => element.userId === recipientId && element.room === room);
+          const isRecepientInSameChat = userRooms.some(
+            (element) => element.userId === recipientId && element.room === room
+          );
 
           if (isRecipientOnline && isRecepientInSameChat) {
             // If recipient is online and in the same chat — then message is read immediately.
@@ -158,19 +153,18 @@ const socket = (server) => {
 
             if (senderSocket) {
               io.to(senderSocket).emit('mark_one_message_as_read', { messageId: data._id });
-            };
+            }
           } else {
             // Create new notification if offline or not in chat.
             await NotificationModel.create({
               user: recipientId,
               messageId: data._id,
               content: `New message from ${data.sender.username}`,
-              // isRead: false
             });
 
             socket.broadcast.emit('notification');
-          };
-        };
+          }
+        }
 
         // // Template for group chat (maybe later we add it to app).
         // if (data.chat.isGroupChat) {
@@ -193,18 +187,14 @@ const socket = (server) => {
         // Here we must populate in classic way without dot notation shortening because Mongoose dot notation for nested 'populate()' doesn't work in this context,
         // when 'lastMessage' property itself is a reference and we need to populate a path within that reference ('lastMessage.sender').
         // This is common Mongoose limitation - Mongoose won't recursively populate unless we explicitly instruct it to using the longer form.
-        const updatedChat = await ChatModel.findByIdAndUpdate(
-          data.chat._id,
-          { lastMessage: data._id },
-          { new: true }
-        )
+        const updatedChat = await ChatModel.findByIdAndUpdate(data.chat._id, { lastMessage: data._id }, { new: true })
           .populate({
             path: 'lastMessage',
             populate: {
               path: 'sender',
               model: 'User',
-              select: '_id avatar username' // here we can select fields we need.
-            }
+              select: '_id avatar username', // here we can select fields we need.
+            },
           })
           .populate('users', '_id avatar username');
 
@@ -220,11 +210,11 @@ const socket = (server) => {
             { new: true }
           ).populate('sender', '_id username avatar');
 
-          // Notify all users in the chat room about the updated message
+          // Notify all users in the chat room about the updated message.
           io.to(editedMessage.chatId).emit('message_edited', updatedMessage);
         } catch (err) {
           console.error(err);
-        };
+        }
       });
 
       // User disconnects from the app.
@@ -245,7 +235,7 @@ const socket = (server) => {
 
         io.emit('last_online_update', {
           userId: updatedUser?._id,
-          lastOnline: updatedUser?.lastOnline
+          lastOnline: updatedUser?.lastOnline,
         });
 
         io.emit('users_online', usersOnline);
@@ -253,7 +243,7 @@ const socket = (server) => {
     });
   } catch (err) {
     console.error(err);
-  };
+  }
 };
 
 module.exports = socket;

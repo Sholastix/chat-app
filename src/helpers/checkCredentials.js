@@ -13,7 +13,7 @@ const checkEmail = async (req, res) => {
     res.json(user);
   } catch (err) {
     console.error(err);
-  };
+  }
 };
 
 // Check if username is already in use.
@@ -25,11 +25,11 @@ const checkUsername = async (req, res) => {
     res.json(user);
   } catch (err) {
     console.error(err);
-  };
+  }
 };
 
 module.exports = {
   checkEmail,
   checkPassword,
-  checkUsername
+  checkUsername,
 };

@@ -5,30 +5,30 @@ const notificationSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true
+      required: true,
     },
 
     messageId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Message',
-      required: true
+      required: true,
     },
 
     content: {
       type: String,
-      required: true
+      required: true,
     },
 
     isRead: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: true }
-  },
+    timestamps: { createdAt: true, updatedAt: true },
+  }
 );
 
 const NotificationModel = mongoose.model('Notification', notificationSchema);

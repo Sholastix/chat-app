@@ -26,25 +26,25 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       required: true,
-      default: 'https://img.icons8.com/?size=100&id=114064&format=png&color=000000'
+      default: 'https://img.icons8.com/?size=100&id=114064&format=png&color=000000',
     },
 
     isAdmin: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
-    
+
     lastOnline: {
       type: Date,
-      default: null
-    }
+      default: null,
+    },
   },
 
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: false }
-  },
+    timestamps: { createdAt: true, updatedAt: false },
+  }
 );
 
 const UserModel = mongoose.model('User', userSchema);

@@ -22,7 +22,7 @@ const signupSchema = yup.object({
   confirmPassword: yup
     .string()
     .required('Password confirmation is required.')
-    .oneOf([yup.ref('password'), null], 'Passwords don\'t match!')
+    .oneOf([yup.ref('password'), null], 'Passwords don\'t match!'),
 });
 
 // Signin validation.
@@ -35,7 +35,7 @@ const signinSchema = yup.object({
     .string()
     .required('Password is required.')
     .min(5, 'Password must be at least 5 characters long.')
-    .matches(checkPassword, { message: 'Password must contain letters and numbers.' })
+    .matches(checkPassword, { message: 'Password must contain letters and numbers.' }),
 });
 
 module.exports = {

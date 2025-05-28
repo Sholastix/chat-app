@@ -7,11 +7,9 @@ const truncateWithoutCuttingWord = (text, maxLength) => {
   const lastSpace = truncated.lastIndexOf(' ');
 
   // If no space found (e.g., "cat,dog"), fallback to hard cut.
-  return lastSpace === -1
-    ? truncated + '...'
-    : truncated.slice(0, lastSpace) + '...';
+  return lastSpace === -1 ? truncated + '...' : truncated.slice(0, lastSpace) + '...';
 };
 
 module.exports = {
-  truncateWithoutCuttingWord
+  truncateWithoutCuttingWord,
 };

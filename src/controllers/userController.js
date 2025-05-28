@@ -15,7 +15,7 @@ const signup = async (req, res) => {
     if (user) {
       console.error(`\nERROR: User with username '${username}' already exists.`);
       return res.status(409).json({ errors: [{ message: `User with username '${username}' already exists.` }] });
-    };
+    }
 
     // Check if user with this email already exists.
     user = await UserModel.findOne({ email });
@@ -23,7 +23,7 @@ const signup = async (req, res) => {
     if (user) {
       console.error(`\nERROR: User with email '${email}' already exists.`);
       return res.status(409).json({ errors: [{ message: `User with email '${email}' already exists.` }] });
-    };
+    }
 
     // Encrypt user's password.
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -32,7 +32,7 @@ const signup = async (req, res) => {
     user = await UserModel.create({
       username: username,
       email: email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     // Create jsonwebtoken for user.
@@ -46,12 +46,12 @@ const signup = async (req, res) => {
       } else {
         console.log('\nRegistration completed successfully: ', { user, token });
         res.status(201).json({ user, token });
-      };
+      }
     });
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // User login.
@@ -66,7 +66,7 @@ const signin = async (req, res) => {
     if (!user) {
       console.error(`\nERROR: User with email '${email}' not found.`);
       return res.status(400).json({ errors: [{ message: `User with email '${email}' not found.` }] });
-    };
+    }
 
     // Compare input password and password from database.
     const isMatch = await bcrypt.compare(password, user.password);
@@ -75,7 +75,7 @@ const signin = async (req, res) => {
     if (!isMatch) {
       console.error('\nERROR: Incorrect password.');
       return res.status(401).json({ errors: [{ message: 'Incorrect password.' }] });
-    };
+    }
 
     // Create jsonwebtoken for user.
     const jwtPayload = { id: user._id };
@@ -88,12 +88,12 @@ const signin = async (req, res) => {
       } else {
         console.log('\nUser logged in successfully: ', { user, token });
         res.status(200).json({ user, token });
-      };
+      }
     });
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Get all users (except currently logged in user) from database accordingly to search parameters.
@@ -101,11 +101,12 @@ const getUsers = async (req, res) => {
   try {
     const keyword = req.query.search
       ? {
-        $or: [
-          { username: { $regex: req.query.search, $options: 'i' } },
-          // { email: { $regex: req.query.search, $options: 'i' } },
-        ]
-      } : {};
+          $or: [
+            { username: { $regex: req.query.search, $options: 'i' } },
+            // { email: { $regex: req.query.search, $options: 'i' } },
+          ],
+        }
+      : {};
 
     // Find all users except currently logged in user.
     const users = await UserModel.find(keyword).find({ _id: { $ne: req.userId } });
@@ -114,21 +115,21 @@ const getUsers = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Get specific user's profile.
 const getUser = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const user = await UserModel.findById(id);
 
     res.status(200).json(user);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Update user's profile.
@@ -139,17 +140,21 @@ const updateUser = async (req, res) => {
 
     // Updating picture and name from 'user profile' form.
     if (picture && username) {
-      const updatedUser = await UserModel.findByIdAndUpdate(id, {
-        avatar: picture,
-        username: username
-      }, { new: true });
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        id,
+        {
+          avatar: picture,
+          username: username,
+        },
+        { new: true }
+      );
 
       res.status(200).json(updatedUser);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 module.exports = {
@@ -157,5 +162,5 @@ module.exports = {
   getUsers,
   signin,
   signup,
-  updateUser
+  updateUser,
 };

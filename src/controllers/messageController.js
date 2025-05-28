@@ -19,15 +19,15 @@ const fetchMessages = async (req, res) => {
         path: 'replyTo',
         populate: {
           path: 'sender',
-          select: 'username avatar'
-        }
+          select: 'username avatar',
+        },
       });
 
     res.status(200).json(messages);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error', message: err.message });
-  };
+  }
 };
 
 // Show preview for hyperlink in message.
@@ -41,7 +41,7 @@ const fetchLinkPreview = async (req, res) => {
     if (!data || data.status !== 'success') {
       console.log('\nERROR: Could not fetch link preview.');
       return res.status(400).json({ error: 'Could not fetch link preview.' });
-    };
+    }
 
     const meta = data.data;
 
@@ -49,14 +49,14 @@ const fetchLinkPreview = async (req, res) => {
       linkTitle: truncateWithoutCuttingWord(meta.title, 100),
       linkDescription: truncateWithoutCuttingWord(meta.description, 100),
       linkImage: {
-        url: meta.image?.url || meta.screenshot?.url
+        url: meta.image?.url || meta.screenshot?.url,
       },
-      requestUrl: meta.url
+      requestUrl: meta.url,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error', message: err.message });
-  };
+  }
 };
 
 // Send message.
@@ -71,51 +71,46 @@ const sendMessage = async (req, res) => {
     if (!chatId || !messageContent) {
       console.log('\nERROR: Invalid data passed into the request.');
       return res.status(400).json({ error: 'Invalid data passed into the request.' });
-    };
+    }
 
     // Create new message.
     const message = await MessageModel.create({
       chat: chatId,
       content: messageContent,
       sender: userId,
-      replyTo: replyTo || null
+      replyTo: replyTo || null,
     });
 
-    // // Then populate this created message with selected info of it's sender...
-    // let fullMessage = await message.populate('sender', 'username avatar');
-    // // ... and full info of it's chat...
-    // fullMessage = await message.populate('chat');
-    // // ... and selected info about users in this chat.
-    // fullMessage = await UserModel.populate(fullMessage, {
-    //   path: 'chat.users',
-    //   select: 'username email avatar'
-    // });
-
+    // Then populate this created message with...
     const fullMessage = await MessageModel.findById(message._id)
+      // ... selected info of it's sender...
       .populate('sender', 'username avatar')
+      // ... full info of chat...
       .populate('chat')
+      // ... sender's name for 'reply with quote' functionality...
       .populate({
         path: 'replyTo',
         populate: {
           path: 'sender',
-          select: 'username'
-        }
+          select: 'username',
+        },
       })
+      // ... and selected info about users in this chat.
       .populate({
         path: 'chat.users',
-        select: 'username email avatar'
+        select: 'username email avatar',
       });
 
     // Update chat (every new message from this user in this chat will be the new value for the 'last message' property and replace previous last message).
     await ChatModel.findByIdAndUpdate(chatId, {
-      lastMessage: fullMessage
+      lastMessage: fullMessage,
     });
 
     res.status(201).json(fullMessage);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error', message: err.message });
-  };
+  }
 };
 
 // Edit existed message.
@@ -128,7 +123,7 @@ const editMessage = async (req, res) => {
     if (senderId !== userId) {
       console.log('\nERROR: Wrong user, access denied.');
       return;
-    };
+    }
 
     const updatedMessage = await MessageModel.findByIdAndUpdate(
       messageId,
@@ -142,12 +137,12 @@ const editMessage = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error', message: err.message });
-  };
+  }
 };
 
 module.exports = {
   editMessage,
   fetchLinkPreview,
   fetchMessages,
-  sendMessage
+  sendMessage,
 };

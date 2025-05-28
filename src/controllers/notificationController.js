@@ -1,5 +1,4 @@
 const NotificationModel = require('../models/NotificationModel');
-// const UserModel = require('../models/UserModel');
 
 // Fetch all notifications for a specific user.
 const fetchNotifications = async (req, res) => {
@@ -27,17 +26,11 @@ const markNotificationAsRead = async (req, res) => {
 
     await NotificationModel.findByIdAndUpdate(notificationId, { isRead: true });
 
-    // // Remove the notification from the User's notifications array (optionally, if needed).
-    // await UserModel.updateOne(
-    //   { _id: notification.user },
-    //   { $pull: { notifications: notificationId } } // if we stored refs in 'UserModel'.
-    // );
-
     res.status(200).json('Notification marked as read.');
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // // Create notification for a specific user.
@@ -63,7 +56,7 @@ const markNotificationAsRead = async (req, res) => {
 //   } catch (err) {
 //     console.error(err);
 //     res.status(500).json(`Server error: ${err.message}`);
-//   };
+//   }
 // };
 
 module.exports = {

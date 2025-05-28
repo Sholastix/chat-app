@@ -14,7 +14,7 @@ const {
   fetchChats,
   hideChatForUser,
   removeFromGroup,
-  renameGroupChat
+  renameGroupChat,
 } = require('../../controllers/chatController');
 
 // @route: POST /api/chat

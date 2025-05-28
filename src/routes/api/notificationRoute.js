@@ -5,10 +5,10 @@ const router = Router();
 const authMdw = require('../../middleware/authMdw');
 
 // Functions.
-const { 
-    fetchNotifications, 
-    markNotificationAsRead, 
-    // createNotification
+const {
+  fetchNotifications,
+  markNotificationAsRead,
+  // createNotification
 } = require('../../controllers/notificationController');
 
 // @route: GET /api/chat/notifications/:userId

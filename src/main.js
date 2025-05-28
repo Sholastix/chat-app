@@ -3,7 +3,6 @@ require('dotenv').config({ path: '.env.local' });
 const { createServer } = require('node:http');
 const path = require('node:path');
 const express = require('express');
-const cors = require('cors');
 
 const app = express();
 const server = createServer(app);
@@ -37,7 +36,7 @@ if (process.env.NODE_ENV === 'production') {
     // res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
-};
+}
 
 // Starting the server.
 server.listen(PORT, () => {

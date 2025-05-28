@@ -13,30 +13,30 @@ const chat = async (req, res) => {
     const collocutorId = req.body.userId;
 
     if (!collocutorId) {
-      console.log('\nERROR: No collocutor\'s ID in request body.');
-      return res.status(400).json('\nERROR: No collocutor\'s ID in request body.');
-    };
+      console.log("\nERROR: No collocutor's ID in request body.");
+      return res.status(400).json("\nERROR: No collocutor's ID in request body.");
+    }
 
     // Check if 1-on-1 private chat with requested users already exists.
     let isChat = await ChatModel.find({
       isGroupChat: false,
       $and: [
-        { users: { $elemMatch: { $eq: userId } } },
+        { users: { $elemMatch: { $eq: userId } } }, 
         { users: { $elemMatch: { $eq: collocutorId } } }
-      ]
+      ],
     })
       .populate('users', '-password')
       .populate('lastMessage');
 
     isChat = await UserModel.populate(isChat, {
       path: 'lastMessage.sender',
-      select: 'username email avatar'
+      select: 'username email avatar',
     });
 
     if (isChat.length > 0) {
       // Unhide chat for current user if it was previously hidden.
       await ChatModel.findByIdAndUpdate(isChat[0]._id, {
-        $pull: { hiddenBy: userId }
+        $pull: { hiddenBy: userId },
       });
 
       // If chat already exists - return it.
@@ -46,7 +46,7 @@ const chat = async (req, res) => {
       const newChat = await ChatModel.create({
         chatName: `${Date.now()}`,
         isGroupChat: false,
-        users: [userId, collocutorId]
+        users: [userId, collocutorId],
       });
 
       // Then populate this created chat with info of it's users (without password).
@@ -54,11 +54,11 @@ const chat = async (req, res) => {
         .populate('users', '-password');
 
       res.status(201).json(fullChat);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Get all chats which currently logged in user is a part of.
@@ -74,23 +74,23 @@ const fetchChats = async (req, res) => {
       hiddenBy: { $ne: userId },
 
       // Don't include chats deleted by the user.
-      deletedBy: { $ne: userId }
+      deletedBy: { $ne: userId },
     })
       .populate('users', '-password')
       .populate('groupAdmin', '-password')
       .populate('lastMessage')
-      .sort({ updatedAt: -1 }) // Sort from new to old chats.
+      .sort({ updatedAt: -1 }); // Sort from new to old chats.
 
     const fullChats = await UserModel.populate(chats, {
       path: 'lastMessage.sender',
-      select: 'username email avatar'
+      select: 'username email avatar',
     });
 
     res.status(200).json(fullChats);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Get one specific chat of the all chats which currently logged in user is a part of.
@@ -106,7 +106,7 @@ const fetchChat = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Create group chat.
@@ -123,12 +123,12 @@ const createGroupChat = async (req, res) => {
     if (!chatName || !users) {
       console.log('\nERROR: Please fill all the fields.');
       return res.status(400).json({ message: 'Please fill all the fields.' });
-    };
+    }
 
     if (users.length < 2) {
       console.log('\nERROR: Group chat requires 2 or more users.');
       return res.status(400).json({ message: 'Group chat requires 2 or more users.' });
-    };
+    }
 
     // Also we need to add current logged in user to array.
     users.push(userId);
@@ -149,7 +149,7 @@ const createGroupChat = async (req, res) => {
         chatName: chatName,
         groupAdmin: userId,
         isGroupChat: true,
-        users: users
+        users: users,
       });
 
       // Then populate created group chat with additional info (without password).
@@ -158,11 +158,11 @@ const createGroupChat = async (req, res) => {
         .populate('groupAdmin', '-password');
 
       res.status(201).json(fullGroupChat);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Rename group chat.
@@ -178,11 +178,11 @@ const renameGroupChat = async (req, res) => {
       throw new Error('Chat not found.');
     } else {
       res.status(200).json(renamedChat);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Add someone to group.
@@ -198,11 +198,11 @@ const addToGroup = async (req, res) => {
       throw new Error('Chat not found.');
     } else {
       res.status(200).json(updatedChat);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Remove someone from group or leave the group.
@@ -210,11 +210,7 @@ const removeFromGroup = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
-    const updatedChat = await ChatModel.findByIdAndUpdate(
-      chatId,
-      { $pull: { users: userId } },
-      { new: true }
-    )
+    const updatedChat = await ChatModel.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
@@ -222,11 +218,11 @@ const removeFromGroup = async (req, res) => {
       throw new Error('Chat not found.');
     } else {
       res.status(200).json(updatedChat);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
-  };
+  }
 };
 
 // Hide one specific chat from the current user's chat list.
@@ -234,17 +230,13 @@ const hideChatForUser = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
-    const chat = await ChatModel.findByIdAndUpdate(
-      chatId,
-      { $addToSet: { hiddenBy: userId } },
-      { new: true }
-    );
+    const chat = await ChatModel.findByIdAndUpdate(chatId, { $addToSet: { hiddenBy: userId } }, { new: true });
 
     if (!chat) {
       throw new Error('Chat not found.');
     } else {
       res.status(200).json(chat);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
@@ -256,17 +248,13 @@ const deleteChatForUser = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
-    const chat = await ChatModel.findByIdAndUpdate(
-      chatId,
-      { $addToSet: { deletedBy: userId } },
-      { new: true }
-    );
+    const chat = await ChatModel.findByIdAndUpdate(chatId, { $addToSet: { deletedBy: userId } }, { new: true });
 
     if (!chat) {
       throw new Error('Chat not found.');
     } else {
       res.status(200).json(chat);
-    };
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
@@ -282,5 +270,5 @@ module.exports = {
   fetchChats,
   hideChatForUser,
   removeFromGroup,
-  renameGroupChat
+  renameGroupChat,
 };

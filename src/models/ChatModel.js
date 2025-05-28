@@ -11,41 +11,47 @@ const chatSchema = new mongoose.Schema(
 
     isGroupChat: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
-    users: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }],
-    
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+
     lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Message'
+      ref: 'Message',
     },
 
     groupAdmin: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
     },
 
-    hiddenBy: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: []
-    }],
+    hiddenBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+      },
+    ],
 
-    deletedBy: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: []
-    }]
+    deletedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+      },
+    ],
   },
 
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: false }
-  },
+    timestamps: { createdAt: true, updatedAt: false },
+  }
 );
 
 const ChatModel = mongoose.model('Chat', chatSchema);

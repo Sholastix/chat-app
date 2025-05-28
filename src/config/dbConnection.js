@@ -9,7 +9,7 @@ const dbConnection = async () => {
   } catch (err) {
     console.error(`\nConnection failed: ${MONGODB_URI}`, err.message);
     process.exit(1);
-  };
+  }
 };
 
 module.exports = dbConnection;
