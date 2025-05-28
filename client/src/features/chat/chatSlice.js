@@ -91,6 +91,9 @@ const chatSlice = createSlice({
   initialState,
   // Specify the REDUCER for this slice.
   reducers: {
+    // Reset entire 'chat' STATE.
+    resetChatState: () => initialState,
+
     // Reset STATE for 'selected chat'.
     resetSelectedChatState: (state, action) => {
       // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
@@ -241,5 +244,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { resetSelectedChatState, onlineUsers, updateChatLastMessage } = chatSlice.actions;
+export const { resetChatState, resetSelectedChatState, onlineUsers, updateChatLastMessage } = chatSlice.actions;
 export const chatReducer = chatSlice.reducer;

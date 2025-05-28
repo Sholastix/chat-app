@@ -33,7 +33,7 @@ import { socket } from '../../socket/socket';
 
 // Functions.
 import { signout } from '../../features/auth/authSlice';
-import { fetchChat, resetSelectedChatState } from '../../features/chat/chatSlice';
+import { fetchChat, resetChatState } from '../../features/chat/chatSlice';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
@@ -173,7 +173,7 @@ const Header = () => {
   // Sign out user.
   const logOut = () => {
     try {
-      dispatch(resetSelectedChatState(null));
+      dispatch(resetChatState());
       dispatch(signout());
 
       // Close socket connection.
