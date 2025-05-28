@@ -173,8 +173,11 @@ const Header = () => {
   // Sign out user.
   const logOut = () => {
     try {
-      dispatch(resetChatState());
-      dispatch(signout());
+      // // Manually resets 'chat' STATE. Redundant because we handling 'chat' STATE reset inside the chatSlice by listening to the 'signout' action.
+      // dispatch(resetChatState());
+
+      // Resets 'auth' STATE and (because we connected 'signout' action to chatSlice) triggers 'chat' STATE reset via extraReducers too.
+      dispatch(signout()); 
 
       // Close socket connection.
       if (socket.connected) {

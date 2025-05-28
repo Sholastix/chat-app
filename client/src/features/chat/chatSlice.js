@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+import { signout } from '../auth/authSlice';
+
 // Initial STATE for 'Chat'.
 const initialState = {
   loading: false,
@@ -116,6 +118,9 @@ const chatSlice = createSlice({
 
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
+    // Reset chat state when user signs out:
+    builder.addCase(signout, () => initialState);
+    
     // -------------------------------   FETCH CHATS   -------------------------------
 
     builder.addCase(fetchChats.pending, (state, action) => {
