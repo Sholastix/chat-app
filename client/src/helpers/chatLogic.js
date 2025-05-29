@@ -33,14 +33,32 @@ export const getSender = (loggedInUser, users) => {
 //   };
 // };
 
+// export const getFullSender = (loggedInUser, users) => {
+//   if (!Array.isArray(users) || users.length < 2) {
+//     console.warn('Invalid \'users\' array passed to \'getFullSender()\' function: ', users);
+
+//     return undefined;
+//   }
+
+//   return users.find((user) => user._id !== loggedInUser._id);
+// };
+
 export const getFullSender = (loggedInUser, users) => {
   if (!Array.isArray(users) || users.length < 2) {
     console.warn('Invalid \'users\' array passed to \'getFullSender()\' function: ', users);
 
-    return undefined;
+    return null;
   }
 
-  return users.find((user) => user._id !== loggedInUser._id);
+  const otherUser = users.find((user) => user?._id !== loggedInUser._id);
+
+  if (!otherUser) {
+    console.warn('Chat has no valid collocutor: ', users);
+    
+    return null;
+  }
+
+  return otherUser;
 };
 
 // Check if message is the first message in chat.

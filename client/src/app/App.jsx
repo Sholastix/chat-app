@@ -13,32 +13,41 @@ import Signup from '../features/auth/signup/Signup';
 import UserProfilePage from '../components/UserProfilePage/UserProfilePage';
 
 // Functions.
-import { isUserSignedIn } from '../features/auth/authSlice';
+import { isUserSignedIn, signout } from '../features/auth/authSlice';
 
 const App = () => {
-  // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(isUserSignedIn());
-  }, []);
+    const bootstrapAuth = async () => {
+      try {
+        await dispatch(isUserSignedIn())
+          .unwrap(); // Use unwrap to catch errors.
+      } catch (error) {
+        console.warn('Auto sign-in failed. Clearing token and resetting auth.');
+        dispatch(signout()); // Clean up bad token.
+      }
+    };
+
+    bootstrapAuth();
+  }, [dispatch]);
 
   return (
     <Fragment>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Navigate replace to='/chat' />} />
+          <Route path="/" element={<Navigate replace to="/chat" />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path='/chat' element={<Chat />} />
-            <Route path='/profile' element={<UserProfilePage />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/profile" element={<UserProfilePage />} />
           </Route>
-          <Route path='/signin' element={<Signin />} />
-          <Route path='/signup' element={<Signup />} />
-          <Route path='*' element={<ErrorPage />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>
     </Fragment>
-  )
+  );
 };
 
 export default App;

@@ -3,13 +3,18 @@ const UserModel = require('../models/UserModel');
 // User auth check.
 const auth = async (req, res) => {
   try {
-    // Here we get user's ID not from params, but from user's webtoken (which comes from our custom 'authMdw' middleware).
-    const user = await UserModel.findById(req.userId);
+    const user = await UserModel.findById(req.userId)
+      .select('-password');
+
+    // // Redundant logic because we added the same check in authMdw.
+    // if (!user) {
+    //   return res.status(401).json({ message: 'User not found. Possibly deleted.' });
+    // }
 
     res.status(200).json(user);
   } catch (err) {
-    console.error(err);
-    res.status(500).json(`Server error: ${err.message}`);
+    console.error('Auth check failed:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 

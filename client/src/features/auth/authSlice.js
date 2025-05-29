@@ -10,7 +10,7 @@ const initialState = {
   error: '',
   isAuthenticated: false,
   token: localStorage.getItem('token'),
-  user: null
+  user: null,
 };
 
 // This function accepts two arguments: 1st is the ACTION type, 2nd is the callback function that creates the payload (Promise).
@@ -21,7 +21,7 @@ const initialState = {
 export const isUserSignedIn = createAsyncThunk('auth/isUserSignedIn', async () => {
   if (localStorage.token) {
     setAuthToken();
-  };
+  }
 
   const user = await axios.get('/api/auth');
 
@@ -34,7 +34,7 @@ export const signup = createAsyncThunk('auth/signup', async (props) => {
     username: props.username,
     email: props.email,
     password: props.password,
-    confirmPassword: props.confirmPassword
+    confirmPassword: props.confirmPassword,
   });
 
   return user.data;
@@ -44,7 +44,7 @@ export const signup = createAsyncThunk('auth/signup', async (props) => {
 export const signin = createAsyncThunk('auth/signin', async (props) => {
   const user = await axios.post('/api/signin', {
     email: props.email,
-    password: props.password
+    password: props.password,
   });
 
   return user.data;
@@ -56,11 +56,11 @@ export const updateUser = createAsyncThunk('auth/updateUser', async ({ id, pictu
   if (picture && username) {
     const { data } = await axios.put(`/api/user/${id}`, {
       picture: picture,
-      username: username
+      username: username,
     });
 
     return data;
-  };
+  }
 });
 
 // Create slice of the STORE for 'User'.
@@ -81,7 +81,9 @@ const authSlice = createSlice({
       state.token = null;
       // Remove token from local storage.
       localStorage.removeItem('token');
-    }
+      // Clear axios auth header.
+      setAuthToken(null);
+    },
   },
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
@@ -107,6 +109,8 @@ const authSlice = createSlice({
       state.token = null;
       // Remove token from local storage.
       localStorage.removeItem('token');
+      // Clear axios auth header.
+      setAuthToken(null);
     });
 
     // -------------------------------   SIGNUP   -------------------------------
@@ -135,6 +139,8 @@ const authSlice = createSlice({
       state.token = null;
       // Remove token from local storage.
       localStorage.removeItem('token');
+      // Clear axios auth header.
+      setAuthToken(null);
     });
 
     // -------------------------------   SIGNIN   -------------------------------
@@ -163,6 +169,8 @@ const authSlice = createSlice({
       state.token = null;
       // Remove token from local storage.
       localStorage.removeItem('token');
+      // Clear axios auth header.
+      setAuthToken(null);
     });
 
     // -------------------------------   UPDATE USER'S PROFILE   -------------------------------

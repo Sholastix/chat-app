@@ -20,10 +20,7 @@ const chat = async (req, res) => {
     // Check if 1-on-1 private chat with requested users already exists.
     let isChat = await ChatModel.find({
       isGroupChat: false,
-      $and: [
-        { users: { $elemMatch: { $eq: userId } } }, 
-        { users: { $elemMatch: { $eq: collocutorId } } }
-      ],
+      $and: [{ users: { $elemMatch: { $eq: userId } } }, { users: { $elemMatch: { $eq: collocutorId } } }],
     })
       .populate('users', '-password')
       .populate('lastMessage');
@@ -50,8 +47,7 @@ const chat = async (req, res) => {
       });
 
       // Then populate this created chat with info of it's users (without password).
-      const fullChat = await ChatModel.findOne({ _id: newChat._id })
-        .populate('users', '-password');
+      const fullChat = await ChatModel.findOne({ _id: newChat._id }).populate('users', '-password');
 
       res.status(201).json(fullChat);
     }
@@ -62,31 +58,86 @@ const chat = async (req, res) => {
 };
 
 // Get all chats which currently logged in user is a part of.
+// const fetchChats = async (req, res) => {
+//   try {
+//     // Current logged in user's ID.
+//     const userId = req.userId;
+
+//     const chats = await ChatModel.find({
+//       users: { $elemMatch: { $eq: userId } },
+
+//       // Don't include chats hidden by the user.
+//       hiddenBy: { $ne: userId },
+
+//       // Don't include chats deleted by the user.
+//       deletedBy: { $ne: userId },
+//     })
+//       .populate('users', '-password')
+//       .populate('groupAdmin', '-password')
+//       .populate('lastMessage')
+//       .sort({ updatedAt: -1 }); // Sort from new to old chats.
+
+//     const fullChats = await UserModel.populate(chats, {
+//       path: 'lastMessage.sender',
+//       select: 'username email avatar',
+//     });
+
+//     res.status(200).json(fullChats);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json(`Server error: ${err.message}`);
+//   }
+// };
+
 const fetchChats = async (req, res) => {
   try {
-    // Current logged in user's ID.
     const userId = req.userId;
 
-    const chats = await ChatModel.find({
+    let chats = await ChatModel.find({
       users: { $elemMatch: { $eq: userId } },
-
-      // Don't include chats hidden by the user.
       hiddenBy: { $ne: userId },
-
-      // Don't include chats deleted by the user.
       deletedBy: { $ne: userId },
     })
       .populate('users', '-password')
       .populate('groupAdmin', '-password')
       .populate('lastMessage')
-      .sort({ updatedAt: -1 }); // Sort from new to old chats.
+      .sort({ updatedAt: -1 });
 
-    const fullChats = await UserModel.populate(chats, {
+    chats = await UserModel.populate(chats, {
       path: 'lastMessage.sender',
       select: 'username email avatar',
     });
 
-    res.status(200).json(fullChats);
+    // Filter out corrupted 1-on-1 chats.
+    const validChats = [];
+
+    for (const chat of chats) {
+      if (!chat.isGroupChat) {
+        // 1-on-1 chat should have exactly 2 users.
+        if (!chat.users || chat.users.length !== 2) {
+          // Optionally hide it from the current user.
+          await ChatModel.findByIdAndUpdate(chat._id, {
+            $addToSet: { hiddenBy: userId },
+          });
+
+          continue;
+        }
+
+        // Check if the other user still exists.
+        const otherUser = chat.users.find((u) => u._id.toString() !== userId.toString());
+        if (!otherUser) {
+          await ChatModel.findByIdAndUpdate(chat._id, {
+            $addToSet: { hiddenBy: userId },
+          });
+
+          continue;
+        }
+      }
+
+      validChats.push(chat);
+    }
+
+    res.status(200).json(validChats);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);

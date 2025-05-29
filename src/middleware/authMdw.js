@@ -1,5 +1,6 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const UserModel = require('../models/UserModel');
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -25,6 +26,14 @@ const authMdw = async (req, res, next) => {
   // Verify token.
   try {
     const decoded = jwt.verify(token, jwtSecret);
+
+    // Double check if the user still exists in database.
+    const user = await UserModel.findById(decoded.id);
+
+    // If user don't exist then auth process stopped right here.
+    if (!user) {
+      return res.status(401).json({ msg: 'User no longer exists, access denied!' });
+    }
 
     // With this we can access to our user's ID in all protected routes.
     req.userId = decoded.id;
