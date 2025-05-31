@@ -13,44 +13,41 @@ const Chat = () => {
 
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
-    return state.authReducer
+    return state.authReducer;
   });
 
   return (
     <Fragment>
-      {
-        !authState.loading && authState.user
-          ? <Box
+      {!authState.loading && authState.user ? (
+        <Box component='div' sx={{ width: '100vw' }}>
+          <Header />
+          <Box
             component='div'
-            sx={{ width: '100vw' }}
-          >
-            <Header />
-            <Box
-              component='div'
-              sx={{
-                backgroundColor: 'rgb(93, 109, 126)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                height: '92.61vh',
-                padding: '1rem',
-                width: '100vw'
-              }}
-            >
-              <ChatsList fetchAgain={fetchAgain} />
-              <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
-            </Box>
-          </Box>
-          : <Box
             sx={{
-              alignItems: 'center',
+              backgroundColor: 'rgb(93, 109, 126)',
               display: 'flex',
-              height: '100vh',
-              justifyContent: 'center',
+              justifyContent: 'space-between',
+              height: '92.61vh',
+              padding: '1rem',
+              width: '100vw',
             }}
           >
-            <Spinner />
+            <ChatsList fetchAgain={fetchAgain} />
+            <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
           </Box>
-      }
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            alignItems: 'center',
+            display: 'flex',
+            height: '100vh',
+            justifyContent: 'center',
+          }}
+        >
+          <Spinner />
+        </Box>
+      )}
     </Fragment>
   );
 };

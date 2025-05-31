@@ -10,8 +10,9 @@ const Spinner = () => {
       alt='LOADING...'
       sx={{
         height: '5rem',
-        width: '5rem'
-      }} />
+        width: '5rem',
+      }}
+    />
   );
 };
 

@@ -1,23 +1,13 @@
-import React from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import {
-  Avatar,
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  Link,
-  Typography
-} from '@mui/material';
+import { Avatar, Box, Dialog, DialogTitle, DialogContent, IconButton, Link, Typography } from '@mui/material';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
 
 const ProfileModal = (props) => {
   const authState = useSelector((state) => {
-    return state.authReducer
+    return state.authReducer;
   });
 
   // Close profile modal window.
@@ -26,14 +16,14 @@ const ProfileModal = (props) => {
       props.setIsProfileModalOpen(false);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   return (
-    <Dialog
-      open={props.isProfileModalOpen}
-      onClose={handleProfileModalClose}
+    <Dialog 
       aria-labelledby='modal-user-menu-profile'
+      open={props.isProfileModalOpen} 
+      onClose={handleProfileModalClose} 
     >
       <Box
         sx={{
@@ -49,12 +39,9 @@ const ProfileModal = (props) => {
         }}
       >
         <DialogTitle
-          id='modal-user-menu-profile'
           component='div'
-          sx={{
-            textAlign: 'center',
-            fontSize: '3rem',
-          }}
+          id='modal-user-menu-profile'
+          sx={{ textAlign: 'center', fontSize: '3rem' }}
         >
           {props.user.username}
         </DialogTitle>
@@ -62,11 +49,7 @@ const ProfileModal = (props) => {
         <IconButton
           aria-label='close'
           onClick={handleProfileModalClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-          }}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
         >
           <CloseIcon sx={{ fontSize: '2rem' }} />
         </IconButton>
@@ -74,49 +57,35 @@ const ProfileModal = (props) => {
         <DialogContent>
           <Typography
             component='div'
-            sx={{
-              display: 'flex',
-              justifyContent: 'center'
-            }}
+            sx={{ display: 'flex', justifyContent: 'center' }}
           >
             <Avatar
               src={props.user.avatar}
-              sx={{
-                height: '15rem',
-                marginBottom: '2rem',
-                width: '15rem'
-              }}
+              sx={{ height: '15rem', marginBottom: '2rem', width: '15rem' }}
             />
           </Typography>
 
           <Typography
             component='div'
-            sx={{
-              fontSize: '2rem',
-              marginBottom: '3rem',
-              textAlign: 'center'
-            }}
+            sx={{ fontSize: '2rem', marginBottom: '3rem', textAlign: 'center' }}
           >
             {props.user.email}
           </Typography>
 
-          {
-            props.user._id === authState.user._id
-              ? <Link
-                component={ReactRouterLink}
-                to='/profile'
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  fontSize: '1.6rem',
-                  textDecoration: 'none'
-                }}
-              >
-                Edit Profile
-              </Link>
-              : null
-          }
-
+          {props.user._id === authState.user._id ? (
+            <Link
+              component={ReactRouterLink}
+              to='/profile'
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                fontSize: '1.6rem',
+                textDecoration: 'none',
+              }}
+            >
+              Edit Profile
+            </Link>
+          ) : null}
         </DialogContent>
       </Box>
     </Dialog>

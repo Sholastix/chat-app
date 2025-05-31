@@ -72,7 +72,7 @@ const authSlice = createSlice({
   // Specify the REDUCER for this slice.
   reducers: {
     // For signin out.
-    signout: (state, action) => {
+    signout: (state) => {
       // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
       state.loading = false;
       state.error = '';
@@ -88,9 +88,7 @@ const authSlice = createSlice({
   // Specify the EXTRA_REDUCERS.
   extraReducers: (builder) => {
     // -------------------------------   AUTH CHECK   -------------------------------
-
-    // Commented because we set initial STATE value of 'loading' to 'true'.
-    builder.addCase(isUserSignedIn.pending, (state, action) => {
+    builder.addCase(isUserSignedIn.pending, (state) => {
       state.loading = true;
     });
 
@@ -114,8 +112,7 @@ const authSlice = createSlice({
     });
 
     // -------------------------------   SIGNUP   -------------------------------
-
-    builder.addCase(signup.pending, (state, action) => {
+    builder.addCase(signup.pending, (state) => {
       state.loading = true;
     });
 
@@ -144,8 +141,7 @@ const authSlice = createSlice({
     });
 
     // -------------------------------   SIGNIN   -------------------------------
-
-    builder.addCase(signin.pending, (state, action) => {
+    builder.addCase(signin.pending, (state) => {
       state.loading = true;
     });
 
@@ -174,8 +170,7 @@ const authSlice = createSlice({
     });
 
     // -------------------------------   UPDATE USER'S PROFILE   -------------------------------
-
-    builder.addCase(updateUser.pending, (state, action) => {
+    builder.addCase(updateUser.pending, (state) => {
       state.loading = true;
     });
 

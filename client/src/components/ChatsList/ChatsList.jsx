@@ -22,7 +22,6 @@ import { getFullSender, getSender, truncateText } from '../../helpers/chatLogic'
 import { fetchChats, fetchChat, updateChatLastMessage } from '../../features/chat/chatSlice';
 
 const ChatsList = (props) => {
-  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
     return state.authReducer;
   });
@@ -31,7 +30,6 @@ const ChatsList = (props) => {
     return state.chatReducer;
   });
 
-  // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
   // STATE.
@@ -209,15 +207,15 @@ const ChatsList = (props) => {
             {sortedChats.map((chat) => {
               const fullSender = !chat.isGroupChat ? getFullSender(authState.user, chat.users) : null;
 
-              // Skip rendering if not group and collocutor is deleted.
+              // Skip rendering if private chat and collocutor is deleted (chat corrupted).
               if (!chat.isGroupChat && !fullSender) {
-                return null; // Skip rendering corrupted 1-on-1 chat.
+                return null;
               }
 
               return (
                 <Box
-                  component="div"
-                  id="chat-item"
+                  component='div'
+                  id='chat-item'
                   key={chat._id}
                   sx={{
                     alignItems: 'center',
@@ -242,8 +240,8 @@ const ChatsList = (props) => {
                     getOneChat(chat._id);
                   }}
                 >
-                  <Box component="div" sx={{ display: 'flex' }}>
-                    <Box component="div" sx={{ display: 'flex', marginRight: `${chat.isGroupChat && '2.5rem'}` }}>
+                  <Box component='div' sx={{ display: 'flex' }}>
+                    <Box component='div' sx={{ display: 'flex', marginRight: `${chat.isGroupChat && '2.5rem'}` }}>
                       <Avatar
                         src={
                           !chat.isGroupChat && fullSender?.avatar
@@ -263,15 +261,13 @@ const ChatsList = (props) => {
 
                       <Typography sx={{ fontSize: '1.4rem', fontWeight: '600' }}>
                         {!chat.isGroupChat
-                          ? fullSender
-                            ? fullSender.username
-                            : 'Deleted User' // Fallback if fullSender is 'null'.
+                          ? (fullSender ? fullSender.username : 'Deleted User.') // Fallback if fullSender is 'null'.
                           : chat.chatName}
                       </Typography>
 
                       <Typography
-                        component="div"
-                        id="last-message"
+                        component='div'
+                        id='last-message'
                         sx={{
                           fontSize: '1.4rem',
                           fontWeight: '400',
@@ -303,24 +299,24 @@ const ChatsList = (props) => {
                     </Box>
                   </Box>
 
-                  {chat.isGroupChat === false && (
-                    <Box component="div" sx={{ display: 'flex', alignSelf: 'flex-start' }}>
+                  {!chat.isGroupChat && (
+                    <Box component='div' sx={{ display: 'flex', alignSelf: 'flex-start' }}>
                       <Tooltip
-                        title="Options"
+                        title='Options'
                         arrow
                         enterDelay={100}
                         enterNextDelay={100}
-                        placement="top"
+                        placement='top'
                         slotProps={{
                           tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
                           arrow: { sx: { color: 'rgb(93, 109, 126)' } },
                         }}
                       >
                         <Box
-                          component="button"
-                          id="chat-item-menu-button"
+                          component='button'
+                          id='chat-item-menu-button'
                           aria-controls={openMenuChatId === chat._id ? 'chat-item-menu' : undefined}
-                          aria-haspopup="true"
+                          aria-haspopup='true'
                           aria-expanded={openMenuChatId === chat._id ? 'true' : undefined}
                           sx={{
                             alignItems: 'center',
@@ -344,8 +340,15 @@ const ChatsList = (props) => {
                           anchorEl={menuAnchorElsRef.current[chat._id]}
                           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                           open={openMenuChatId === chat._id}
-                          slotProps={{ list: { 'aria-labelledby': 'chat-item-menu-button' } }}
-                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                          slotProps={{ 
+                            list: { 
+                              'aria-labelledby': 'chat-item-menu-button' 
+                            },
+                          }}
+                          transformOrigin={{ 
+                            horizontal: 'right',
+                            vertical: 'top', 
+                          }}
                           onClose={handleChatItemMenuClose}
                         >
                           <MenuList disablePadding sx={{ width: '12rem' }}>

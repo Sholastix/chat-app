@@ -12,8 +12,10 @@ import {
   MenuList,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
+
+// Animations.
 import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
 
 // Assets.
@@ -41,13 +43,12 @@ import {
   isNewDay,
   isSameTime,
   linkifyAndSanitize,
-  truncateText
+  truncateText,
 } from '../../helpers/chatLogic';
 
 const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessage, typingUser }) => {
-  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
-    return state.authReducer
+    return state.authReducer;
   });
 
   // Current user's ID.
@@ -73,7 +74,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
         setLinkPreviews((prev) => ({ ...prev, [messageId]: data }));
       } catch (err) {
         console.error(err);
-      };
+      }
     };
 
     messages.forEach((msg) => {
@@ -81,7 +82,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
 
       if (urlMatch && !linkPreviews[msg._id]) {
         fetchPreview(urlMatch[0], msg._id);
-      };
+      }
     });
   }, [messages]);
 
@@ -98,17 +99,18 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
       chatEndRef.current?.scrollIntoView({ behavior: 'instant' });
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Removing anything except www + full domain name in request URL which dispays in link preview.
   const shortRequestUrl = (messageId) => {
     try {
       const parsedUrl = new URL(linkPreviews[messageId]?.requestUrl);
+
       return parsedUrl.hostname;
     } catch (err) {
       return '';
-    };
+    }
   };
 
   // Open message item menu.
@@ -143,7 +145,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
         _id: messageBeingEdited._id,
         chatId: messageBeingEdited.chat._id,
         content: newMessageContent,
-        sender: messageBeingEdited.sender
+        sender: messageBeingEdited.sender,
       };
 
       if (socket.connected) {
@@ -154,23 +156,22 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
         await axios.put(`/api/chat/message/${editedMessage._id}`, {
           content: editedMessage.content,
           senderId: editedMessage.sender._id,
-          isEdited: true
+          isEdited: true,
         });
 
         // Optional: manually update message in state if socket isn't active.
         setMessages((prevMessages) => {
-          return prevMessages.map((msg) => msg._id === editedMessage._id
-            ? { ...msg, content: editedMessage.content }
-            : msg
+          return prevMessages.map((msg) =>
+            msg._id === editedMessage._id ? { ...msg, content: editedMessage.content } : msg
           );
         });
-      };
+      }
 
       setMessageBeingEdited(null);
       setNewMessageContent('');
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Cancel the message editing.
@@ -191,478 +192,426 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
       }}
       onScroll={handleScroll}
     >
-      {
-        messages.map((message, index) => (
-          <div key={message._id}>
-            {
-              isNewDay(messages, message, index)
-              &&
-              <Divider
-                sx={{
-                  fontSize: '1.4rem',
-                  margin: '2rem 0rem'
-                }}
-              >
-                {
-                  new Date(message.createdAt)
-                    .toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })
-                }
-              </Divider>
-            }
-
-            <Box
-              id='message'
-              component='div'
+      {messages.map((message, index) => (
+        <div key={message._id}>
+          {isNewDay(messages, message, index) && (
+            <Divider
               sx={{
-                display: 'flex',
-                justifyContent: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                marginTop: '0.5rem',
-                marginBottom: `${message.chat.isGroupChat
-                  && !isLastMessageInChat(messages, index)
-                  && isLastMessageInBlock(messages, index)
-                  ? '3rem'
-                  : '0.5rem'}`,
+                fontSize: '1.4rem',
+                margin: '2rem 0rem',
               }}
             >
-              {
-                (
-                  !isMyMessage(messages, index, userId)
-                  && isFirstMessageInChat(messages, index)
-                  ||
-                  !isMyMessage(messages, index, userId)
-                  && isLastMessageInChat(messages, index)
-                  && isNewDay(messages, message, index)
-                  ||
-                  !isMyMessage(messages, index, userId)
-                  && !isFirstMessageInChat(messages, index)
-                  && isFirstMessageInBlock(messages, index)
-                  ||
-                  message.chat.isGroupChat
-                  && isFirstMessageInBlock(messages, index)
-                )
-                &&
-                <Tooltip
-                  title={message.sender.username}
-                  arrow
-                  enterDelay={500}
-                  enterNextDelay={500}
-                  placement='bottom'
-                  slotProps={{
-                    tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
-                    arrow: { sx: { color: 'rgb(93, 109, 126)' } }
-                  }}
-                >
-                  <Avatar
-                    src={message.sender.avatar}
-                    sx={{
-                      cursor: 'pointer',
-                      height: '4rem',
-                      margin: '0.5rem 1rem 0rem 0rem',
-                      width: '4rem'
-                    }}
-                  />
-                </Tooltip>
-              }
+              {new Date(message.createdAt).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </Divider>
+          )}
 
-              <Box
-                component='div'
-                id='message-block'
-                sx={{
-                  alignItems: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  marginBottom: `${!isLastMessageInChat(messages, index) && isLastMessageInBlock(messages, index) ? '1rem' : '0rem'}`,
-                  marginLeft: `${!isMyMessage(messages, index, userId)
-                    && !isFirstMessageInChat(messages, index)
-                    && isFirstMessageInBlock(messages, index)
-                    ||
-                    !isMyMessage(messages, index, userId) && isFirstMessageInChat(messages, index)
-                    ||
-                    isLastMessageInChat(messages, index) && isNewDay(messages, message, index)
-                    ||
-                    message.chat.isGroupChat && isFirstMessageInBlock(messages, index)
-                    ? '0rem'
-                    : '5rem'}`,
-                  maxWidth: { xs: '80%', sm: '70%', md: '60%' },
+          <Box
+            id='message'
+            component='div'
+            sx={{
+              display: 'flex',
+              justifyContent: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+              marginTop: '0.5rem',
+              marginBottom: `${
+                message.chat.isGroupChat &&
+                !isLastMessageInChat(messages, index) &&
+                isLastMessageInBlock(messages, index)
+                  ? '3rem'
+                  : '0.5rem'
+              }`,
+            }}
+          >
+            {((!isMyMessage(messages, index, userId) && isFirstMessageInChat(messages, index)) ||
+              (!isMyMessage(messages, index, userId) &&
+                isLastMessageInChat(messages, index) &&
+                isNewDay(messages, message, index)) ||
+              (!isMyMessage(messages, index, userId) &&
+                !isFirstMessageInChat(messages, index) &&
+                isFirstMessageInBlock(messages, index)) ||
+              (message.chat.isGroupChat && isFirstMessageInBlock(messages, index))) && (
+              <Tooltip
+                title={message.sender.username}
+                arrow
+                enterDelay={500}
+                enterNextDelay={500}
+                placement='bottom'
+                slotProps={{
+                  tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
+                  arrow: { sx: { color: 'rgb(93, 109, 126)' } },
                 }}
               >
-                {
-                  messageBeingEdited?._id === message._id
-                    ?
-                    (
+                <Avatar
+                  src={message.sender.avatar}
+                  sx={{
+                    cursor: 'pointer',
+                    height: '4rem',
+                    margin: '0.5rem 1rem 0rem 0rem',
+                    width: '4rem',
+                  }}
+                />
+              </Tooltip>
+            )}
+
+            <Box
+              component='div'
+              id='message-block'
+              sx={{
+                alignItems: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                display: 'flex',
+                flexDirection: 'column',
+                marginBottom: `${
+                  !isLastMessageInChat(messages, index) && isLastMessageInBlock(messages, index) ? '1rem' : '0rem'
+                }`,
+                marginLeft: `${
+                  (!isMyMessage(messages, index, userId) &&
+                    !isFirstMessageInChat(messages, index) &&
+                    isFirstMessageInBlock(messages, index)) ||
+                  (!isMyMessage(messages, index, userId) && isFirstMessageInChat(messages, index)) ||
+                  (isLastMessageInChat(messages, index) && isNewDay(messages, message, index)) ||
+                  (message.chat.isGroupChat && isFirstMessageInBlock(messages, index))
+                    ? '0rem'
+                    : '5rem'
+                }`,
+                maxWidth: { xs: '80%', sm: '70%', md: '60%' },
+              }}
+            >
+              {messageBeingEdited?._id === message._id ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '25rem',
+                  }}
+                >
+                  <TextField
+                    multiline
+                    minRows={3}
+                    sx={{
+                      marginBottom: '1rem',
+                      '.MuiInputBase-input': { fontFamily: 'Georgia', fontSize: '1.4rem' },
+                    }}
+                    value={newMessageContent}
+                    onChange={(event) => setNewMessageContent(event.target.value)}
+                  />
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
+                    <Button
+                      variant='contained'
+                      color='error'
+                      onClick={handleCancelEdit}
+                      sx={{ color: 'white', fontFamily: 'Georgia' }}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button variant='contained"'color='primary' onClick={() => handleSaveEdit(message.sender._id)}>
+                      Save
+                    </Button>
+                  </Box>
+                </Box>
+              ) : (
+                <Fragment>
+                  <Box
+                    component='span'
+                    sx={{
+                      alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
+                      fontSize: '1.2rem',
+                      margin: '0.5rem 0rem',
+                    }}
+                  >
+                    {!isMyMessage(messages, index, userId) &&
+                      isFirstMessageInBlock(messages, index) &&
+                      message.sender.username + ' '}
+
+                    {!isSameTime(messages, message, index) && (
+                      <Box component='span'>
+                        {new Date(message.createdAt).toLocaleTimeString(navigator.language, {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </Box>
+                    )}
+                  </Box>
+
+                  <Box
+                    component='div'
+                    sx={{
+                      display: 'flex',
+                      flexDirection: `${isMyMessage(messages, index, userId) ? 'row-reverse' : 'row'}`,
+                      width: 'fit-content',
+                    }}
+                  >
+                    <Box
+                      component='div'
+                      sx={{
+                        backgroundColor: `${
+                          isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'
+                        }`,
+                        borderRadius: `${
+                          isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'
+                        }`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: '0.5rem',
+                        width: 'fit-content',
+                      }}
+                    >
+                      {message.replyTo && (
+                        <Box
+                          sx={{
+                            backgroundColor: 'rgb(250, 250, 250)',
+                            borderRadius: `${
+                              isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'
+                            }`,
+                            boxShadow: '0 0.3rem 1rem 0 rgba(0, 0, 0, 0.3)',
+                            color: 'black',
+                            fontSize: '1.4rem',
+                            marginBottom: '1rem',
+                            maxWidth: '100%',
+                            padding: '1rem',
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 600, fontSize: '1.3rem' }}>
+                            {message.replyTo.sender?.username || 'Unknown'}
+                          </Typography>
+
+                          <Typography sx={{ fontSize: '1.3rem', fontStyle: 'italic' }}>
+                            {truncateText(message.replyTo.content || 'Quoted message unavailable', 120)}
+                          </Typography>
+                        </Box>
+                      )}
+
                       <Box
+                        component='div'
+                        id='message-box'
                         sx={{
+                          alignContent: 'center',
+                          alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                          backgroundColor: `${
+                            isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'
+                          }`,
+                          borderRadius: `${
+                            isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'
+                          }`,
                           display: 'flex',
                           flexDirection: 'column',
-                          width: '25rem',
+                          fontSize: '1.6rem',
+                          maxWidth: '100%',
+                          overflowWrap: 'break-word',
+                          padding: '0.5rem',
+                          whiteSpace: 'pre-wrap',
+                          width: 'fit-content',
+                          wordBreak: 'break-word',
                         }}
                       >
-                        <TextField
-                          multiline
-                          minRows={3}
-                          sx={{
-                            marginBottom: '1rem',
-                            '.MuiInputBase-input': { fontFamily: 'Georgia', fontSize: '1.4rem' },
-                          }}
-                          value={newMessageContent}
-                          onChange={(event) => setNewMessageContent(event.target.value)}
+                        <Box
+                          component='span'
+                          sx={{ display: 'inline' }}
+                          dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
                         />
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                          <Button
-                            variant='contained'
-                            color='error'
-                            onClick={handleCancelEdit}
-                            sx={{ color: 'white', fontFamily: 'Georgia' }}
-                          >
-                            Cancel
-                          </Button>
-
-                          <Button
-                            variant='contained'
-                            color='primary'
-                            onClick={() => handleSaveEdit(message.sender._id)}
-                          >
-                            Save
-                          </Button>
-                        </Box>
-                      </Box>
-                    )
-                    :
-                    (
-                      <Fragment>
-                        <Box
-                          component='span'
-                          sx={{
-                            alignSelf: `${!isMyMessage(messages, index, userId) ? 'flex-start' : 'flex-end'}`,
-                            fontSize: '1.2rem',
-                            margin: '0.5rem 0rem'
-                          }}
-                        >
-                          {
-                            !isMyMessage(messages, index, userId)
-                            && isFirstMessageInBlock(messages, index)
-                            && message.sender.username + ' '
-                          }
-
-                          {
-                            !isSameTime(messages, message, index)
-                            &&
-                            <Box component='span'>
-                              {
-                                new Date(message.createdAt)
-                                  .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
-                              }
-                            </Box>
-                          }
-                        </Box>
-
-                        <Box
-                          component='div'
-                          sx={{
-                            display: 'flex',
-                            flexDirection: `${isMyMessage(messages, index, userId) ? 'row-reverse' : 'row'}`,
-                            width: 'fit-content'
-                          }}
-                        >
-                          <Box
-                            component='div'
-                            sx={{
-                              backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                              borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              padding: '0.5rem',
-                              width: 'fit-content'
+                        {message.isEdited && (
+                          <Tooltip
+                            key={`${message._id}-${message.updatedAt}`} // force 'Tooltip' component to re-render when message is edited.
+                            title={`Edited at ${new Date(message.updatedAt).toLocaleString(navigator.language, {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                              second: 'numeric',
+                            })}`}
+                            arrow
+                            enterDelay={100}
+                            enterNextDelay={100}
+                            placement='bottom-start'
+                            slotProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: 'rgb(93, 109, 126)',
+                                  color: 'white',
+                                  fontSize: '1.2rem',
+                                },
+                              },
+                              arrow: {
+                                sx: { color: 'rgb(93, 109, 126)' },
+                              },
                             }}
                           >
-                            {
-                              message.replyTo && (
-                                <Box
-                                  sx={{
-                                    backgroundColor: 'rgb(250, 250, 250)',
-                                    borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                                    boxShadow: '0 0.3rem 1rem 0 rgba(0, 0, 0, 0.3)',
-                                    color: 'black',
-                                    fontSize: '1.4rem',
-                                    marginBottom: '1rem',
-                                    maxWidth: '100%',
-                                    padding: '1rem'
-                                  }}
-                                >
-                                  <Typography sx={{ fontWeight: 600, fontSize: '1.3rem' }}>
-                                    {message.replyTo.sender?.username || 'Unknown'}
-                                  </Typography>
-
-                                  <Typography sx={{ fontSize: '1.3rem', fontStyle: 'italic' }}>
-                                    {truncateText(message.replyTo.content || 'Quoted message unavailable', 120)}
-                                  </Typography>
-                                </Box>
-                              )
-                            }
-
-                            <Box
-                              component='div'
-                              id='message-box'
-                              sx={{
-                                alignContent: 'center',
-                                alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                                backgroundColor: `${isMyMessage(messages, index, userId) ? 'rgb(200, 240, 200)' : 'rgb(233, 233, 233)'}`,
-                                borderRadius: `${isMyMessage(messages, index, userId) ? '1rem 1rem 0rem 1rem' : '0rem 1rem 1rem 1rem'}`,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                fontSize: '1.6rem',
-                                maxWidth: '100%',
-                                overflowWrap: 'break-word',
-                                padding: '0.5rem',
-                                whiteSpace: 'pre-wrap',
-                                width: 'fit-content',
-                                wordBreak: 'break-word'
-                              }}
-                            >
-                              <Box
-                                component='span'
-                                sx={{ display: 'inline' }}
-                                dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
-                              />
-
-                              {
-                                message.isEdited && (
-                                  <Tooltip
-                                    key={`${message._id}-${message.updatedAt}`} // force 'Tooltip' component to re-render when message is edited.
-                                    title={`Edited at ${new Date(message.updatedAt).toLocaleString(navigator.language, {
-                                      year: 'numeric',
-                                      month: 'long',
-                                      day: 'numeric',
-                                      hour: 'numeric',
-                                      minute: 'numeric',
-                                      second: 'numeric'
-                                    })}`}
-                                    arrow
-                                    enterDelay={100}
-                                    enterNextDelay={100}
-                                    placement='bottom-start'
-                                    slotProps={{
-                                      tooltip: {
-                                        sx: {
-                                          backgroundColor: 'rgb(93, 109, 126)',
-                                          color: 'white',
-                                          fontSize: '1.2rem',
-                                        }
-                                      },
-                                      arrow: {
-                                        sx: { color: 'rgb(93, 109, 126)' }
-                                      }
-                                    }}
-                                  >
-                                    <Typography
-                                      component='span'
-                                      sx={{
-                                        alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
-                                        color: 'blue',
-                                        fontSize: '1.1rem',
-                                        fontStyle: 'italic',
-                                        marginTop: '0.5rem',
-                                        ':hover': { cursor: 'default' }
-                                      }}
-                                    >
-                                      (edited)
-                                    </Typography>
-                                  </Tooltip>
-                                )
-                              }
-                            </Box>
-                          </Box>
-
-                          {/* Dropdown Menu Icon */}
-                          <MoreVertIcon
-                            sx={{ color: 'gray', fontSize: '2rem', cursor: 'pointer' }}
-                            onClick={(event) => handleMessageItemMenuOpen(event, message._id)}
-                          />
-
-                          {/* Dropdown Menu */}
-                          {
-                            menuAnchorElsRef.current[message._id] && openMenuMessageId === message._id && (
-                              <Menu
-                                id='message-item-menu'
-                                anchorEl={menuAnchorElsRef.current[message._id]}
-                                anchorOrigin={{
-                                  vertical: 'bottom',
-                                  horizontal: isMyMessage(messages, index, userId) ? 'left' : 'right'
-                                }}
-                                disableAutoFocusItem // Important to avoid focusing issues.
-                                open={true}
-                                transformOrigin={{
-                                  vertical: 'top',
-                                  horizontal: isMyMessage(messages, index, userId) ? 'right' : 'left'
-                                }}
-                                onClose={handleMessageItemMenuClose}
-                              >
-                                <MenuList disablePadding sx={{ width: '12rem' }}>
-                                  {
-                                    message.sender._id === userId && (
-                                      <MenuItem
-                                        sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                        onClick={() => handleEditMessage(message)}
-                                      >
-                                        <ListItemIcon>
-                                          <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
-                                        </ListItemIcon>
-                                      </MenuItem>
-                                    )
-                                  }
-
-                                  <MenuItem
-                                    sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                    onClick={() => {
-                                      setQuotedMessage(message);
-                                      handleMessageItemMenuClose();
-                                    }}
-                                  >
-                                    <ListItemIcon>
-                                      <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
-                                    </ListItemIcon>
-                                  </MenuItem>
-                                </MenuList>
-                              </Menu>
-                            )
-                          }
-                        </Box>
-
-                        {
-                          linkPreviews[message._id] && (
-                            <Box
-                              component='a'
-                              id='message-linkPreview-box'
-                              sx={{
-                                backgroundColor: 'rgb(250, 250, 250)',
-                                border: '1px solid lightgray',
-                                borderRadius: '0.5rem',
-                                marginTop: '0.5rem',
-                                maxWidth: '32rem',
-                                overflow: 'hidden',
-                                textDecoration: 'none',
-                              }}
-                              href={linkPreviews[message._id].requestUrl}
-                              target='_blank'
-                              rel='noopener noreferrer'
-                            >
-                              {
-                                linkPreviews[message._id].linkImage?.url
-                                && (
-                                  <Box
-                                    component='img'
-                                    src={linkPreviews[message._id].linkImage.url}
-                                    alt='preview'
-                                    sx={{ width: '100%', height: 'auto' }}
-                                    onError={(error) => {
-                                      error.target.style.display = 'none';
-                                    }}
-                                  />
-                                )
-                              }
-
-                              <Box sx={{ padding: '0.8rem' }}>
-                                {/* Part below allow us to truncate title to 100 chars maximum */}
-                                <Typography sx={{ color: 'black', fontWeight: 600, fontSize: '1.4rem', marginBottom: '1rem' }}>
-                                  {truncateText(linkPreviews[message._id].linkTitle, 100)}
-                                </Typography>
-
-                                {/* Part below allow us to truncate description to 100 chars maximum */}
-                                <Typography sx={{ fontSize: '1.2rem', color: 'black', marginBottom: '1rem' }}>
-                                  {truncateText(linkPreviews[message._id].linkDescription, 100)}
-                                </Typography>
-
-                                {/* Part below is for displaying short version of URL from request in link preview*/}
-                                <Typography sx={{ color: 'gray', fontSize: '1.1rem' }}>
-                                  {shortRequestUrl(message._id)}
-                                </Typography>
-                              </Box>
-                            </Box>
-                          )
-                        }
-
-                        <Box
-                          component='span'
-                          sx={{
-                            alignSelf: 'flex-end',
-                            fontSize: '1.2rem',
-                            margin: '0.5rem 0rem'
-                          }}
-                        >
-                          {
-                            isMyMessage(messages, index, userId)
-                            &&
-                            message.isRead
-                            &&
-                            <Box
+                            <Typography
                               component='span'
                               sx={{
-                                alignItems: 'flex-end',
-                                display: 'flex',
-                                marginBottom: '0.5rem'
+                                alignSelf: `${isMyMessage(messages, index, userId) ? 'flex-end' : 'flex-start'}`,
+                                color: 'blue',
+                                fontSize: '1.1rem',
+                                fontStyle: 'italic',
+                                marginTop: '0.5rem',
+                                ':hover': { cursor: 'default' },
                               }}
                             >
-                              <Typography
-                                component='span'
-                                sx={{ fontFamily: 'Georgia', marginRight: '0.5rem' }}
-                              >
-                                {
-                                  new Date(message.updatedAt)
-                                    .toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit' })
-                                }
-                              </Typography>
+                              (edited)
+                            </Typography>
+                          </Tooltip>
+                        )}
+                      </Box>
+                    </Box>
 
-                              <DoneAllRoundedIcon
-                                sx={{ color: 'blue', fontSize: '2rem' }}
-                              />
-                            </Box>
-                          }
-                        </Box>
-                      </Fragment>
-                    )
-                }
-              </Box>
+                    {/* Dropdown Menu Icon */}
+                    <MoreVertIcon
+                      sx={{ color: 'gray', fontSize: '2rem', cursor: 'pointer' }}
+                      onClick={(event) => handleMessageItemMenuOpen(event, message._id)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    {menuAnchorElsRef.current[message._id] && openMenuMessageId === message._id && (
+                      <Menu
+                        id='message-item-menu'
+                        anchorEl={menuAnchorElsRef.current[message._id]}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: isMyMessage(messages, index, userId) ? 'left' : 'right',
+                        }}
+                        disableAutoFocusItem // Important to avoid focusing issues.
+                        open={true}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: isMyMessage(messages, index, userId) ? 'right' : 'left',
+                        }}
+                        onClose={handleMessageItemMenuClose}
+                      >
+                        <MenuList disablePadding sx={{ width: '12rem' }}>
+                          {message.sender._id === userId && (
+                            <MenuItem
+                              sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                              onClick={() => handleEditMessage(message)}
+                            >
+                              <ListItemIcon>
+                                <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
+                              </ListItemIcon>
+                            </MenuItem>
+                          )}
+
+                          <MenuItem
+                            sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                            onClick={() => {
+                              setQuotedMessage(message);
+                              handleMessageItemMenuClose();
+                            }}
+                          >
+                            <ListItemIcon>
+                              <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
+                            </ListItemIcon>
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    )}
+                  </Box>
+
+                  {linkPreviews[message._id] && (
+                    <Box
+                      component='a'
+                      id='message-linkPreview-box'
+                      sx={{
+                        backgroundColor: 'rgb(250, 250, 250)',
+                        border: '1px solid lightgray',
+                        borderRadius: '0.5rem',
+                        marginTop: '0.5rem',
+                        maxWidth: '32rem',
+                        overflow: 'hidden',
+                        textDecoration: 'none',
+                      }}
+                      href={linkPreviews[message._id].requestUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      {linkPreviews[message._id].linkImage?.url && (
+                        <Box
+                          component='img'
+                          src={linkPreviews[message._id].linkImage.url}
+                          alt='preview'
+                          sx={{ width: '100%', height: 'auto' }}
+                          onError={(error) => {
+                            error.target.style.display = 'none';
+                          }}
+                        />
+                      )}
+
+                      <Box sx={{ padding: '0.8rem' }}>
+                        {/* Part below allow us to truncate title to 100 chars maximum */}
+                        <Typography sx={{ color: 'black', fontWeight: 600, fontSize: '1.4rem', marginBottom: '1rem' }}>
+                          {truncateText(linkPreviews[message._id].linkTitle, 100)}
+                        </Typography>
+
+                        {/* Part below allow us to truncate description to 100 chars maximum */}
+                        <Typography sx={{ fontSize: '1.2rem', color: 'black', marginBottom: '1rem' }}>
+                          {truncateText(linkPreviews[message._id].linkDescription, 100)}
+                        </Typography>
+
+                        {/* Part below is for displaying short version of URL from request in link preview*/}
+                        <Typography sx={{ color: 'gray', fontSize: '1.1rem' }}>
+                          {shortRequestUrl(message._id)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
+
+                  <Box
+                    component='span'
+                    sx={{
+                      alignSelf: 'flex-end',
+                      fontSize: '1.2rem',
+                      margin: '0.5rem 0rem',
+                    }}
+                  >
+                    {isMyMessage(messages, index, userId) && message.isRead && (
+                      <Box
+                        component='span'
+                        sx={{
+                          alignItems: 'flex-end',
+                          display: 'flex',
+                          marginBottom: '0.5rem',
+                        }}
+                      >
+                        <Typography component='span' sx={{ fontFamily: 'Georgia', marginRight: '0.5rem' }}>
+                          {new Date(message.updatedAt).toLocaleTimeString(navigator.language, {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </Typography>
+
+                        <DoneAllRoundedIcon sx={{ color: 'blue', fontSize: '2rem' }} />
+                      </Box>
+                    )}
+                  </Box>
+                </Fragment>
+              )}
             </Box>
-          </div>
-        ))
-      }
+          </Box>
+        </div>
+      ))}
 
-      <Box
-        component='div'
-        ref={chatEndRef}
-        height='5rem'
-      >
-        {
-          isTyping
-          &&
+      <Box component='div' ref={chatEndRef} height='5rem'>
+        {isTyping && (
           <Box
             component='div'
             sx={{
               display: 'flex',
               height: '3rem',
-              marginTop: '3rem'
+              marginTop: '3rem',
             }}
           >
-            <Typography
-              component='p'
-              sx={{ fontSize: '1.4rem' }}
-            >
+            <Typography component='p' sx={{ fontSize: '1.4rem' }}>
               {`${typingUser} is typing`}
             </Typography>
 
-            <Lottie
-              loop={true}
-              animationData={typingAnimation}
-              play={true}
-            />
+            <Lottie loop={true} animationData={typingAnimation} play={true} />
           </Box>
-        }
+        )}
       </Box>
 
       <ScrollToBottomButton scrollbarPosition={scrollbarPosition} scrollToBottom={scrollToBottom} />

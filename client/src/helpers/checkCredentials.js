@@ -12,7 +12,7 @@ export const checkEmail = async (email) => {
     return user.data === null ? true : false;
   } catch (err) {
     console.error(err);
-  };
+  }
 };
 
 // Check if username is already in use.
@@ -23,5 +23,5 @@ export const checkUsername = async (username) => {
     return user.data === null ? true : false;
   } catch (err) {
     console.error(err);
-  };
+  }
 };

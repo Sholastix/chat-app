@@ -20,7 +20,7 @@ const Signin = () => {
   // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
   // This hook accepts a selector function as its parameter. Selector function receives Redux STATE as argument.
   const authState = useSelector((state) => {
-    return state.authReducer
+    return state.authReducer;
   });
 
   // This constant will be used to dispatch ACTIONS when we need it.
@@ -40,7 +40,7 @@ const Signin = () => {
           const result = await checkEmail(email);
 
           return result === false ? true : false;
-        };
+        }
       }),
     password: yup
       .string()
@@ -52,11 +52,11 @@ const Signin = () => {
   const form = useForm({
     defaultValues: {
       email: '',
-      password: ''
+      password: '',
     },
 
     // Connect Yup schema.
-    resolver: yupResolver(signinSchema)
+    resolver: yupResolver(signinSchema),
   });
 
   const { register, handleSubmit, formState, control } = form;
@@ -64,18 +64,20 @@ const Signin = () => {
 
   // Redirect if user signed in.
   if (!authState.loading && authState.isAuthenticated) {
-    return <Navigate to='/chat' replace={true} />
-  };
+    return <Navigate to="/chat" replace={true} />;
+  }
 
   const onSubmit = async (formData) => {
     try {
-      dispatch(signin({
-        email: formData.email,
-        password: formData.password
-      }));
+      dispatch(
+        signin({
+          email: formData.email,
+          password: formData.password,
+        })
+      );
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   const onError = (errors) => {
@@ -84,63 +86,66 @@ const Signin = () => {
 
   return (
     <div>
-      {
-        !authState.loading ? (
-          <div className={styles.container}>
-            <div className={styles.header}>
-              Chitchat App
-            </div>
+      {!authState.loading ? (
+        <div className={styles.container}>
+          <div className={styles.header}>Chitchat App</div>
 
-            <div className={styles.info}>
-              <p className={styles.infoIcon}>&#x1F512;</p>
-              <p>Log into Chitchat</p>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit, onError)}>
-              <div className={styles.inputOuter}>
-                <div className={styles.inputIcon}>&#x1F4E7;</div>
-                <input
-                  className={styles.input}
-                  type='email'
-                  name='email'
-                  placeholder='Enter the email...'
-                  {...register('email')}
-                />
-              </div>
-              {errors.email?.message && <p className={styles.errorMessage}>{errors.email?.message}</p>}
-
-              <div className={styles.inputOuter}>
-                <div className={styles.inputIcon}>&#x1F511;</div>
-                <input
-                  className={styles.input}
-                  type='password'
-                  name='password'
-                  placeholder='Enter the password...'
-                  {...register('password')}
-                />
-              </div>
-              {errors.password?.message && <p className={styles.errorMessage}>{errors.password?.message}</p>}
-              {
-                formState.submitCount > 0 && authState.error === 'Request failed with status code 401' && !errors.password?.message
-                  ? <p className={styles.errorMessage}>Incorrect password.</p>
-                  : null
-              }
-
-              <div>
-                <button type='submit' className={styles.button}>Sign In</button>
-              </div>
-            </form>
-
-            <p className={styles.footer}>Don't have an account yet?&nbsp;&nbsp;<Link to='/signup' className={styles.link}>SignUp</Link></p>
-
-            {
-              import.meta.env.DEV && <DevTool control={control} />
-            }
+          <div className={styles.info}>
+            <p className={styles.infoIcon}>&#x1F512;</p>
+            <p>Log into Chitchat</p>
           </div>
-        ) : <Spinner />
-      }
+
+          <form onSubmit={handleSubmit(onSubmit, onError)}>
+            <div className={styles.inputOuter}>
+              <div className={styles.inputIcon}>&#x1F4E7;</div>
+              <input
+                className={styles.input}
+                type='email'
+                name='email'
+                placeholder='Enter the email...'
+                {...register('email')}
+              />
+            </div>
+            {errors.email?.message && <p className={styles.errorMessage}>{errors.email?.message}</p>}
+
+            <div className={styles.inputOuter}>
+              <div className={styles.inputIcon}>&#x1F511;</div>
+              <input
+                className={styles.input}
+                type='password'
+                name='password'
+                placeholder='Enter the password...'
+                {...register('password')}
+              />
+            </div>
+            {errors.password?.message && <p className={styles.errorMessage}>{errors.password?.message}</p>}
+            {formState.submitCount > 0 &&
+            authState.error === 'Request failed with status code 401' &&
+            !errors.password?.message ? (
+              <p className={styles.errorMessage}>Incorrect password.</p>
+            ) : null}
+
+            <div>
+              <button type='submit' className={styles.button}>
+                Sign In
+              </button>
+            </div>
+          </form>
+
+          <p className={styles.footer}>
+            Don't have an account yet?&nbsp;&nbsp;
+            <Link to='/signup' className={styles.link}>
+              SignUp
+            </Link>
+          </p>
+
+          {import.meta.env.DEV && <DevTool control={control} />}
+        </div>
+      ) : (
+        <Spinner />
+      )}
     </div>
-  )
+  );
 };
 
 export default Signin;

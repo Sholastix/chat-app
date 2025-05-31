@@ -38,7 +38,7 @@ import { fetchChat, resetChatState } from '../../features/chat/chatSlice';
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
-    return state.authReducer
+    return state.authReducer;
   });
 
   // This constant will be used to dispatch ACTIONS when we need it.
@@ -83,10 +83,10 @@ const Header = () => {
         const filteredResponse = response.data.filter((element) => !element.isRead);
 
         setNotifications(filteredResponse);
-      };
+      }
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   const handleNotificationItemClick = async (notificationId, messageId) => {
@@ -95,9 +95,7 @@ const Header = () => {
       await axios.put(`/api/chat/notifications/${notificationId}/read`);
 
       // Remove the marked notification from the UI.
-      setNotifications((prevNotifications) =>
-        prevNotifications.filter((element) => element._id !== notificationId)
-      );
+      setNotifications((prevNotifications) => prevNotifications.filter((element) => element._id !== notificationId));
 
       const chatId = messageId.chat;
 
@@ -105,7 +103,7 @@ const Header = () => {
       dispatch(fetchChat(chatId));
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // User menu.
@@ -117,7 +115,7 @@ const Header = () => {
       setAnchorUserMenu(event.currentTarget);
     } catch (error) {
       console.error(err);
-    };
+    }
   };
 
   // Close user menu.
@@ -126,7 +124,7 @@ const Header = () => {
       setAnchorUserMenu(null);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Open user's profile modal window in user's menu.
@@ -136,7 +134,7 @@ const Header = () => {
       setAnchorUserMenu(null);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Open user's settings modal window in user's menu.
@@ -146,7 +144,7 @@ const Header = () => {
       setAnchorUserMenu(null);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Notifications menu.
@@ -158,7 +156,7 @@ const Header = () => {
       setAnchorNotificationsMenu(event.currentTarget);
     } catch (error) {
       console.error(err);
-    };
+    }
   };
 
   // Notifications list close.
@@ -167,7 +165,7 @@ const Header = () => {
       setAnchorNotificationsMenu(null);
     } catch (error) {
       console.error(err);
-    };
+    }
   };
 
   // Sign out user.
@@ -177,15 +175,15 @@ const Header = () => {
       // dispatch(resetChatState());
 
       // Resets 'auth' STATE and (because we connected 'signout' action to chatSlice) triggers 'chat' STATE reset via extraReducers too.
-      dispatch(signout()); 
+      dispatch(signout());
 
       // Close socket connection.
       if (socket.connected) {
         socket.disconnect();
-      };
+      }
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   return (
@@ -196,7 +194,7 @@ const Header = () => {
           border: '0.5rem solid rgb(235, 235, 235)',
           display: 'flex',
           justifyContent: 'space-between',
-          width: '100vw'
+          width: '100vw',
         }}
       >
         <Tooltip
@@ -207,7 +205,7 @@ const Header = () => {
           placement='bottom-end'
           slotProps={{
             tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
-            arrow: { sx: { color: 'rgb(93, 109, 126)' } }
+            arrow: { sx: { color: 'rgb(93, 109, 126)' } },
           }}
         >
           <Button
@@ -216,14 +214,12 @@ const Header = () => {
               margin: '0.5rem 1rem',
               padding: '0.5rem 2rem',
               textTransform: 'none',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' }
+              ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' },
             }}
             onClick={() => setIsLeftDrawerOpen(true)}
           >
             <SearchIcon sx={{ fontSize: '3rem', marginRight: '0.5rem' }} />
-            <Typography sx={{ fontSize: '1.6rem', display: { xs: 'none', sm: 'flex' } }}>
-              Search User
-            </Typography>
+            <Typography sx={{ fontSize: '1.6rem', display: { xs: 'none', sm: 'flex' } }}>Search User</Typography>
           </Button>
         </Tooltip>
 
@@ -233,8 +229,8 @@ const Header = () => {
 
         <div>
           <IconButton
-            aria-label='notifications'
             id='notifications-button'
+            aria-label='notifications'
             aria-controls={openNotificationsMenu ? 'notifications-menu' : undefined}
             aria-haspopup='true'
             aria-expanded={openNotificationsMenu ? 'true' : undefined}
@@ -243,21 +239,16 @@ const Header = () => {
             <Badge
               badgeContent={notifications.length ? notifications.length : 0}
               max={99}
-              color='primary'
+              color="primary"
               sx={{
                 '& .MuiBadge-badge': {
                   backgroundColor: 'rgb(93, 109, 126)',
                   fontSize: '1.2rem',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
                 },
               }}
             >
-              <NotificationsOutlinedIcon
-                sx={{
-                  color: 'black',
-                  fontSize: '3rem'
-                }}
-              />
+              <NotificationsOutlinedIcon sx={{ color: 'black', fontSize: '3rem' }} />
             </Badge>
           </IconButton>
 
@@ -267,21 +258,21 @@ const Header = () => {
             open={openNotificationsMenu}
             slotProps={{
               list: {
-                'aria-labelledby': 'notifications-button'
-              }
+                'aria-labelledby': 'notifications-button',
+              },
             }}
-            onClose={handleNotificationsMenuClose}
             anchorOrigin={{
               vertical: 'bottom',
-              horizontal: 'right'
+              horizontal: 'right',
             }}
             transformOrigin={{
               vertical: 'top',
-              horizontal: 'right'
+              horizontal: 'right',
             }}
+            onClose={handleNotificationsMenuClose}
           >
             <MenuList
-              id='hehe'
+              id='menu-list'
               component='div'
               disablePadding
               sx={{
@@ -291,64 +282,47 @@ const Header = () => {
                 minHeight: '5rem',
                 overflowY: `${notifications.length === 0 ? 'hidden' : 'auto'}`,
                 padding: '0rem 1rem',
-                scrollbarWidth: 'thin'
+                scrollbarWidth: 'thin',
               }}
             >
-              {
-                notifications.length === 0
-                &&
-                <Box
-                  component='div'
-                  sx={{ fontSize: '1.4rem' }}
-                >
+              {notifications.length === 0 && (
+                <Box component='div' sx={{ fontSize: '1.4rem' }}>
                   No new messages
                 </Box>
-              }
+              )}
 
-              {
-                notifications.map((notification) => (
-                  <MenuItem
-                    divider
-                    id='menu-item'
-                    key={notification._id}
-                    sx={{ height: '5rem', width: '30rem' }}
-                    onClick={() => handleNotificationItemClick(notification._id, notification.messageId)}
+              {notifications.map((notification) => (
+                <MenuItem
+                  id='menu-item'
+                  divider
+                  key={notification._id}
+                  sx={{ height: '5rem', width: '30rem' }}
+                  onClick={() => handleNotificationItemClick(notification._id, notification.messageId)}
+                >
+                  <Box
+                    component='div'
+                    sx={{ display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}
                   >
-                    <Box
+                    <Typography
                       component='div'
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        overflowX: 'hidden'
-                      }}
+                      sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}
                     >
-                      <Typography
-                        component='div'
-                        sx={{
-                          fontSize: '1.4rem',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        {notification.content + ':'}
-                      </Typography>
+                      {notification.content + ':'}
+                    </Typography>
 
-                      <Typography
-                        component='div'
-                        sx={{ fontSize: '1.4rem' }}
-                      >
-                        {notification.messageId?.content || 'Message not found.'}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                ))
-              }
+                    <Typography component='div' sx={{ fontSize: '1.4rem' }}>
+                      {notification.messageId?.content || 'Message not found.'}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))}
             </MenuList>
           </Menu>
 
           <Button
             id='user-menu-button'
             aria-controls={openUserMenu ? 'user-menu' : undefined}
-            aria-haspopup='true'
+            aria-haspopup="true"
             aria-expanded={openUserMenu ? 'true' : undefined}
             onClick={handleUserMenuClick}
             endIcon={<KeyboardArrowDownIcon />}
@@ -357,14 +331,12 @@ const Header = () => {
               margin: '0.5rem 1rem',
               padding: '0.5rem 2rem',
               textTransform: 'none',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' }
+              ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' },
             }}
           >
             <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} />
 
-            <Typography sx={{ fontSize: '1.4rem' }}>
-              {authState.user.username}
-            </Typography>
+            <Typography sx={{ fontSize: '1.4rem' }}>{authState.user.username}</Typography>
           </Button>
 
           <Menu
@@ -373,18 +345,18 @@ const Header = () => {
             open={openUserMenu}
             slotProps={{
               list: {
-                'aria-labelledby': 'user-menu-button'
-              }
+                'aria-labelledby': 'user-menu-button',
+              },
             }}
-            onClose={handleUserMenuClose}
             anchorOrigin={{
               vertical: 'bottom',
-              horizontal: 'right'
+              horizontal: 'right',
             }}
             transformOrigin={{
+              horizontal: 'right',
               vertical: 'top',
-              horizontal: 'right'
             }}
+            onClose={handleUserMenuClose}
           >
             <MenuList disablePadding>
               <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
@@ -409,10 +381,7 @@ const Header = () => {
         </div>
       </Box>
 
-      <LeftDrawer
-        isLeftDrawerOpen={isLeftDrawerOpen}
-        setIsLeftDrawerOpen={setIsLeftDrawerOpen}
-      />
+      <LeftDrawer isLeftDrawerOpen={isLeftDrawerOpen} setIsLeftDrawerOpen={setIsLeftDrawerOpen} />
 
       <ProfileModal
         isProfileModalOpen={isProfileModalOpen}
@@ -420,10 +389,7 @@ const Header = () => {
         user={authState.user}
       />
 
-      <SettingsModal
-        isSettingsModalOpen={isSettingsModalOpen}
-        setIsSettingsModalOpen={setIsSettingsModalOpen}
-      />
+      <SettingsModal isSettingsModalOpen={isSettingsModalOpen} setIsSettingsModalOpen={setIsSettingsModalOpen} />
     </Fragment>
   );
 };

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 // MUI Icons.
@@ -16,14 +15,11 @@ const UserBadgeItem = (props) => {
         display: 'flex',
         margin: '1rem 0.5rem 0.5rem 0rem',
         padding: '0.5rem',
-        ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' }
+        ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
       }}
       onClick={props.handleFunction}
     >
-      <Typography
-        component='div'
-        sx={{ fontSize: '1.2rem' }}
-      >
+      <Typography component="div" sx={{ fontSize: '1.2rem' }}>
         {props.user.username}
       </Typography>
       <CloseIcon sx={{ marginLeft: '0.3rem', fontSize: '1.4rem' }} />

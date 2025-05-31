@@ -1,10 +1,4 @@
-import React from 'react';
-import {
-  Box,
-  Dialog,
-  DialogTitle,
-  IconButton
-} from '@mui/material';
+import { Box, Dialog, DialogTitle, IconButton } from '@mui/material';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
@@ -16,23 +10,23 @@ const SettingsModal = (props) => {
       props.setIsSettingsModalOpen(false);
     } catch (err) {
       console.log(err);
-    };
+    }
   };
 
   return (
     <Dialog
+      aria-labelledby='modal-user-menu-settings'
       open={props.isSettingsModalOpen}
       onClose={handleSettingsModalClose}
-      aria-labelledby='modal-user-menu-settings'
     >
       <Box
         sx={{
+          alignItems: 'center',
           backgroundColor: 'white',
           border: 'none',
           borderRadius: '0.5rem',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
           left: '50vw',
           padding: '3rem',
           position: 'fixed',
@@ -47,7 +41,7 @@ const SettingsModal = (props) => {
           sx={{
             fontSize: '2rem',
             fontFamily: 'Roboto',
-            textAlign: 'center'
+            textAlign: 'center',
           }}
         >
           Settings

@@ -18,17 +18,16 @@ import { isUserSignedIn, signout } from '../features/auth/authSlice';
 const App = () => {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const bootstrapAuth = async () => {
-      try {
-        await dispatch(isUserSignedIn())
-          .unwrap(); // Use unwrap to catch errors.
-      } catch (error) {
-        console.warn('Auto sign-in failed. Clearing token and resetting auth.');
-        dispatch(signout()); // Clean up bad token.
-      }
-    };
+  const bootstrapAuth = async () => {
+    try {
+      await dispatch(isUserSignedIn()).unwrap(); // Use unwrap to catch errors.
+    } catch (error) {
+      console.warn('Auto sign-in failed. Clearing token and resetting auth.');
+      dispatch(signout()); // Clean up bad token.
+    }
+  };
 
+  useEffect(() => {
     bootstrapAuth();
   }, [dispatch]);
 
@@ -36,14 +35,14 @@ const App = () => {
     <Fragment>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate replace to="/chat" />} />
+          <Route path='/' element={<Navigate replace to='/chat' />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/profile" element={<UserProfilePage />} />
+            <Route path='/chat' element={<Chat />} />
+            <Route path='/profile' element={<UserProfilePage />} />
           </Route>
-          <Route path="/signin" element={<Signin />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<ErrorPage />} />
+          <Route path='/signin' element={<Signin />} />
+          <Route path='/signup' element={<Signup />} />
+          <Route path='*' element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>
     </Fragment>

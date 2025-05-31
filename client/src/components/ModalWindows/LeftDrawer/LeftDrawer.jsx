@@ -1,14 +1,7 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import {
-  Box,
-  Button,
-  Drawer,
-  Divider,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Button, Drawer, Divider, TextField, Typography } from '@mui/material';
 
 // MUI Icons.
 import SearchIcon from '@mui/icons-material/Search';
@@ -22,12 +15,10 @@ import ListLoading from '../../ListLoading/ListLoading';
 import { createPrivateChat } from '../../../features/chat/chatSlice';
 
 const LeftDrawer = (props) => {
-  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const chatState = useSelector((state) => {
     return state.chatReducer;
   });
 
-  // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
   // STATE.
@@ -38,7 +29,7 @@ const LeftDrawer = (props) => {
   const [inputError, setInputError] = useState(false);
   const [inputHelperText, setInputHelperText] = useState('');
 
-  // 'Close' event for 'LeftDrawer' Component. 
+  // 'Close' event for 'LeftDrawer' Component.
   const handleLeftDrawerClose = () => {
     try {
       props.setIsLeftDrawerOpen(false);
@@ -48,7 +39,7 @@ const LeftDrawer = (props) => {
       setSearchResult([]);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Search user in database.
@@ -58,8 +49,9 @@ const LeftDrawer = (props) => {
         setInputError(true);
         setInputHelperText('Please enter something.');
         setSearchResult([]);
+
         return;
-      };
+      }
 
       setSearchLoading(true);
 
@@ -73,7 +65,7 @@ const LeftDrawer = (props) => {
       setSearchResult(data);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Access to chat.
@@ -88,29 +80,19 @@ const LeftDrawer = (props) => {
       setSearchResult([]);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   return (
-    <Drawer
-      anchor='left'
-      open={props.isLeftDrawerOpen}
-      onClose={handleLeftDrawerClose}
-    >
+    <Drawer anchor='left' open={props.isLeftDrawerOpen} onClose={handleLeftDrawerClose}>
       <Box
         role='presentation'
         overflow='auto'
-        sx={{
-          padding: '2rem',
-          textAlign: 'center',
-          minWidth: '20vw'
-        }}
+        sx={{ padding: '2rem', textAlign: 'center', minWidth: '20vw' }}
       >
         <Typography
           component='div'
-          sx={{
-            fontSize: '1.6rem',
-          }}
+          sx={{ fontSize: '1.6rem' }}
         >
           Search user
         </Typography>
@@ -119,13 +101,9 @@ const LeftDrawer = (props) => {
 
         <Box
           component='form'
-          noValidate
           autoComplete='off'
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '3rem'
-          }}
+          noValidate
+          sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}
         >
           <TextField
             error={inputError}
@@ -133,16 +111,18 @@ const LeftDrawer = (props) => {
             label='Username...'
             variant='outlined'
             slotProps={{
-              inputLabel: { sx: { fontSize: '1.4rem' } }
+              inputLabel: { sx: { fontSize: '1.4rem' } },
             }}
             sx={{
               width: '75%',
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
-              '.MuiFormHelperText-contained': { fontSize: '1.2rem' }
+              '.MuiFormHelperText-contained': { fontSize: '1.2rem' },
             }}
             value={search}
-            onChange={(event) => { setSearch(event.target.value) }}
+            onChange={(event) => {
+              setSearch(event.target.value);
+            }}
           />
 
           <Button
@@ -154,44 +134,32 @@ const LeftDrawer = (props) => {
               fontSize: '1.4rem',
               height: '5.3rem',
               marginLeft: '1rem',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)' }
+              ':hover': { backgroundColor: 'rgb(235, 235, 235)' },
             }}
             onClick={handleSearch}
           >
-            <SearchIcon
-              sx={{
-                fontSize: '3rem',
-              }}
-            />
+            <SearchIcon sx={{ fontSize: '3rem' }} />
           </Button>
         </Box>
 
-        {
-          searchLoading
-            ? <ListLoading />
-            : searchResult?.map((user) => (
-              <UserListItem
-                key={user._id}
-                user={user}
-                handleFunction={() => chatAccess(user._id)}
-              />
-            ))
-        }
+        {searchLoading ? (
+          <ListLoading />
+        ) : (
+          searchResult?.map((user) => (
+            <UserListItem key={user._id} user={user} handleFunction={() => chatAccess(user._id)} />
+          ))
+        )}
 
-        {
-          chatState.loading 
-          &&
+        {chatState.loading && (
           <Box
             component='div'
-            sx={{
-              marginTop: '2rem'
-            }}
+            sx={{ marginTop: '2rem' }}
           >
             <Spinner />
           </Box>
-        }
+        )}
       </Box>
-    </Drawer >
+    </Drawer>
   );
 };
 

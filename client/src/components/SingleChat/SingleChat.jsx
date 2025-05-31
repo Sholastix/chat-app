@@ -1,14 +1,7 @@
 import { useState, useEffect, useRef, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import {
-  Box,
-  FormControl,
-  IconButton,
-  TextField,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Box, FormControl, IconButton, TextField, Tooltip, Typography } from '@mui/material';
 
 // Assets.
 import messageSound from '../../assets/sounds/messageSound.mp3';
@@ -32,16 +25,14 @@ import { getSender, getFullSender, truncateText } from '../../helpers/chatLogic'
 import { resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
-  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const authState = useSelector((state) => {
-    return state.authReducer
+    return state.authReducer;
   });
 
   const chatState = useSelector((state) => {
     return state.chatReducer;
   });
 
-  // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
 
   // STATE.
@@ -65,7 +56,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     // Connect to socket server.
     if (!socket.connected) {
       socket.connect();
-    };
+    }
 
     socket.on('connected', (data) => {
       console.log('CONNECTED: ', data);
@@ -85,7 +76,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       // Clear any existing timeout if typing has resumed.
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
-      };
+      }
 
       // Set a new timeout to hide the typing indicator after 3 seconds.
       typingTimeoutRef.current = setTimeout(() => {
@@ -96,32 +87,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     socket.on('mark_one_message_as_read', ({ messageId }) => {
       setMessages((prevMessages) =>
-        prevMessages.map((msg) => msg._id === messageId
-          ? { ...msg, isRead: true }
-          : msg
-        )
+        prevMessages.map((msg) => (msg._id === messageId ? { ...msg, isRead: true } : msg))
       );
     });
 
     socket.on('mark_all_messages_as_read', (updatedMessage) => {
       setMessages((prevMessages) =>
-        prevMessages.map((msg) => msg._id === updatedMessage._id
-          ? { ...msg, isRead: true }
-          : msg
-        )
+        prevMessages.map((msg) => (msg._id === updatedMessage._id ? { ...msg, isRead: true } : msg))
       );
     });
 
     socket.on('message_edited', (editedMessage) => {
       setMessages((prevMessages) =>
-        prevMessages.map((msg) => msg._id === editedMessage._id
-          ? {
-            ...msg,
-            content: editedMessage.content,
-            isEdited: editedMessage.isEdited,
-            updatedAt: editedMessage.updatedAt
-          }
-          : msg
+        prevMessages.map((msg) =>
+          msg._id === editedMessage._id
+            ? {
+                ...msg,
+                content: editedMessage.content,
+                isEdited: editedMessage.isEdited,
+                updatedAt: editedMessage.updatedAt,
+              }
+            : msg
         )
       );
     });
@@ -129,8 +115,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     window.addEventListener('keydown', cancelQuotedMessage);
 
     socket.on('disconnect', (reason) => {
-      console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
       console.log('SOCKET_STATUS: ', socket.connected);
+      console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
     });
 
     return () => {
@@ -144,7 +130,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
-      };
+      }
 
       window.removeEventListener('keydown', cancelQuotedMessage);
     };
@@ -172,7 +158,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     // Fetch online status at first chat select.
     fetchLastOnline();
 
-    socket.emit('room_join', chatState.selectedChat?._id, chatState.selectedChat?.users, authState.user.username, authState.user._id);
+    socket.emit('room_join',
+      chatState.selectedChat?._id,
+      chatState.selectedChat?.users,
+      authState.user.username,
+      authState.user._id
+    );
 
     // Update 'lastOnline' status on connect/disconnect.
     socket.on('last_online_update', ({ userId, lastOnline }) => {
@@ -181,7 +172,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       if (!selectedUsers || selectedUsers.length < 2 || !loggedInUser?._id) {
         return;
-      };
+      }
 
       // Defining our collocutor.
       const collocutor = getFullSender(loggedInUser, selectedUsers);
@@ -189,8 +180,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       if (collocutor?._id === userId) {
         if (lastOnline === null) {
           setLastOnline('Online');
+
           return;
-        };
+        }
 
         // Formatting date for display in UI.
         const formattedDate = new Date(lastOnline).toLocaleString(navigator.language, {
@@ -198,11 +190,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           month: 'long',
           day: 'numeric',
           hour: 'numeric',
-          minute: 'numeric'
+          minute: 'numeric',
         });
 
         setLastOnline(`Last online: ${formattedDate}`);
-      };
+      }
     });
 
     return () => {
@@ -215,7 +207,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       if (!chatState.selectedChat || chatState.selectedChat.isGroupChat) {
         return;
-      };
+      }
 
       const collocutor = getFullSender(authState.user, chatState.selectedChat.users);
       const { data } = await axios.get(`/api/user/${collocutor._id}`);
@@ -227,16 +219,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           month: 'long',
           day: 'numeric',
           hour: 'numeric',
-          minute: 'numeric'
+          minute: 'numeric',
         });
 
         setLastOnline(`Last online: ${formattedDate}`);
       } else {
         setLastOnline('Online');
-      };
+      }
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Reset STATE for selected chat.
@@ -248,7 +240,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.emit('room_leave', chatState.selectedChat._id, authState.user.username, authState.user._id);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Typing handler.
@@ -259,13 +251,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       // Logic for typing indication.
       if (!socket.connected) {
         return;
-      };
+      }
 
       // Emit typing event to the server (to the specific room) when the user is typing.
       socket.emit('typing', chatState.selectedChat._id, authState.user.username);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
@@ -273,7 +265,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       if (!chatState.selectedChat) {
         return;
-      };
+      }
 
       setMessageLoading(true);
 
@@ -283,7 +275,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setMessageLoading(false);
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Send message (maybe later we will put this logic in REDUX).
@@ -293,24 +285,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         const { data } = await axios.post('/api/chat/message', {
           chatId: chatState.selectedChat._id,
           messageContent: newMessage,
-          replyTo: quotedMessage?._id || null
+          replyTo: quotedMessage?._id || null,
         });
 
         socket.emit('message_send', chatState.selectedChat._id, data);
         setMessages([...messages, data]);
         setNewMessage('');
         setQuotedMessage(null);
-      };
+      }
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   // Cancel quoted message by pressing 'Escape' button.
   const cancelQuotedMessage = (event) => {
     if (event.key === 'Escape') {
       setQuotedMessage(null);
-    };
+    }
   };
 
   // This part for 'pop-up message sound' functionality.
@@ -323,264 +315,244 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       sound.play();
     } catch (err) {
       console.error(err);
-    };
+    }
   };
 
   return (
     <Fragment>
-      {
-        chatState.loading
-          ? <Box
+      {chatState.loading ? (
+        <Box
+          component='div'
+          sx={{
+            alignItems: 'center',
+            display: 'flex',
+            height: '100%',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <Spinner />
+        </Box>
+      ) : chatState.selectedChat ? (
+        <Box component='div' sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+          <Box
             component='div'
             sx={{
               alignItems: 'center',
+              borderRadius: '0.5rem',
               display: 'flex',
-              height: '100%',
-              justifyContent: 'center',
-              width: '100%'
+              fontSize: { xs: '2.5rem', md: '3rem' },
+              height: '6rem',
+              justifyContent: { xs: 'space-between', md: 'center' },
+              marginBottom: '1rem',
+              padding: '0rem 1rem',
+              width: '100%',
             }}
           >
-            <Spinner />
-          </Box>
-          : chatState.selectedChat
-            ? (<Box
-              component='div'
-              sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}
+            <IconButton
+              sx={{
+                display: { xs: 'flex', md: 'none' },
+                margin: '0.5rem 1rem',
+              }}
+              onClick={resetSelectedChat}
             >
-              <Box
-                component='div'
-                sx={{
-                  alignItems: 'center',
-                  borderRadius: '0.5rem',
-                  display: 'flex',
-                  fontSize: { xs: '2.5rem', md: '3rem' },
-                  height: '6rem',
-                  justifyContent: { xs: 'space-between', md: 'center' },
-                  marginBottom: '1rem',
-                  padding: '0rem 1rem',
-                  width: '100%'
-                }}
-              >
+              <ArrowBackIcon sx={{ fontSize: '3rem' }} />
+            </IconButton>
+
+            {!chatState.selectedChat.isGroupChat ? (
+              <Fragment>
+                <Box component='div' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Typography component='div' sx={{ display: 'flex', fontSize: '2.5rem' }}>
+                    {getSender(authState.user, chatState.selectedChat.users)}
+                  </Typography>
+
+                  <Typography
+                    component="p"
+                    sx={{ fontSize: '1.4rem', color: `${lastOnline && lastOnline === 'Online' ? 'green' : 'darkred'}` }}
+                  >
+                    {lastOnline}
+                  </Typography>
+                </Box>
+
                 <IconButton
-                  sx={{
-                    display: { xs: 'flex', md: 'none' },
-                    margin: '0.5rem 1rem'
+                  sx={{ marginLeft: '1rem' }}
+                  onClick={() => {
+                    setIsProfileModalOpen(true);
                   }}
-                  onClick={resetSelectedChat}
                 >
-                  <ArrowBackIcon sx={{ fontSize: '3rem' }} />
+                  <VisibilityIcon sx={{ fontSize: '2rem' }} />
                 </IconButton>
 
-                {
-                  !chatState.selectedChat.isGroupChat
-                    ?
-                    <Fragment>
-                      <Box
-                        component='div'
-                        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-                      >
-                        <Typography
-                          component='div'
-                          sx={{ display: 'flex', fontSize: '2.5rem' }}
-                        >
-                          {
-                            getSender(authState.user, chatState.selectedChat.users)
-                          }
-                        </Typography>
-
-                        <Typography
-                          component='p'
-                          sx={{ fontSize: '1.4rem', color: `${lastOnline && lastOnline === 'Online' ? 'green' : 'darkred'}` }}
-                        >
-                          {lastOnline}
-                        </Typography>
-                      </Box>
-
-                      <IconButton
-                        sx={{ marginLeft: '1rem' }}
-                        onClick={() => { setIsProfileModalOpen(true) }}
-                      >
-                        <VisibilityIcon sx={{ fontSize: '2rem' }} />
-                      </IconButton>
-
-                      <ProfileModal
-                        isProfileModalOpen={isProfileModalOpen}
-                        setIsProfileModalOpen={setIsProfileModalOpen}
-                        user={getFullSender(authState.user, chatState.selectedChat.users)}
-                      />
-                    </Fragment>
-                    :
-                    <Fragment>
-                      {
-                        chatState.selectedChat.chatName
-                      }
-
-                      <IconButton
-                        sx={{ marginLeft: '1rem' }}
-                        onClick={() => { setIsUpdateGroupChatModalOpen(true) }}
-                      >
-                        <VisibilityIcon sx={{ fontSize: '2rem' }} />
-                      </IconButton>
-
-                      <UpdateGroupChatModal
-                        isUpdateGroupChatModalOpen={isUpdateGroupChatModalOpen}
-                        setIsUpdateGroupChatModalOpen={setIsUpdateGroupChatModalOpen}
-                        fetchAgain={fetchAgain}
-                        setFetchAgain={setFetchAgain}
-                      />
-                    </Fragment>
-                }
-              </Box>
-
-              <Box
-                component='div'
-                sx={{
-                  borderRadius: '0.5rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: '100%',
-                  justifyContent: 'flex-end',
-                  overflowY: 'hidden'
-                }}
-              >
-                {
-                  messageLoading
-                    ? <Box
-                      component='div'
-                      sx={{
-                        alignItems: 'center',
-                        display: 'flex',
-                        height: '100%',
-                        justifyContent: 'center',
-                        width: '100%'
-                      }}
-                    >
-                      <Spinner />
-                    </Box>
-                    : <ScrollableChatWindow
-                      isTyping={isTyping}
-                      messages={messages}
-                      setMessages={setMessages}
-                      setQuotedMessage={setQuotedMessage}
-                      typingUser={typingUser}
-                    />
-                }
-              </Box>
-
-              {
-                quotedMessage && (
-                  <Box
-                    component='div'
-                    id='message-quoted'
-                    sx={{
-                      backgroundColor: '#f0f0f0',
-                      borderRadius: '0.5rem',
-                      borderLeft: '0.5rem solid rgb(93, 109, 126)',
-                      margin: '1rem 7rem 0rem 1rem',
-                      padding: '0.5rem 1rem',
-                      position: 'relative'
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '1.4rem', fontStyle: 'italic', marginBottom: '0.5rem' }}>
-                      Replying to: <strong>{quotedMessage?.sender?.username}</strong>
-                    </Typography>
-
-                    <Typography sx={{ fontSize: '1.4rem', fontStyle: 'italic' }}>
-                      <strong>{truncateText(quotedMessage.content, 100)}</strong>
-                    </Typography>
-
-                    <IconButton
-                      size='small'
-                      onClick={() => setQuotedMessage(null)}
-                      sx={{ position: 'absolute', right: 4, top: 4 }}
-                    >
-                      ✖
-                    </IconButton>
-                  </Box>
-                )
-              }
-
-              <FormControl
-                component='div'
-                sx={{
-                  alignItems: 'flex-end',
-                  display: 'flex',
-                  flexDirection: 'row', // default value for <FormControl /> Component is 'column', so we need to change it... or we can use <Box /> Component instead.
-                  padding: '1rem 1rem 1rem 0rem'
-                }}
-              >
-                <TextField
-                  autoComplete='off'
-                  label='Type your message...'
-                  multiline
-                  variant='outlined'
-                  slotProps={{
-                    inputLabel: { sx: { fontSize: '1.4rem' } }
-                  }}
-                  sx={{
-                    backgroundColor: 'white',
-                    margin: '0rem 1rem',
-                    width: '100%',
-                    '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
-                    '.MuiInputBase-input': { fontSize: '1.4rem' },
-                  }}
-                  value={newMessage}
-                  onChange={handleTyping}
-                >
-                </TextField>
-
-                <Tooltip
-                  title='Send message'
-                  arrow
-                  enterDelay={500}
-                  enterNextDelay={500}
-                  placement='top-start'
-                  slotProps={{
-                    tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
-                    arrow: { sx: { color: 'rgb(93, 109, 126)' } }
-                  }}
-                >
-                  <IconButton
-                    sx={{
-                      alignItems: 'center',
-                      backgroundColor: 'rgb(93, 109, 126)',
-                      border: 'none',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      height: '5rem',
-                      width: '5rem',
-                      ':hover': {
-                        backgroundColor: 'rgb(93, 109, 126)',
-                        boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
-                        cursor: 'pointer'
-                      }
-                    }}
-                    onClick={sendMessage}
-                  >
-                    <SendRoundedIcon sx={{ color: 'white', height: '2.5rem', width: '2.5rem' }} />
-                  </IconButton>
-                </Tooltip>
-              </FormControl>
-            </Box>
+                <ProfileModal
+                  isProfileModalOpen={isProfileModalOpen}
+                  setIsProfileModalOpen={setIsProfileModalOpen}
+                  user={getFullSender(authState.user, chatState.selectedChat.users)}
+                />
+              </Fragment>
             ) : (
+              <Fragment>
+                {chatState.selectedChat.chatName}
+
+                <IconButton
+                  sx={{ marginLeft: '1rem' }}
+                  onClick={() => {
+                    setIsUpdateGroupChatModalOpen(true);
+                  }}
+                >
+                  <VisibilityIcon sx={{ fontSize: '2rem' }} />
+                </IconButton>
+
+                <UpdateGroupChatModal
+                  isUpdateGroupChatModalOpen={isUpdateGroupChatModalOpen}
+                  setIsUpdateGroupChatModalOpen={setIsUpdateGroupChatModalOpen}
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                />
+              </Fragment>
+            )}
+          </Box>
+
+          <Box
+            component='div'
+            sx={{
+              borderRadius: '0.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              justifyContent: 'flex-end',
+              overflowY: 'hidden',
+            }}
+          >
+            {messageLoading ? (
               <Box
+                component='div'
                 sx={{
                   alignItems: 'center',
                   display: 'flex',
                   height: '100%',
                   justifyContent: 'center',
-                  width: '100%'
+                  width: '100%',
                 }}
               >
-                <Typography
-                  sx={{ fontSize: '3rem' }}
-                >
-                  Please select collocutor from chats list.
-                </Typography>
+                <Spinner />
               </Box>
-            )
-      }
+            ) : (
+              <ScrollableChatWindow
+                isTyping={isTyping}
+                messages={messages}
+                setMessages={setMessages}
+                setQuotedMessage={setQuotedMessage}
+                typingUser={typingUser}
+              />
+            )}
+          </Box>
+
+          {quotedMessage && (
+            <Box
+              component='div'
+              id='message-quoted'
+              sx={{
+                backgroundColor: '#f0f0f0',
+                borderRadius: '0.5rem',
+                borderLeft: '0.5rem solid rgb(93, 109, 126)',
+                margin: '1rem 7rem 0rem 1rem',
+                padding: '0.5rem 1rem',
+                position: 'relative',
+              }}
+            >
+              <Typography sx={{ fontSize: '1.4rem', fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                Replying to: <strong>{quotedMessage?.sender?.username}</strong>
+              </Typography>
+
+              <Typography sx={{ fontSize: '1.4rem', fontStyle: 'italic' }}>
+                <strong>{truncateText(quotedMessage.content, 100)}</strong>
+              </Typography>
+
+              <IconButton
+                size='small'
+                onClick={() => setQuotedMessage(null)}
+                sx={{ position: 'absolute', right: 4, top: 4 }}
+              >
+                ✖
+              </IconButton>
+            </Box>
+          )}
+
+          <FormControl
+            component='div'
+            sx={{
+              alignItems: 'flex-end',
+              display: 'flex',
+              flexDirection: 'row', // default value for <FormControl /> Component is 'column', so we need to change it... or we can use <Box /> Component instead.
+              padding: '1rem 1rem 1rem 0rem',
+            }}
+          >
+            <TextField
+              autoComplete='off'
+              label='Type your message...'
+              multiline
+              variant='outlined'
+              slotProps={{
+                inputLabel: { sx: { fontSize: '1.4rem' } },
+              }}
+              sx={{
+                backgroundColor: 'white',
+                margin: '0rem 1rem',
+                width: '100%',
+                '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
+                '.MuiInputBase-input': { fontSize: '1.4rem' },
+              }}
+              value={newMessage}
+              onChange={handleTyping}
+            ></TextField>
+
+            <Tooltip
+              title='Send message'
+              arrow
+              enterDelay={500}
+              enterNextDelay={500}
+              placement='top-start'
+              slotProps={{
+                tooltip: { sx: { fontSize: '1.2rem', backgroundColor: 'rgb(93, 109, 126)', color: 'white' } },
+                arrow: { sx: { color: 'rgb(93, 109, 126)' } },
+              }}
+            >
+              <IconButton
+                sx={{
+                  alignItems: 'center',
+                  backgroundColor: 'rgb(93, 109, 126)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  height: '5rem',
+                  width: '5rem',
+                  ':hover': {
+                    backgroundColor: 'rgb(93, 109, 126)',
+                    boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
+                    cursor: 'pointer',
+                  },
+                }}
+                onClick={sendMessage}
+              >
+                <SendRoundedIcon sx={{ color: 'white', height: '2.5rem', width: '2.5rem' }} />
+              </IconButton>
+            </Tooltip>
+          </FormControl>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            alignItems: 'center',
+            display: 'flex',
+            height: '100%',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <Typography sx={{ fontSize: '3rem' }}>Please select collocutor from chats list.</Typography>
+        </Box>
+      )}
     </Fragment>
   );
 };

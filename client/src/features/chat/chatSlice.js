@@ -9,7 +9,7 @@ const initialState = {
   error: '',
   chats: [],
   selectedChat: null,
-  usersOnline: []
+  usersOnline: [],
 };
 
 // Get all chats of the current user.
@@ -32,14 +32,14 @@ export const createPrivateChat = createAsyncThunk('chat/createPrivateChat', asyn
   const createdChat = await axios.post('/api/chat', { userId });
   const isChatExists = allChats.data.find((chat) => chat._id === createdChat.data._id);
 
-  // If that chat already existed in database then we don't add it to our chats list again. 
+  // If that chat already existed in database then we don't add it to our chats list again.
   if (isChatExists === undefined) {
     allChats.data.push(createdChat.data);
-  };
+  }
 
   return {
     createdChat: createdChat.data,
-    allChats: allChats.data
+    allChats: allChats.data,
   };
 });
 
@@ -49,14 +49,14 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
   const createdGroupChat = await axios.post('/api/chat/group', { chatName, users });
   const isChatExists = allChats.data.find((chat) => chat._id === createdGroupChat.data._id);
 
-  // If that chat already existed in database then we don't add it to our chats list again. 
+  // If that chat already existed in database then we don't add it to our chats list again.
   if (isChatExists === undefined) {
     allChats.data.push(createdGroupChat.data);
-  };
+  }
 
   return {
     createdGroupChat: createdGroupChat.data,
-    allChats: allChats.data
+    allChats: allChats.data,
   };
 });
 
@@ -76,14 +76,15 @@ export const addUserToGroupChat = createAsyncThunk('chat/addUserToGroupChat', as
 
 // Remove user from group chat.
 export const removeUserFromGroupChat = createAsyncThunk('chat/removeUserFromGroupChat', async ({ chatId, userId, currentUserId }) => {
-  const { data } = await axios.put('/api/chat/group/remove', { chatId, userId });
+    const { data } = await axios.put('/api/chat/group/remove', { chatId, userId });
 
-  if (userId === currentUserId) {
-    return null;
-  } else {
-    return data;
-  };
-});
+    if (userId === currentUserId) {
+      return null;
+    } else {
+      return data;
+    }
+  }
+);
 
 // Create slice of the STORE for 'Chat'.
 const chatSlice = createSlice({
@@ -99,7 +100,7 @@ const chatSlice = createSlice({
     // Reset STATE for 'selected chat'.
     resetSelectedChatState: (state, action) => {
       // Mutating the STATE directly is possible due to 'redux-toolkit' using npm 'Immer' under the hood.
-      state.selectedChat = action.payload
+      state.selectedChat = action.payload;
     },
 
     // Set STATE for 'isUserOnline'.
@@ -109,8 +110,8 @@ const chatSlice = createSlice({
 
     updateChatLastMessage: (state, action) => {
       const updatedChat = action.payload;
-      
-      state.chats = state.chats.map(chat =>
+
+      state.chats = state.chats.map((chat) =>
         chat._id === updatedChat._id ? { ...chat, lastMessage: updatedChat.lastMessage } : chat
       );
     },
@@ -120,10 +121,9 @@ const chatSlice = createSlice({
   extraReducers: (builder) => {
     // Reset chat state when user signs out:
     builder.addCase(signout, () => initialState);
-    
-    // -------------------------------   FETCH CHATS   -------------------------------
 
-    builder.addCase(fetchChats.pending, (state, action) => {
+    // -------------------------------   FETCH CHATS   -------------------------------
+    builder.addCase(fetchChats.pending, (state) => {
       state.loading = true;
     });
 
@@ -141,8 +141,7 @@ const chatSlice = createSlice({
     });
 
     // -------------------------------   FETCH CHAT   -------------------------------
-
-    builder.addCase(fetchChat.pending, (state, action) => {
+    builder.addCase(fetchChat.pending, (state) => {
       state.loading = true;
     });
 
@@ -159,8 +158,7 @@ const chatSlice = createSlice({
     });
 
     // -------------------------------   CREATE PRIVATE CHAT   -------------------------------
-
-    builder.addCase(createPrivateChat.pending, (state, action) => {
+    builder.addCase(createPrivateChat.pending, (state) => {
       state.loading = true;
     });
 
@@ -178,8 +176,7 @@ const chatSlice = createSlice({
     });
 
     // -------------------------------   CREATE GROUP CHAT   -------------------------------
-
-    builder.addCase(createGroupChat.pending, (state, action) => {
+    builder.addCase(createGroupChat.pending, (state) => {
       state.loading = true;
     });
 
@@ -197,8 +194,7 @@ const chatSlice = createSlice({
     });
 
     // -------------------------------   RENAME GROUP CHAT   -------------------------------
-
-    builder.addCase(renameGroupChat.pending, (state, action) => {
+    builder.addCase(renameGroupChat.pending, (state) => {
       state.loading = true;
     });
 
@@ -214,8 +210,7 @@ const chatSlice = createSlice({
     });
 
     // -------------------------------   ADD USER TO GROUP CHAT   -------------------------------
-
-    builder.addCase(addUserToGroupChat.pending, (state, action) => {
+    builder.addCase(addUserToGroupChat.pending, (state) => {
       state.loading = true;
     });
 
@@ -231,8 +226,7 @@ const chatSlice = createSlice({
     });
 
     // -------------------------------   REMOVE USER FROM GROUP CHAT   -------------------------------
-
-    builder.addCase(removeUserFromGroupChat.pending, (state, action) => {
+    builder.addCase(removeUserFromGroupChat.pending, (state) => {
       state.loading = true;
     });
 

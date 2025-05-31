@@ -12,15 +12,12 @@ const ErrorPage = () => {
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
-        width: '100vw'
+        width: '100vw',
       }}
     >
       <Typography
         component='div'
-        sx={{
-          fontSize: '30rem',
-          margin: '10rem 0rem'
-        }}
+        sx={{ fontSize: '30rem', margin: '10rem 0rem' }}
       >
         404
       </Typography>
@@ -32,7 +29,7 @@ const ErrorPage = () => {
             fontSize: '3rem',
             fontWeight: 'bold',
             marginBottom: '5rem',
-            textAlign: 'center'
+            textAlign: 'center',
           }}
         >
           PAGE NOT FOUND
@@ -40,10 +37,7 @@ const ErrorPage = () => {
 
         <Box
           component='p'
-          sx={{
-            fontSize: '2rem',
-            marginBottom: '3rem'
-          }}
+          sx={{ fontSize: '2rem', marginBottom: '3rem' }}
         >
           Nothing interesting here, time to go
           <Link
@@ -54,7 +48,7 @@ const ErrorPage = () => {
               color: 'gold',
               marginLeft: '0.5rem',
               ':hover': { borderBottom: '0.2rem solid white' },
-              ':visited': { color: 'black' }
+              ':visited': { color: 'black' },
             }}
           >
             back
