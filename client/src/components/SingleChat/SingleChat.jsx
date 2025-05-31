@@ -22,7 +22,7 @@ import { socket } from '../../socket/socket';
 
 // Functions.
 import { getSender, getFullSender, truncateText } from '../../helpers/chatLogic';
-import { resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
+import { fetchChats, resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const authState = useSelector((state) => {
@@ -236,6 +236,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       dispatch(resetSelectedChatState(null));
       setNewMessage('');
+      setFetchAgain(!fetchAgain);
 
       socket.emit('room_leave', chatState.selectedChat._id, authState.user.username, authState.user._id);
     } catch (err) {
