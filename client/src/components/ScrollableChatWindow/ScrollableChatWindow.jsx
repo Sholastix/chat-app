@@ -22,6 +22,7 @@ import Lottie from 'react-lottie-player/dist/LottiePlayerLight';
 import typingAnimation from '../../assets/animations/typing.json';
 
 // MUI Icons.
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -178,6 +179,17 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
   const handleCancelEdit = () => {
     setMessageBeingEdited(null);
     setNewMessageContent('');
+  };
+
+  // 'Soft delete' of the specific message.
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      console.log('MESSAGE_DELETED: ', messageId);
+
+      handleMessageItemMenuClose();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -490,17 +502,6 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                         onClose={handleMessageItemMenuClose}
                       >
                         <MenuList disablePadding sx={{ width: '12rem' }}>
-                          {message.sender._id === userId && (
-                            <MenuItem
-                              sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                              onClick={() => handleEditMessage(message)}
-                            >
-                              <ListItemIcon>
-                                <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
-                              </ListItemIcon>
-                            </MenuItem>
-                          )}
-
                           <MenuItem
                             sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
                             onClick={() => {
@@ -512,6 +513,29 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                               <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
                             </ListItemIcon>
                           </MenuItem>
+
+                          {message.sender._id === userId && (
+                            <Fragment>
+                              <MenuItem
+                                divider
+                                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                onClick={() => handleEditMessage(message)}
+                              >
+                                <ListItemIcon>
+                                  <EditIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Edit
+                                </ListItemIcon>
+                              </MenuItem>
+
+                              <MenuItem
+                                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                onClick={() => handleDeleteMessage('SPECIFIC_MESSAGE_ID')}
+                              >
+                                <ListItemIcon>
+                                  <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Delete
+                                </ListItemIcon>
+                              </MenuItem>
+                            </Fragment>
+                          )}
                         </MenuList>
                       </Menu>
                     )}
