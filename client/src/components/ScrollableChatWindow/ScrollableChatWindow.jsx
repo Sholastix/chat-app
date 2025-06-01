@@ -303,13 +303,18 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                     <Button
                       variant='contained'
                       color='error'
+                      sx={{ fontFamily: 'Georgia', fontSize: '1.1rem' }}
                       onClick={handleCancelEdit}
-                      sx={{ color: 'white', fontFamily: 'Georgia' }}
                     >
                       Cancel
                     </Button>
 
-                    <Button variant='contained"'color='primary' onClick={() => handleSaveEdit(message.sender._id)}>
+                    <Button 
+                      variant='contained'
+                      color='primary'
+                      sx={{ fontFamily: 'Georgia', fontSize: '1.1rem' }}
+                      onClick={() => handleSaveEdit(message.sender._id)}
+                    >
                       Save
                     </Button>
                   </Box>

@@ -22,7 +22,7 @@ import { socket } from '../../socket/socket';
 
 // Functions.
 import { getSender, getFullSender, truncateText } from '../../helpers/chatLogic';
-import { fetchChats, resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
+import { resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const authState = useSelector((state) => {
