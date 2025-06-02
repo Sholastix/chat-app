@@ -9,14 +9,14 @@ const { truncateWithoutCuttingWord } = require('../helpers/chatLogic');
 // Fetch all messages for a specific chat.
 const fetchMessages = async (req, res) => {
   try {
-    const userId = req.userId;
+    // const userId = req.userId;
     
     // Chat ID from request params.
     const chatId = req.params.chatId;
 
     const messages = await MessageModel.find({ 
       chat: chatId,
-      deletedBy: { $ne: userId },
+      isDeleted: { $ne: true },
     })
       .populate('chat')
       .populate('sender', 'username email avatar')
@@ -159,7 +159,7 @@ const deleteMessage = async (req, res) => {
 
     const updatedMessage = await MessageModel.findByIdAndUpdate(
       messageId,
-      { $addToSet: { deletedBy: userId } },
+      { isDeleted: true },
       { new: true }
     )
       .populate('sender')
