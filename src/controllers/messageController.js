@@ -16,7 +16,7 @@ const fetchMessages = async (req, res) => {
 
     const messages = await MessageModel.find({ 
       chat: chatId,
-      isDeleted: { $ne: true },
+      // isDeleted: { $ne: true },
     })
       .populate('chat')
       .populate('sender', 'username email avatar')
