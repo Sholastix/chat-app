@@ -6,6 +6,7 @@ const authMdw = require('../../middleware/authMdw');
 
 // Functions.
 const {
+  deleteMessage,
   editMessage,
   fetchLinkPreview,
   fetchMessages,
@@ -31,5 +32,10 @@ router.post('/chat/message/linkPreview', authMdw, fetchLinkPreview);
 // @desc: Edit existed message.
 // @access: Private.
 router.put('/chat/message/:messageId', authMdw, editMessage);
+
+// @route: PUT /api/chat/message/delete/:messageId
+// @desc: 'Soft delete' of existed message.
+// @access: Private.
+router.put('/chat/message/delete/:messageId', authMdw, deleteMessage);
 
 module.exports = router;

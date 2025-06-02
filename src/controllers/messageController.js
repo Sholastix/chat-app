@@ -9,10 +9,15 @@ const { truncateWithoutCuttingWord } = require('../helpers/chatLogic');
 // Fetch all messages for a specific chat.
 const fetchMessages = async (req, res) => {
   try {
+    const userId = req.userId;
+    
     // Chat ID from request params.
     const chatId = req.params.chatId;
 
-    const messages = await MessageModel.find({ chat: chatId })
+    const messages = await MessageModel.find({ 
+      chat: chatId,
+      deletedBy: { $ne: userId },
+    })
       .populate('chat')
       .populate('sender', 'username email avatar')
       .populate({
@@ -140,7 +145,35 @@ const editMessage = async (req, res) => {
   }
 };
 
+// 'Soft delete' of existed message.
+const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { senderId } = req.body;
+    const userId = req.userId;
+
+    if (senderId !== userId) {
+      console.log('\nERROR: Wrong user, access denied.');
+      return;
+    }
+
+    const updatedMessage = await MessageModel.findByIdAndUpdate(
+      messageId,
+      { $addToSet: { deletedBy: userId } },
+      { new: true }
+    )
+      .populate('sender')
+      .populate('chat');
+
+    res.status(200).json(updatedMessage);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+};
+
 module.exports = {
+  deleteMessage,
   editMessage,
   fetchLinkPreview,
   fetchMessages,

@@ -47,7 +47,7 @@ import {
   truncateText,
 } from '../../helpers/chatLogic';
 
-const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessage, typingUser }) => {
+const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuotedMessage, typingUser }) => {
   const authState = useSelector((state) => {
     return state.authReducer;
   });
@@ -182,10 +182,17 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
   };
 
   // 'Soft delete' of the specific message.
-  const handleDeleteMessage = async (messageId) => {
+  const handleDeleteMessage = async (message) => {
     try {
-      console.log('MESSAGE_DELETED: ', messageId);
+      // Delete message from chat.
+      await axios.put(`/api/chat/message/delete/${message._id}`, 
+        { senderId: message.sender._id }
+      );
 
+      // Refresh messages in chat.
+      const { data } = await axios.get(`api/chat/messages/${chatId}`);
+
+      setMessages(data);
       handleMessageItemMenuClose();
     } catch (err) {
       console.error(err);
@@ -528,7 +535,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
 
                               <MenuItem
                                 sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                onClick={() => handleDeleteMessage('SPECIFIC_MESSAGE_ID')}
+                                onClick={() => handleDeleteMessage(message)}
                               >
                                 <ListItemIcon>
                                   <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Delete

@@ -440,6 +440,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <ScrollableChatWindow
                 isTyping={isTyping}
+                chatId={chatState.selectedChat._id}
                 messages={messages}
                 setMessages={setMessages}
                 setQuotedMessage={setQuotedMessage}
