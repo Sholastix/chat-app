@@ -9,15 +9,10 @@ const { truncateWithoutCuttingWord } = require('../helpers/chatLogic');
 // Fetch all messages for a specific chat.
 const fetchMessages = async (req, res) => {
   try {
-    // const userId = req.userId;
-    
     // Chat ID from request params.
     const chatId = req.params.chatId;
 
-    const messages = await MessageModel.find({ 
-      chat: chatId,
-      // isDeleted: { $ne: true },
-    })
+    const messages = await MessageModel.find({ chat: chatId })
       .populate('chat')
       .populate('sender', 'username email avatar')
       .populate({

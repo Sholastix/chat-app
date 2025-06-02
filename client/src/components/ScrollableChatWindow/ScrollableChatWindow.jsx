@@ -184,13 +184,25 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
   // 'Soft delete' of the specific message.
   const handleDeleteMessage = async (message) => {
     try {
-      // Delete message from chat.
-      await axios.put(`/api/chat/message/delete/${message._id}`, { senderId: message.sender._id });
+      if (socket.connected) {
+        // Preferred: real-time update (emit via socket, no axios call needed here if socket is used).
+        socket.emit('message_delete', message);
+      } else {
+        // Fallback: persist via REST.
+        // Delete message from chat.
+        await axios.put(`/api/chat/message/delete/${message._id}`, 
+          { 
+            chatId: chatId, 
+            senderId: message.sender._id,
+          }
+        );
+  
+        // Refresh messages in chat.
+        const { data } = await axios.get(`api/chat/messages/${chatId}`);
 
-      // Refresh messages in chat.
-      const { data } = await axios.get(`api/chat/messages/${chatId}`);
+        setMessages(data);
+      }
 
-      setMessages(data);
       handleMessageItemMenuClose();
     } catch (err) {
       console.error(err);

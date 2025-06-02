@@ -217,6 +217,24 @@ const socket = (server) => {
         }
       });
 
+      // Listen for 'message delete' event from frontend.
+      socket.on('message_delete', async (message) => {
+        try {
+          const updatedMessage = await MessageModel.findByIdAndUpdate(
+            message._id,
+            { isDeleted: true },
+            { new: true }
+          )
+            .populate('sender')
+            .populate('chat');
+
+          // Notify all users in the chat room about the updated message.
+          io.to(message.chat._id).emit('message_deleted', updatedMessage);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+
       // User disconnects from the app.
       socket.on('disconnect', async () => {
         console.log(`SOCKET_DISCONNECTED: user with socketId '${socket.id}'.`);
