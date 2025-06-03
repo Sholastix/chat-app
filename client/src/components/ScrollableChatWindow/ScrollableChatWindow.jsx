@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, Fragment } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
   Avatar,
@@ -46,11 +46,15 @@ import {
   linkifyAndSanitize,
   truncateText,
 } from '../../helpers/chatLogic';
+import { updateChatLastMessage } from '../../features/chat/chatSlice';
+
 
 const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuotedMessage, typingUser }) => {
   const authState = useSelector((state) => {
     return state.authReducer;
   });
+
+  const dispatch = useDispatch();
 
   // Current user's ID.
   const userId = authState.user._id;
@@ -190,17 +194,17 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
       } else {
         // Fallback: persist via REST.
         // Delete message from chat.
-        await axios.put(`/api/chat/message/delete/${message._id}`, 
-          { 
-            chatId: chatId, 
-            senderId: message.sender._id,
-          }
-        );
-  
-        // Refresh messages in chat.
-        const { data } = await axios.get(`api/chat/messages/${chatId}`);
+        const { data: updatedChat } = await axios.put(`/api/chat/message/delete/${message._id}`, {
+          senderId: message.sender._id,
+        });
 
-        setMessages(data);
+        // This will update the preview in Redux.
+        dispatch(updateChatLastMessage(updatedChat));
+
+        // Optionally refresh messages.
+        const { data: updatedMessages } = await axios.get(`/api/chat/messages/${updatedChat._id}`);
+      
+        setMessages(updatedMessages);
       }
 
       handleMessageItemMenuClose();

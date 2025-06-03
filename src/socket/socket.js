@@ -220,18 +220,41 @@ const socket = (server) => {
       // Listen for 'message delete' event from frontend.
       socket.on('message_delete', async (message) => {
         try {
-          const updatedMessage = await MessageModel.findByIdAndUpdate(
-            message._id,
-            { isDeleted: true },
-            { new: true }
-          )
+          // Soft-delete the message.
+          const updatedMessage = await MessageModel.findByIdAndUpdate(message._id, { isDeleted: true }, { new: true })
             .populate('sender')
             .populate('chat');
 
-          // Notify all users in the chat room about the updated message.
+          // Notify all users in the chat room that a message was deleted.
           io.to(message.chat._id).emit('message_deleted', updatedMessage);
+
+          // Find the newest non-deleted message in the same chat
+          const lastVisibleMessage = await MessageModel.findOne({
+            chat: message.chat._id,
+            isDeleted: false,
+          })
+            .sort({ createdAt: -1 }) // Get the latest message.
+            .populate('sender', '_id username avatar');
+
+          // Update the chat’s lastMessage field with the last visible message (or null).
+          const updatedChat = await ChatModel.findByIdAndUpdate(
+            message.chat._id,
+            { lastMessage: lastVisibleMessage ? lastVisibleMessage._id : null },
+            { new: true }
+          )
+            .populate({
+              path: 'lastMessage',
+              populate: {
+                path: 'sender',
+                select: '_id username avatar',
+              },
+            })
+            .populate('users', '_id username avatar');
+
+          // Emit updated chat to update chat preview in real-time.
+          io.to(message.chat._id).emit('chat_last_message_update', updatedChat);
         } catch (err) {
-          console.error(err);
+          console.error('Socket delete error:', err);
         }
       });
 

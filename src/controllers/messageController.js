@@ -141,6 +141,32 @@ const editMessage = async (req, res) => {
 };
 
 // 'Soft delete' of existed message.
+// const deleteMessage = async (req, res) => {
+//   try {
+//     const { messageId } = req.params;
+//     const { senderId } = req.body;
+//     const userId = req.userId;
+
+//     if (senderId !== userId) {
+//       console.log('\nERROR: Wrong user, access denied.');
+//       return;
+//     }
+
+//     const updatedMessage = await MessageModel.findByIdAndUpdate(
+//       messageId,
+//       { isDeleted: true },
+//       { new: true }
+//     )
+//       .populate('sender')
+//       .populate('chat');
+
+//     res.status(200).json(updatedMessage);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Server error', message: err.message });
+//   }
+// };
+
 const deleteMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
@@ -149,20 +175,47 @@ const deleteMessage = async (req, res) => {
 
     if (senderId !== userId) {
       console.log('\nERROR: Wrong user, access denied.');
-      return;
+      return res.status(403).json({ error: 'Wrong user, access denied.' });
     }
 
-    const updatedMessage = await MessageModel.findByIdAndUpdate(
-      messageId,
-      { isDeleted: true },
+    // Soft-delete the message.
+    await MessageModel.findByIdAndUpdate(messageId, { isDeleted: true });
+
+    // Get deleted message and its chat.
+    const deletedMessage = await MessageModel.findById(messageId);
+
+    if (!deletedMessage) {
+      return res.status(404).json({ error: 'Message not found.' });
+    }
+
+    const chatId = deletedMessage.chat;
+
+    // Find latest non-deleted message in that chat.
+    const lastVisibleMessage = await MessageModel.findOne({
+      chat: chatId,
+      isDeleted: false,
+    })
+      .sort({ createdAt: -1 })
+      .populate('sender', '_id username avatar');
+
+    // Update chat's 'lastMessage' property.
+    const updatedChat = await ChatModel.findByIdAndUpdate(
+      chatId,
+      { lastMessage: lastVisibleMessage ? lastVisibleMessage._id : null },
       { new: true }
     )
-      .populate('sender')
-      .populate('chat');
+      .populate({
+        path: 'lastMessage',
+        populate: {
+          path: 'sender',
+          select: '_id username avatar',
+        },
+      })
+      .populate('users', '_id username avatar');
 
-    res.status(200).json(updatedMessage);
+    res.status(200).json(updatedChat);
   } catch (err) {
-    console.error(err);
+    console.error('Error in deleteMessage:', err);
     res.status(500).json({ error: 'Server error', message: err.message });
   }
 };
