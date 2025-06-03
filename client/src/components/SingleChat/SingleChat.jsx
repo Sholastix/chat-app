@@ -114,7 +114,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     socket.on('message_deleted', (deletedMessage) => {
       setMessages((prevMessages) =>
-        prevMessages.filter((msg) => msg._id !== deletedMessage._id)
+        prevMessages.map((msg) =>
+          msg._id === deletedMessage._id
+            ? {
+                ...msg,
+                isDeleted: deletedMessage.isDeleted,
+              }
+            : msg
+        )
       );
     });
 
