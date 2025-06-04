@@ -149,11 +149,37 @@ const fetchChat = async (req, res) => {
   try {
     const chatId = req.params.chatId;
 
-    const chat = await ChatModel.findOne({ _id: chatId })
+    // const chat = await ChatModel.findOne({ _id: chatId })
+    //   .populate('users', '-password')
+    //   .populate('groupAdmin', '-password');
+
+    // res.status(200).json(chat);
+
+    // Find latest non-deleted message in that chat.
+    const lastVisibleMessage = await MessageModel.findOne({
+      chat: chatId,
+      isDeleted: false,
+    })
+      .sort({ createdAt: -1 })
+      .populate('sender', '_id username avatar');
+
+    // Update chat's 'lastMessage' property.
+    const updatedChat = await ChatModel.findByIdAndUpdate(
+      chatId,
+      { lastMessage: lastVisibleMessage ? lastVisibleMessage._id : null },
+      { new: true }
+    )
+      .populate({
+        path: 'lastMessage',
+        populate: {
+          path: 'sender',
+          select: '_id username avatar',
+        },
+      })
       .populate('users', '-password')
       .populate('groupAdmin', '-password');
 
-    res.status(200).json(chat);
+    res.status(200).json(updatedChat);
   } catch (err) {
     console.error(err);
     res.status(500).json(`Server error: ${err.message}`);
