@@ -27,6 +27,8 @@ import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ReplyIcon from '@mui/icons-material/Reply';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 // Components.
 import ScrollToBottomButton from '../ScrollToBottomButton/ScrollToBottomButton';
@@ -158,7 +160,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
         socket.emit('message_edit', editedMessage);
       } else {
         // Fallback: persist via REST.
-        await axios.put(`/api/chat/message/${editedMessage._id}`, {
+        await axios.put(`/api/chat/message/edit/${editedMessage._id}`, {
           content: editedMessage.content,
           senderId: editedMessage.sender._id,
           isEdited: true,
@@ -183,6 +185,48 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
   const handleCancelEdit = () => {
     setMessageBeingEdited(null);
     setNewMessageContent('');
+  };
+
+  // Hide existing message in chat.
+  const handleHideMessage = async (message) => {
+    try {
+        if (socket.connected) {
+        // Preferred: real-time update (emit via socket, no axios call needed here if socket is used).
+        socket.emit('message_hide', message);
+      } else {
+        const { data: hiddenMessage } = await axios.put(`/api/chat/message/hide/${message._id}`);
+  
+        // Refresh messages in chat.
+        const { data: updatedMessages } = await axios.get(`/api/chat/messages/${hiddenMessage.chat}`);
+        
+        setMessages(updatedMessages);
+      }
+
+      handleMessageItemMenuClose();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Redisplay a hidden existing message in chat.
+  const handleUnhideMessage = async (message) => {
+    try {
+      if (socket.connected) {
+        // Preferred: real-time update (emit via socket, no axios call needed here if socket is used).
+        socket.emit('message_unhide', message);
+      } else {
+        const { data: unhiddenMessage } = await axios.put(`/api/chat/message/unhide/${message._id}`);
+  
+        // Refresh messages in chat.
+        const { data: updatedMessages } = await axios.get(`/api/chat/messages/${unhiddenMessage.chat}`);
+  
+        setMessages(updatedMessages);
+      }
+
+      handleMessageItemMenuClose();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // 'Soft delete' of the specific message.
@@ -576,7 +620,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                           <Box
                             component='span'
                             sx={{ display: 'inline' }}
-                            dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.content) }}
+                            dangerouslySetInnerHTML={{ __html: linkifyAndSanitize(message.hiddenBy.includes(userId) ? 'This message has been hidden.' : message.content) }}
                           />
 
                           {message.isEdited && (
@@ -649,19 +693,38 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                           onClose={handleMessageItemMenuClose}
                         >
                           <MenuList disablePadding sx={{ width: '12rem' }}>
-                            <MenuItem
-                              sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                              onClick={() => {
-                                setQuotedMessage(message);
-                                handleMessageItemMenuClose();
-                              }}
-                            >
-                              <ListItemIcon>
-                                <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
-                              </ListItemIcon>
-                            </MenuItem>
+                            {!message.hiddenBy.includes(userId) &&
+                              <MenuItem
+                                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                onClick={() => setQuotedMessage(message)}
+                              >
+                                <ListItemIcon>
+                                  <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
+                                </ListItemIcon>
+                              </MenuItem>
+                            }
 
-                            {message.sender._id === userId && (
+                            {message.hiddenBy.includes(userId) ? (
+                              <MenuItem
+                                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                onClick={() => handleUnhideMessage(message)}
+                              >
+                                <ListItemIcon>
+                                  <VisibilityIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Unhide
+                                </ListItemIcon>
+                              </MenuItem>
+                            ) : (
+                              <MenuItem
+                                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                                onClick={() => handleHideMessage(message)}
+                              >
+                                <ListItemIcon>
+                                  <VisibilityOffIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
+                                </ListItemIcon>
+                              </MenuItem>
+                            )}
+
+                            {message.sender._id === userId && !message.hiddenBy.includes(userId) && (
                               <Fragment>
                                 <MenuItem
                                   divider

@@ -140,32 +140,59 @@ const editMessage = async (req, res) => {
   }
 };
 
-// 'Soft delete' of existed message.
-// const deleteMessage = async (req, res) => {
-//   try {
-//     const { messageId } = req.params;
-//     const { senderId } = req.body;
-//     const userId = req.userId;
+// Hide existing message in chat for current user.
+const hideMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.userId;
 
-//     if (senderId !== userId) {
-//       console.log('\nERROR: Wrong user, access denied.');
-//       return;
-//     }
+    // Hide the message.
+    const hiddenMessage = await MessageModel.findByIdAndUpdate(
+      messageId,
+      { $addToSet: { hiddenBy: userId } },
+      {
+        new: true,
+        timestamps: false, // Prevent updating 'updatedAt' property.
+      }
+    );
 
-//     const updatedMessage = await MessageModel.findByIdAndUpdate(
-//       messageId,
-//       { isDeleted: true },
-//       { new: true }
-//     )
-//       .populate('sender')
-//       .populate('chat');
+    if (!hiddenMessage) {
+      return res.status(404).json({ error: 'Message not found.' });
+    }
 
-//     res.status(200).json(updatedMessage);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: 'Server error', message: err.message });
-//   }
-// };
+    res.status(200).json(hiddenMessage);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+};
+
+// Redisplay a hidden existing message in chat for current user.
+const unhideMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.userId;
+
+    // Unhide the message.
+    const unhiddenMessage = await MessageModel.findByIdAndUpdate(
+      messageId,
+      { $pull: { hiddenBy: userId } },
+      {
+        new: true,
+        timestamps: false, // Prevent updating 'updatedAt' property.
+      }
+    );
+
+    if (!unhiddenMessage) {
+      return res.status(404).json({ error: 'Message not found.' });
+    }
+
+    res.status(200).json(unhiddenMessage);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+};
 
 const deleteMessage = async (req, res) => {
   try {
@@ -215,7 +242,7 @@ const deleteMessage = async (req, res) => {
 
     res.status(200).json(updatedChat);
   } catch (err) {
-    console.error('Error in deleteMessage:', err);
+    console.error(err);
     res.status(500).json({ error: 'Server error', message: err.message });
   }
 };
@@ -225,5 +252,7 @@ module.exports = {
   editMessage,
   fetchLinkPreview,
   fetchMessages,
+  hideMessage,
   sendMessage,
+  unhideMessage,
 };

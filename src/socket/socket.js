@@ -217,7 +217,51 @@ const socket = (server) => {
         }
       });
 
-      // Listen for 'message delete' event from frontend.
+      // Listen for 'message_hide' event from frontend.
+      socket.on('message_hide', async (message) => {
+        try {
+          // Hide the message.
+          const hiddenMessage = await MessageModel.findByIdAndUpdate(
+            message._id,
+            { $addToSet: { hiddenBy: userId } },
+            {
+              new: true,
+              timestamps: false, // Prevent updating 'updatedAt' property.
+            }
+          )
+            .populate('sender')
+            .populate('chat');
+
+          // Emit hidden message to update chat in real-time.
+          io.to(message.chat._id).emit('message_hidden', hiddenMessage);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+
+      // Listen for 'message_unhide' event from frontend.
+      socket.on('message_unhide', async (message) => {
+        try {
+          // Hide the message.
+          const unhiddenMessage = await MessageModel.findByIdAndUpdate(
+            message._id,
+            { $pull: { hiddenBy: userId } },
+            {
+              new: true,
+              timestamps: false, // Prevent updating 'updatedAt' property.
+            }
+          )
+            .populate('sender')
+            .populate('chat');
+
+          // Emit unhidden message to update chat in real-time.
+          io.to(message.chat._id).emit('message_unhidden', unhiddenMessage);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+
+      // Listen for 'message_delete' event from frontend.
       socket.on('message_delete', async (message) => {
         try {
           // Soft-delete the message.

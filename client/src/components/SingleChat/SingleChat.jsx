@@ -112,6 +112,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       );
     });
 
+    socket.on('message_hidden', (hiddenMessage) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg._id === hiddenMessage._id
+            ? hiddenMessage
+            : msg
+        )
+      );
+    });
+
+    socket.on('message_unhidden', (unhiddenMessage) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg._id === unhiddenMessage._id
+            ? unhiddenMessage
+            : msg
+        )
+      );
+    });
+
     socket.on('message_deleted', (deletedMessage) => {
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
@@ -139,6 +159,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.off('mark_one_message_as_read');
       socket.off('mark_all_messages_as_read');
       socket.off('message_edited');
+      socket.off('message_hidden');
+      socket.off('message_unhidden');
       socket.off('message_deleted');
       socket.off('disconnect');
 

@@ -36,6 +36,14 @@ const messageSchema = new mongoose.Schema(
       default: false,
     },
 
+    hiddenBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+      },
+    ],
+
     isDeleted: {
       type: Boolean,
       default: false,
