@@ -18,7 +18,7 @@ import ListLoading from '../ListLoading/ListLoading';
 import { socket } from '../../socket/socket';
 
 // Functions.
-import { getFullSender, getSender, truncateText } from '../../helpers/chatLogic';
+import { getFullSender, getSender, replaceEmoticons, replaceShortcodes, truncateText } from '../../helpers/chatLogic';
 import { fetchChats, fetchChat, updateChatLastMessage } from '../../features/chat/chatSlice';
 
 const ChatsList = (props) => {
@@ -151,6 +151,17 @@ const ChatsList = (props) => {
     ? [...chatState.chats].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
     : [];
 
+  // Replace ASCII-style emoticons and emoji shortcodes with emojis.
+  const emojiTransformer = (text) => {
+    // Replace ASCII-style emoticons with emojis.
+    const emoticonsToEmoji = replaceEmoticons(text);
+    
+    // Get result from previous step and replace emoji shortcodes with emojis in it.
+    const emoticonsAndShortcodesToEmoji = replaceShortcodes(emoticonsToEmoji);
+
+    return emoticonsAndShortcodesToEmoji;
+  };
+
   return (
     <Box
       sx={{
@@ -282,7 +293,7 @@ const ChatsList = (props) => {
                             chat.lastMessage.sender._id === authState.user._id
                               ? 'You'
                               : chat.lastMessage.sender.username
-                          }: ${truncateText(chat.lastMessage.content, 40)}`
+                          }: ${truncateText(emojiTransformer(chat.lastMessage.content), 40)}`
                         ) : (
                           <Typography
                             sx={{

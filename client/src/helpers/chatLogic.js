@@ -196,7 +196,7 @@ const emoticonMap = {
 };
 
 // Replace ASCII-style emoticons (e.g. :)) with emojis.
-const replaceEmoticons = (text) => {
+export const replaceEmoticons = (text) => {
   const pattern = new RegExp(
     Object.keys(emoticonMap)
       .map((element) => element.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
@@ -208,7 +208,7 @@ const replaceEmoticons = (text) => {
 };
 
 // Replace emoji shortcodes (e.g. :heart:) with emojis.
-const replaceShortcodes = (text) => {
+export const replaceShortcodes = (text) => {
   return text.replace(/:([a-zA-Z0-9_+-]+):/g, (match, name) => {
     const emojiChar = emoji.getUnicode(name);
 
