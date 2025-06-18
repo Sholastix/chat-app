@@ -174,9 +174,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket.on('message_received', async (data) => {
-      // Incoming message will have pop-up sound (only if the chat window is unfocused).
-      !document.hasFocus() && messageNotificationSound();
-
+      // Incoming message will have pop-up sound (only if the chat window is unfocused or hidden).
+      if (!document.hasFocus() || document.visibilityState === 'hidden') {
+        messageNotificationSound();
+      }
+      
       setMessages((prevMessages) => [...prevMessages, data]);
       setIsTyping(false);
       setTypingUser('');
