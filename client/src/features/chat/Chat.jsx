@@ -8,6 +8,9 @@ import ChatsList from '../../components/ChatsList/ChatsList';
 import Header from '../../components/Header/Header';
 import Spinner from '../../components/Spinner/Spinner';
 
+// Hooks.
+import { useAuthGuard } from '../../hooks/useAuthGuard';
+
 const Chat = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
 
@@ -15,6 +18,9 @@ const Chat = () => {
   const authState = useSelector((state) => {
     return state.authReducer;
   });
+
+  // Check auth token.
+  useAuthGuard();
 
   return (
     <Fragment>
