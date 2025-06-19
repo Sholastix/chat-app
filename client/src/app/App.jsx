@@ -35,7 +35,7 @@ const App = () => {
     <Fragment>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Navigate replace to='/chat' />} />
+          <Route path='/' element={<Navigate replace to='/signin' />} />
           <Route element={<ProtectedRoutes />}>
             <Route path='/chat' element={<Chat />} />
             <Route path='/profile' element={<UserProfilePage />} />
