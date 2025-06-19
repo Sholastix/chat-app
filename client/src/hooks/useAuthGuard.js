@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
@@ -30,27 +30,28 @@ export const useAuthGuard = () => {
   const navigate = useNavigate();
 
   // Case 1: No token at all.
-  const handleNoToken = () => {
+  const handleNoToken = useCallback(() => {
     console.warn('No token found — redirecting to \'Signin\' page.');
     dispatch(signout());
     navigate('/signin', { replace: true });
-  };
+  }, [dispatch, navigate]);
 
   // Case 2: Token is expired.
-  const handleExpiredToken = () => {
+  const handleExpiredToken = useCallback(() => {
     console.warn('Token expired — redirecting to \'Signin\' page.');
     dispatch(signout());
     navigate('/signin', { replace: true });
-  };
+  }, [dispatch, navigate]);
 
   // Case 3: Invalid token format.
-  const handleInvalidToken = (err) => {
+  const handleInvalidToken = useCallback((err) => {
     console.error('Invalid token — redirecting to \'Signin\' page.', err);
     dispatch(signout());
     navigate('/signin', { replace: true });
-  };
+  }, [dispatch, navigate]);
 
-  useEffect(() => {
+  // All-in-one token check.
+  const tokenCheck = useCallback(() => {
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -69,5 +70,9 @@ export const useAuthGuard = () => {
     } catch (err) {
       handleInvalidToken(err);
     }
-  }, [dispatch, navigate]);
+  }, [handleNoToken, handleExpiredToken, handleInvalidToken]);
+
+  useEffect(() => {
+    tokenCheck();
+  }, [tokenCheck]);
 };
