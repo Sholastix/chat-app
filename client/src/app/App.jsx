@@ -1,16 +1,17 @@
-import { useEffect, Fragment } from 'react';
+import { useEffect, useCallback, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import './App.css';
 
-// Components.
-import Chat from '../features/chat/Chat';
-import ErrorPage from '../components/ErrorPage/ErrorPage';
-import ProtectedRoutes from '../components/ProtectedRoutes/ProtectedRoutes';
-import Signin from '../features/auth/signin/Signin';
-import Signup from '../features/auth/signup/Signup';
-import UserProfilePage from '../components/UserProfilePage/UserProfilePage';
+// Components (lazy-loaded).
+import Spinner from '../components/Spinner/Spinner';
+const Chat = lazy(() => import('../features/chat/Chat'));
+const ErrorPage = lazy(() => import('../components/ErrorPage/ErrorPage'));
+const ProtectedRoutes = lazy(() => import('../components/ProtectedRoutes/ProtectedRoutes'));
+const Signin = lazy(() => import('../features/auth/signin/Signin'));
+const Signup = lazy(() => import('../features/auth/signup/Signup'));
+const UserProfilePage = lazy(() => import('../components/UserProfilePage/UserProfilePage'));
 
 // Functions.
 import { isUserSignedIn, signout } from '../features/auth/authSlice';
@@ -18,22 +19,22 @@ import { isUserSignedIn, signout } from '../features/auth/authSlice';
 const App = () => {
   const dispatch = useDispatch();
 
-  const bootstrapAuth = async () => {
+  const bootstrapAuth = useCallback(async () => {
     try {
-      await dispatch(isUserSignedIn()).unwrap(); // Use unwrap to catch errors.
+      await dispatch(isUserSignedIn()).unwrap();
     } catch (error) {
       console.warn('Auto sign-in failed. Clearing token and resetting auth.');
-      dispatch(signout()); // Clean up bad token.
+      dispatch(signout());
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     bootstrapAuth();
-  }, [dispatch]);
+  }, [bootstrapAuth]);
 
   return (
-    <Fragment>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Suspense fallback={<Spinner />}>
         <Routes>
           <Route path='/' element={<Navigate replace to='/signin' />} />
           <Route element={<ProtectedRoutes />}>
@@ -44,8 +45,8 @@ const App = () => {
           <Route path='/signup' element={<Signup />} />
           <Route path='*' element={<ErrorPage />} />
         </Routes>
-      </BrowserRouter>
-    </Fragment>
+      </Suspense>
+    </BrowserRouter>
   );
 };
 
