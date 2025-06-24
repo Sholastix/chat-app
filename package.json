@@ -7,7 +7,8 @@
     "dev": "nodemon ./src/main.js",
     "frontend-build": "cd ./client && npm ci --include=dev && npm run build",
     "backend-build": "npm ci",
-    "build": "npm run frontend-build && npm run backend-build"
+    "build": "npm run frontend-build && npm run backend-build",
+    "cleanup": "node src/scripts/fullCleanup.js"
   },
   "keywords": [],
   "author": "",
