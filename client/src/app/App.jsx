@@ -12,6 +12,9 @@ import Signin from '../features/auth/signin/Signin';
 import Signup from '../features/auth/signup/Signup';
 import UserProfilePage from '../components/UserProfilePage/UserProfilePage';
 
+// Constants.
+import { ROUTES } from '../constants/routes';
+
 // Functions.
 import { isUserSignedIn, signout } from '../features/auth/authSlice';
 
@@ -32,20 +35,18 @@ const App = () => {
   }, [dispatch]);
 
   return (
-    <Fragment>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Navigate replace to='/signin' />} />
-          <Route element={<ProtectedRoutes />}>
-            <Route path='/chat' element={<Chat />} />
-            <Route path='/profile' element={<UserProfilePage />} />
-          </Route>
-          <Route path='/signin' element={<Signin />} />
-          <Route path='/signup' element={<Signup />} />
-          <Route path='*' element={<ErrorPage />} />
-        </Routes>
-      </BrowserRouter>
-    </Fragment>
+    <BrowserRouter>
+      <Routes>
+        <Route path={ROUTES.ROOT} element={<Navigate replace to={ROUTES.SIGNIN} />} />
+        <Route element={<ProtectedRoutes />}>
+          <Route path={ROUTES.CHAT} element={<Chat />} />
+          <Route path={ROUTES.PROFILE} element={<UserProfilePage />} />
+        </Route>
+        <Route path={ROUTES.SIGNIN} element={<Signin />} />
+        <Route path={ROUTES.SIGNUP} element={<Signup />} />
+        <Route path={ROUTES.NOT_FOUND} element={<ErrorPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 
