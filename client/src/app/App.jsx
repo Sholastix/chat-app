@@ -6,6 +6,8 @@ import './App.css';
 
 // Components.
 import Chat from '../features/chat/Chat';
+import ErrorBoundary from '../components/ErrorBoundary/ErrorBoundary';
+import ErrorPage from '../components/ErrorPage/ErrorPage';
 import PageNotFound from '../components/PageNotFound/PageNotFound';
 import ProtectedRoutes from '../components/ProtectedRoutes/ProtectedRoutes';
 import Signin from '../features/auth/signin/Signin';
@@ -38,13 +40,50 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path={ROUTES.ROOT} element={<Navigate replace to={ROUTES.SIGNIN} />} />
-        <Route element={<ProtectedRoutes />}>
-          <Route path={ROUTES.CHAT} element={<Chat />} />
-          <Route path={ROUTES.PROFILE} element={<UserProfilePage />} />
-        </Route>
-        <Route path={ROUTES.SIGNIN} element={<Signin />} />
-        <Route path={ROUTES.SIGNUP} element={<Signup />} />
-        <Route path={ROUTES.NOT_FOUND} element={<PageNotFound />} />
+        <Route
+          path={ROUTES.CHAT}
+          element={
+            <ProtectedRoutes>
+              <ErrorBoundary fallback={<ErrorPage />}>
+                <Chat />
+              </ErrorBoundary>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path={ROUTES.PROFILE}
+          element={
+            <ProtectedRoutes>
+              <ErrorBoundary fallback={<ErrorPage />}>
+                <UserProfilePage />
+              </ErrorBoundary>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path={ROUTES.SIGNIN}
+          element={
+            <ErrorBoundary fallback={<ErrorPage />}>
+              <Signin />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path={ROUTES.SIGNUP}
+          element={
+            <ErrorBoundary fallback={<ErrorPage />}>
+              <Signup />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path={ROUTES.NOT_FOUND}
+          element={
+            <ErrorBoundary fallback={<ErrorPage />}>
+              <PageNotFound />
+            </ErrorBoundary>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
