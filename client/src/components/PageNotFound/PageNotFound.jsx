@@ -1,62 +1,66 @@
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { Box, Link, Typography } from '@mui/material';
 
-const PageNotFound = () => {
-  return (
-    <Box
+const PageNotFound = () => (
+  <Box
+    component='div'
+    sx={{
+      alignItems: 'center',
+      backgroundColor: 'rgb(93, 109, 126)',
+      color: 'white',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      justifyContent: 'center',
+      padding: '5rem',
+      width: '100vw',
+    }}
+  >
+    <Typography
       component='div'
       sx={{
-        alignItems: 'center',
-        backgroundColor: 'rgb(93, 109, 126)',
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        width: '100vw',
+        fontFamily: 'Roboto',
+        fontSize: { xs: '15rem', md: '25rem', lg: '35rem' },
       }}
     >
-      <Typography
-        component='div'
-        sx={{ fontSize: '30rem', margin: '10rem 0rem' }}
-      >
-        404
-      </Typography>
+      404
+    </Typography>
 
-      <div>
-        <Box
-          component='div'
+    <Box component='div'>
+      <Box
+        component='div'
+        sx={{
+          fontFamily: 'Roboto',
+          fontSize: { xs: '3rem', md: '4rem' },
+          fontWeight: 'bold',
+          textAlign: 'center',
+        }}
+      >
+        Page not found.
+      </Box>
+
+      <Box 
+        component='p' 
+        sx={{ fontFamily: 'Roboto', fontSize: '2rem', marginTop: '2rem' }}
+      >
+        Nothing interesting here, time to go
+        <Link
+          component={ReactRouterLink}
+          to='/'
           sx={{
-            fontSize: '3rem',
-            fontWeight: 'bold',
-            marginBottom: '5rem',
-            textAlign: 'center',
+            color: 'gold',
+            fontFamily: 'Roboto',
+            marginLeft: '0.5rem',
+            textDecoration: 'none',
+            ':hover': { borderBottom: '0.2rem solid white' },
+            ':visited': { color: 'black' },
           }}
         >
-          PAGE NOT FOUND
-        </Box>
-
-        <Box
-          component='p'
-          sx={{ fontSize: '2rem', marginBottom: '3rem' }}
-        >
-          Nothing interesting here, time to go
-          <Link
-            component={ReactRouterLink}
-            to='/'
-            sx={{
-              textDecoration: 'none',
-              color: 'gold',
-              marginLeft: '0.5rem',
-              ':hover': { borderBottom: '0.2rem solid white' },
-              ':visited': { color: 'black' },
-            }}
-          >
-            back
-          </Link>
-        </Box>
-      </div>
+          back
+        </Link>
+      </Box>
     </Box>
-  );
-};
+  </Box>
+);
 
 export default PageNotFound;
