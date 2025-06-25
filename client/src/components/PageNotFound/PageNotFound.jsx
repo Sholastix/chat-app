@@ -1,7 +1,7 @@
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { Box, Link, Typography } from '@mui/material';
 
-const ErrorPage = () => {
+const PageNotFound = () => {
   return (
     <Box
       component='div'
@@ -59,4 +59,4 @@ const ErrorPage = () => {
   );
 };
 
-export default ErrorPage;
+export default PageNotFound;
