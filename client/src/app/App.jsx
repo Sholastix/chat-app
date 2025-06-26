@@ -1,18 +1,21 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import './App.css';
 
 // Components.
-import Chat from '../features/chat/Chat';
 import ErrorBoundary from '../components/ErrorBoundary/ErrorBoundary';
 import ErrorPage from '../components/ErrorPage/ErrorPage';
-import PageNotFound from '../components/PageNotFound/PageNotFound';
-import ProtectedRoutes from '../components/ProtectedRoutes/ProtectedRoutes';
-import Signin from '../features/auth/signin/Signin';
-import Signup from '../features/auth/signup/Signup';
-import UserProfilePage from '../components/UserProfilePage/UserProfilePage';
+import Spinner from '../components/Spinner/Spinner';
+
+// Components (lazy-loaded).
+const Chat = lazy(() => import('../features/chat/Chat'));
+const PageNotFound = lazy(() => import('../components/PageNotFound/PageNotFound'));
+const ProtectedRoutes = lazy(() => import('../components/ProtectedRoutes/ProtectedRoutes'));
+const Signin = lazy(() => import('../features/auth/signin/Signin'));
+const Signup = lazy(() => import('../features/auth/signup/Signup'));
+const UserProfilePage = lazy(() => import('../components/UserProfilePage/UserProfilePage'));
 
 // Constants.
 import { ROUTES } from '../constants/routes';
@@ -26,7 +29,7 @@ const App = () => {
   const bootstrapAuth = async () => {
     try {
       await dispatch(isUserSignedIn()).unwrap(); // Use unwrap to catch errors.
-    } catch (error) {
+    } catch (err) {
       console.warn('Auto sign-in failed. Clearing token and resetting auth.');
       dispatch(signout()); // Clean up bad token.
     }
@@ -45,7 +48,9 @@ const App = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary fallback={<ErrorPage />}>
-                <Chat />
+                <Suspense fallback={<Spinner />}>
+                  <Chat />
+                </Suspense>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -55,7 +60,9 @@ const App = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary fallback={<ErrorPage />}>
-                <UserProfilePage />
+                <Suspense fallback={<Spinner />}>
+                  <UserProfilePage />
+                </Suspense>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -64,7 +71,9 @@ const App = () => {
           path={ROUTES.SIGNIN}
           element={
             <ErrorBoundary fallback={<ErrorPage />}>
-              <Signin />
+              <Suspense fallback={<Spinner />}>
+                <Signin />
+              </Suspense>
             </ErrorBoundary>
           }
         />
@@ -72,7 +81,9 @@ const App = () => {
           path={ROUTES.SIGNUP}
           element={
             <ErrorBoundary fallback={<ErrorPage />}>
-              <Signup />
+              <Suspense fallback={<Spinner />}>
+                <Signup />
+              </Suspense>
             </ErrorBoundary>
           }
         />
@@ -80,7 +91,9 @@ const App = () => {
           path={ROUTES.NOT_FOUND}
           element={
             <ErrorBoundary fallback={<ErrorPage />}>
-              <PageNotFound />
+              <Suspense fallback={<Spinner />}>
+                <PageNotFound />
+              </Suspense>
             </ErrorBoundary>
           }
         />
