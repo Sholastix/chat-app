@@ -49,21 +49,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const typingTimeoutRef = useRef(null);
 
-  // User connects to the app.
   useEffect(() => {
-    console.log('SOCKET_STATUS: ', socket.connected);
-
-    // Connect to socket server.
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    socket.on('connected', (data) => {
-      console.log('CONNECTED: ', data);
-    });
-
-    socket.emit('user_add', authState.user);
-
     socket.on('users_online', (data) => {
       dispatch(onlineUsers(data));
     });
@@ -147,14 +133,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     window.addEventListener('keydown', cancelQuotedMessage);
 
-    socket.on('disconnect', (reason) => {
-      console.log('SOCKET_STATUS: ', socket.connected);
-      console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
-    });
-
     return () => {
-      socket.off('connected');
-      socket.off('users_online');
       socket.off('typing');
       socket.off('mark_one_message_as_read');
       socket.off('mark_all_messages_as_read');
@@ -162,7 +141,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.off('message_hidden');
       socket.off('message_unhidden');
       socket.off('message_deleted');
-      socket.off('disconnect');
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);

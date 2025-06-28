@@ -1,5 +1,5 @@
-import { useState, Fragment } from 'react';
-import { useSelector } from 'react-redux';
+import { useState, useEffect, Fragment } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 
 // Components.
@@ -8,27 +8,71 @@ import ChatsList from '../../components/ChatsList/ChatsList';
 import Header from '../../components/Header/Header';
 import Spinner from '../../components/Spinner/Spinner';
 
+// Socket.IO
+import { socket } from '../../socket/socket';
+
 // Hooks.
 import { useAuthGuard } from '../../hooks/useAuthGuard';
 
-const Chat = () => {
-  const [fetchAgain, setFetchAgain] = useState(false);
+// Functions.
+import { onlineUsers } from './chatSlice';
 
-  // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
+const Chat = () => {
   const authState = useSelector((state) => {
     return state.authReducer;
   });
 
+  const dispatch = useDispatch();
+
+  // STATE.
+  const [fetchAgain, setFetchAgain] = useState(false);
+
   // Check auth token.
   useAuthGuard();
+
+  useEffect(() => {
+    // Wait for user info.
+    if (!authState.user) {
+      return;
+    }
+
+    // User connects to the app.
+    if (!socket.connected) {
+      socket.connect();
+      socket.emit('user_add', authState.user);
+    }
+    
+    socket.on('connected', (data) => {
+      console.log('SOCKET_STATUS: ', socket.connected);
+      console.log('CONNECTED: ', data);
+    });
+
+    socket.on('users_online', (data) => {
+      dispatch(onlineUsers(data));
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('SOCKET_STATUS: ', socket.connected);
+      console.log(`DISCONNECTED_FOR_REASON: ${reason}`);
+    });
+
+    return () => {
+      socket.off('connected');
+      socket.off('users_online');
+      socket.off('disconnect');
+
+      // // Disconnect socket on 'Chat' unmount (OPTIONAL).
+      // socket.disconnect();
+    };
+  }, [authState.user, dispatch]);
 
   return (
     <Fragment>
       {!authState.loading && authState.user ? (
-        <Box component='div' sx={{ width: '100vw' }}>
+        <Box component="div" sx={{ width: '100vw' }}>
           <Header />
           <Box
-            component='div'
+            component="div"
             sx={{
               backgroundColor: 'rgb(93, 109, 126)',
               display: 'flex',
