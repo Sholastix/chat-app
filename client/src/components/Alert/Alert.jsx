@@ -1,18 +1,23 @@
+import { memo } from 'react';
 import { Alert as MuiAlert } from '@mui/material';
 
-const Alert = ({ handleFunction, severityType, message }) => {
+const Alert = memo(({ handleFunction, severityType, message }) => {
   return (
     <MuiAlert
-      severity={`${severityType}`}
+      role='alert'
+      severity={severityType}
       slotProps={{
         closeIcon: { sx: { fontSize: '1.6rem' } },
       }}
       sx={{ color: 'black', fontSize: '1.4rem', width: '100%' }}
       onClose={handleFunction}
     >
-      {`${message}`}
+      {message}
     </MuiAlert>
   );
-};
+});
+
+// In React, the 'displayName' property defines what name appears in React DevTools and other debugging tools when we're inspecting our component tree.
+Alert.displayName = 'Alert';
 
 export default Alert;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -45,13 +45,13 @@ const GroupChatModal = (props) => {
   const [addUserAlert, setAddUserAlert] = useState(false);
 
   // 'Close' function for 'Alert' Component.
-  const handleCloseAddUserAlert = (event, reason) => {
+  const handleCloseAddUserAlert = useCallback((event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
 
     setAddUserAlert(false);
-  };
+  }, []);
 
   // Close modal window.
   const handleGroupChatModalClose = () => {
