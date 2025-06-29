@@ -89,14 +89,16 @@ const ChatsList = (props) => {
     event.stopPropagation();
 
     try {
-      await axios.put('/api/chat/hide', {
+      const response = await axios.put('/api/chat/hide', {
         chatId: chatId,
         userId: authState.user._id,
       });
-
-      // Refresh the chat list.
-      dispatch(fetchChats());
-
+      
+      if (response.status === 200) {
+        // Refresh the chat list.
+        dispatch(fetchChats());
+      }
+      
       // Close the menu.
       handleChatItemMenuClose();
     } catch (err) {
