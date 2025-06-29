@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Avatar, Box, Button, Stack, ListItemIcon, Menu, MenuItem, MenuList, Tooltip, Typography } from '@mui/material';
@@ -10,15 +10,18 @@ import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 
 // Components.
-import GroupChatModal from '../ModalWindows/GroupChatModal/GroupChatModal';
-import OnlineStatus from '../OnlineStatus/OnlineStatus';
 import ListLoading from '../ListLoading/ListLoading';
+import OnlineStatus from '../OnlineStatus/OnlineStatus';
+import Spinner from '../Spinner/Spinner';
+
+// Components (lazy-loaded).
+const GroupChatModal = lazy(() => import('../ModalWindows/GroupChatModal/GroupChatModal'));
 
 // Socket.IO
 import { socket } from '../../socket/socket';
 
 // Functions.
-import { getFullSender, getSender, replaceEmoticons, replaceShortcodes, truncateText } from '../../helpers/chatLogic';
+import { getFullSender, replaceEmoticons, replaceShortcodes, truncateText } from '../../helpers/chatLogic';
 import { fetchChats, fetchChat, updateChatLastMessage } from '../../features/chat/chatSlice';
 
 const ChatsList = (props) => {
@@ -33,11 +36,11 @@ const ChatsList = (props) => {
   const dispatch = useDispatch();
 
   // STATE.
-  const [openMenuChatId, setOpenMenuChatId] = useState(null);
-  const menuAnchorElsRef = useRef({});
-
   const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
   const [online, setOnline] = useState([]);
+  const [openMenuChatId, setOpenMenuChatId] = useState(null);
+
+  const menuAnchorElsRef = useRef({});
 
   useEffect(() => {
     getAllChats();
@@ -60,11 +63,7 @@ const ChatsList = (props) => {
 
   // Open group chat's modal window.
   const handleGroupChatModalOpen = () => {
-    try {
-      setIsGroupChatModalOpen(true);
-    } catch (err) {
-      console.error(err);
-    }
+    setIsGroupChatModalOpen(true);
   };
 
   // Get all chats of the current user from DB.
@@ -146,10 +145,20 @@ const ChatsList = (props) => {
     setOpenMenuChatId(null);
   };
 
-  // Sort chats by 'createdAt' property in ascension order.
-  const sortedChats = chatState.chats.length
-    ? [...chatState.chats].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-    : [];
+  // Sort current user's chatlist in descensing order (newest chats first) based of recent activity in chat.
+  const sortedChats = useMemo(() => {
+    if (!Array.isArray(chatState.chats) || chatState.chats.length === 0) {
+      return [];
+    }
+
+    return [...chatState.chats].sort((a, b) => {
+      const dateA = new Date(a.lastMessage?.createdAt || a.updatedAt || a.createdAt);
+      const dateB = new Date(b.lastMessage?.createdAt || b.updatedAt || b.createdAt);
+
+      // Descending order → newest chats first.
+      return dateB - dateA;
+    });
+  }, [chatState.chats]);
 
   // Replace ASCII-style emoticons and emoji shortcodes with emojis.
   const emojiTransformer = (text) => {
@@ -161,6 +170,24 @@ const ChatsList = (props) => {
 
     return emoticonsAndShortcodesToEmoji;
   };
+
+  // Precompute memoized transformed messages *outside* JSX and inside the Component body.
+  const chatsWithTransformedMessages = useMemo(() => {
+    if (!chatState.chats) { 
+      return [];
+    }
+    
+    return sortedChats.map((chat) => {
+      const transformedLastMessage = chat.lastMessage?.content
+        ? truncateText(emojiTransformer(chat.lastMessage.content), 40)
+        : '';
+
+      return {
+        ...chat,
+        transformedLastMessage,
+      };
+    });
+  }, [sortedChats]);
 
   return (
     <Box
@@ -215,7 +242,7 @@ const ChatsList = (props) => {
       >
         {chatState.chats ? (
           <Stack sx={{ width: '100%' }}>
-            {sortedChats.map((chat) => {
+            {chatsWithTransformedMessages.map((chat) => {
               const fullSender = !chat.isGroupChat ? getFullSender(authState.user, chat.users) : null;
 
               // Skip rendering if private chat and collocutor is deleted (chat corrupted).
@@ -266,10 +293,6 @@ const ChatsList = (props) => {
                     </Box>
 
                     <Box component="div" sx={{ display: 'flex', flexDirection: 'column' }}>
-                      {/* <Typography sx={{ fontSize: '1.4rem', fontWeight: '600' }}>
-                        {!chat.isGroupChat ? getSender(authState.user, chat.users) : chat.chatName}
-                      </Typography> */}
-
                       <Typography sx={{ fontSize: '1.4rem', fontWeight: '600' }}>
                         {!chat.isGroupChat
                           ? (fullSender ? fullSender.username : 'Deleted User.') // Fallback if fullSender is 'null'.
@@ -293,7 +316,7 @@ const ChatsList = (props) => {
                             chat.lastMessage.sender._id === authState.user._id
                               ? 'You'
                               : chat.lastMessage.sender.username
-                          }: ${truncateText(emojiTransformer(chat.lastMessage.content), 40)}`
+                          }: ${chat.transformedLastMessage}`
                         ) : (
                           <Typography
                             sx={{
@@ -394,8 +417,15 @@ const ChatsList = (props) => {
           <ListLoading />
         )}
       </Box>
-
-      <GroupChatModal isGroupChatModalOpen={isGroupChatModalOpen} setIsGroupChatModalOpen={setIsGroupChatModalOpen} />
+      
+      {isGroupChatModalOpen && (
+        <Suspense fallback={<Spinner />}>
+          <GroupChatModal 
+            isGroupChatModalOpen={isGroupChatModalOpen} 
+            setIsGroupChatModalOpen={setIsGroupChatModalOpen} 
+          />
+        </Suspense>
+      )}
     </Box>
   );
 };
