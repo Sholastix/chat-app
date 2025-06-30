@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Avatar, Box, Button, Stack, ListItemIcon, Menu, MenuItem, MenuList, Tooltip, Typography } from '@mui/material';
@@ -25,13 +25,10 @@ import { getFullSender, replaceEmoticons, replaceShortcodes, truncateText } from
 import { fetchChats, fetchChat, updateChatLastMessage } from '../../features/chat/chatSlice';
 
 const ChatsList = (props) => {
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
-
-  const chatState = useSelector((state) => {
-    return state.chatReducer;
-  });
+  const user = useSelector((state) => state.authReducer.user);
+  const chats = useSelector((state) => state.chatReducer.chats);
+  const selectedChat = useSelector((state) => state.chatReducer.selectedChat);
+  const usersOnline = useSelector((state) => state.chatReducer.usersOnline);
 
   const dispatch = useDispatch();
 
@@ -48,18 +45,24 @@ const ChatsList = (props) => {
 
   useEffect(() => {
     allOnlineUsers();
-  }, [chatState.usersOnline]);
+  }, [usersOnline]);
 
   useEffect(() => {
+    const handleLastMessageUpdate = (updatedChat) => {
+      try {
+        dispatch(updateChatLastMessage(updatedChat));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     // Listen for real-time last message updates.
-    socket.on('chat_last_message_update', (updatedChat) => {
-      dispatch(updateChatLastMessage(updatedChat));
-    });
+    socket.on('chat_last_message_update', handleLastMessageUpdate);
 
     return () => {
-      socket.off('chat_last_message_update');
+      socket.off('chat_last_message_update', handleLastMessageUpdate);
     };
-  }, []);
+  }, [dispatch]);
 
   // Open group chat's modal window.
   const handleGroupChatModalOpen = () => {
@@ -67,9 +70,10 @@ const ChatsList = (props) => {
   };
 
   // Get all chats of the current user from DB.
-  const getAllChats = () => {
+  const getAllChats = async () => {
     try {
-      dispatch(fetchChats());
+      // Use `unwrap` for error catching (if using Redux Toolkit with 'createAsyncThunk()' method).
+      await dispatch(fetchChats()).unwrap();
     } catch (err) {
       console.error(err);
     }
@@ -78,7 +82,7 @@ const ChatsList = (props) => {
   // Get one specific chat of the current user from DB.
   const getOneChat = async (chatId) => {
     try {
-      dispatch(fetchChat(chatId));
+      await dispatch(fetchChat(chatId)).unwrap();
     } catch (err) {
       console.error(err);
     }
@@ -91,14 +95,14 @@ const ChatsList = (props) => {
     try {
       const response = await axios.put('/api/chat/hide', {
         chatId: chatId,
-        userId: authState.user._id,
+        userId: user._id,
       });
-      
+
       if (response.status === 200) {
         // Refresh the chat list.
-        dispatch(fetchChats());
+        await dispatch(fetchChats()).unwrap();
       }
-      
+
       // Close the menu.
       handleChatItemMenuClose();
     } catch (err) {
@@ -115,12 +119,12 @@ const ChatsList = (props) => {
     try {
       await axios.put('/api/chat/delete', {
         chatId: chatId,
-        userId: authState.user._id,
-        currentUserId: authState.user._id,
+        userId: user._id,
+        currentUserId: user._id,
       });
 
       // Refresh the chat list.
-      dispatch(fetchChats());
+      await dispatch(fetchChats()).unwrap();
 
       // Close the menu.
       handleChatItemMenuClose();
@@ -131,15 +135,15 @@ const ChatsList = (props) => {
 
   // Get all online users.
   const allOnlineUsers = () => {
-    setOnline(chatState.usersOnline);
+    setOnline(usersOnline);
   };
 
   // Open chat item menu.
   const handleChatItemMenuClick = (event, chatId) => {
     event.stopPropagation();
 
-    menuAnchorElsRef.current[chatId] = event.currentTarget; // set ref immediately.
-    setOpenMenuChatId(chatId); // now this will render the menu right away.
+    menuAnchorElsRef.current[chatId] = event.currentTarget; // Set ref immediately.
+    setOpenMenuChatId(chatId); // Now this will render the menu right away.
   };
 
   // Close chat item menu.
@@ -149,36 +153,32 @@ const ChatsList = (props) => {
 
   // Sort current user's chatlist in descensing order (newest chats first) based of recent activity in chat.
   const sortedChats = useMemo(() => {
-    if (!Array.isArray(chatState.chats) || chatState.chats.length === 0) {
+    if (!Array.isArray(chats) || chats.length === 0) {
       return [];
     }
 
-    return [...chatState.chats].sort((a, b) => {
+    return [...chats].sort((a, b) => {
       const dateA = new Date(a.lastMessage?.createdAt || a.updatedAt || a.createdAt);
       const dateB = new Date(b.lastMessage?.createdAt || b.updatedAt || b.createdAt);
 
       // Descending order → newest chats first.
       return dateB - dateA;
     });
-  }, [chatState.chats]);
+  }, [chats]);
 
   // Replace ASCII-style emoticons and emoji shortcodes with emojis.
-  const emojiTransformer = (text) => {
-    // Replace ASCII-style emoticons with emojis.
-    const emoticonsToEmoji = replaceEmoticons(text);
-    
-    // Get result from previous step and replace emoji shortcodes with emojis in it.
-    const emoticonsAndShortcodesToEmoji = replaceShortcodes(emoticonsToEmoji);
-
-    return emoticonsAndShortcodesToEmoji;
-  };
+  // 'replaceEmoticons()' function replaces ASCII-style emoticons with emojis.
+  // 'replaceShortcodes()' takes the result of the previous step and replaces the emoji shortcodes in it with emojis.
+  const emojiTransformer = useCallback((text) => {
+    return replaceShortcodes(replaceEmoticons(text));
+  }, []);
 
   // Precompute memoized transformed messages *outside* JSX and inside the Component body.
   const chatsWithTransformedMessages = useMemo(() => {
-    if (!chatState.chats) { 
+    if (!chats) {
       return [];
     }
-    
+
     return sortedChats.map((chat) => {
       const transformedLastMessage = chat.lastMessage?.content
         ? truncateText(emojiTransformer(chat.lastMessage.content), 40)
@@ -198,7 +198,7 @@ const ChatsList = (props) => {
         backgroundColor: 'white',
         borderRadius: '0.5rem',
         boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
-        display: { xs: chatState.selectedChat ? 'none' : 'flex', md: 'flex' },
+        display: { xs: selectedChat ? 'none' : 'flex', md: 'flex' },
         flexDirection: 'column',
         padding: '1rem',
         width: { xs: '100%', md: '25%' },
@@ -242,10 +242,10 @@ const ChatsList = (props) => {
           width: '100%',
         }}
       >
-        {chatState.chats ? (
+        {chats ? (
           <Stack sx={{ width: '100%' }}>
             {chatsWithTransformedMessages.map((chat) => {
-              const fullSender = !chat.isGroupChat ? getFullSender(authState.user, chat.users) : null;
+              const fullSender = !chat.isGroupChat ? getFullSender(user, chat.users) : null;
 
               // Skip rendering if private chat and collocutor is deleted (chat corrupted).
               if (!chat.isGroupChat && !fullSender) {
@@ -294,10 +294,12 @@ const ChatsList = (props) => {
                       {!chat.isGroupChat && <OnlineStatus online={online} chat={chat} />}
                     </Box>
 
-                    <Box component="div" sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box component='div' sx={{ display: 'flex', flexDirection: 'column' }}>
                       <Typography sx={{ fontSize: '1.4rem', fontWeight: '600' }}>
                         {!chat.isGroupChat
-                          ? (fullSender ? fullSender.username : 'Deleted User.') // Fallback if fullSender is 'null'.
+                          ? fullSender
+                            ? fullSender.username
+                            : 'Deleted User.' // Fallback if fullSender is 'null'.
                           : chat.chatName}
                       </Typography>
 
@@ -307,29 +309,18 @@ const ChatsList = (props) => {
                         sx={{
                           fontSize: '1.4rem',
                           fontWeight: '400',
-                          maxWidth: '100%', // Keeps it within its container.
-                          overflowWrap: 'break-word', // Ensures long words break correctly.
-                          wordBreak: 'break-word', // Prevents overflow from long links or strings.
-                          whiteSpace: 'pre-wrap', // Preserves spacing, supports wrapping.
+                          maxWidth: '100%',
+                          overflowWrap: 'break-word',
+                          wordBreak: 'break-word',
+                          whiteSpace: 'pre-wrap',
                         }}
                       >
                         {chat.lastMessage ? (
-                          `${
-                            chat.lastMessage.sender._id === authState.user._id
-                              ? 'You'
-                              : chat.lastMessage.sender.username
-                          }: ${chat.transformedLastMessage}`
+                          <>
+                            {chat.lastMessage.sender._id === user._id ? 'You' : chat.lastMessage.sender.username}:{' '}{chat.transformedLastMessage}
+                          </>
                         ) : (
-                          <Typography
-                            sx={{
-                              color: 'darkred',
-                              fontSize: '1.4rem',
-                              fontWeight: '400',
-                              wordBreak: 'break-word',
-                            }}
-                          >
-                            No messages.
-                          </Typography>
+                          <span style={{ color: 'darkred' }}>No messages.</span>
                         )}
                       </Typography>
                     </Box>
@@ -372,18 +363,18 @@ const ChatsList = (props) => {
 
                       {menuAnchorElsRef.current[chat._id] && (
                         <Menu
-                          id="chat-item-menu"
+                          id='chat-item-menu'
                           anchorEl={menuAnchorElsRef.current[chat._id]}
                           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                           open={openMenuChatId === chat._id}
-                          slotProps={{ 
-                            list: { 
-                              'aria-labelledby': 'chat-item-menu-button' 
+                          slotProps={{
+                            list: {
+                              'aria-labelledby': 'chat-item-menu-button',
                             },
                           }}
-                          transformOrigin={{ 
+                          transformOrigin={{
                             horizontal: 'right',
-                            vertical: 'top', 
+                            vertical: 'top',
                           }}
                           onClose={handleChatItemMenuClose}
                         >
@@ -419,12 +410,12 @@ const ChatsList = (props) => {
           <ListLoading />
         )}
       </Box>
-      
+
       {isGroupChatModalOpen && (
         <Suspense fallback={<Spinner />}>
-          <GroupChatModal 
-            isGroupChatModalOpen={isGroupChatModalOpen} 
-            setIsGroupChatModalOpen={setIsGroupChatModalOpen} 
+          <GroupChatModal
+            isGroupChatModalOpen={isGroupChatModalOpen}
+            setIsGroupChatModalOpen={setIsGroupChatModalOpen}
           />
         </Suspense>
       )}
