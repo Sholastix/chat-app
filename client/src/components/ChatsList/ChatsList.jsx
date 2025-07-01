@@ -1,17 +1,14 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { Avatar, Box, Button, Stack, ListItemIcon, Menu, MenuItem, MenuList, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 
 // MUI Icons.
 import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
-import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 
 // Components.
+import ChatItem from './ChatItem';
 import ListLoading from '../ListLoading/ListLoading';
-import OnlineStatus from '../OnlineStatus/OnlineStatus';
 import Spinner from '../Spinner/Spinner';
 
 // Components (lazy-loaded).
@@ -24,7 +21,7 @@ import { socket } from '../../socket/socket';
 import { getFullSender, replaceEmoticons, replaceShortcodes, truncateText } from '../../helpers/chatLogic';
 import { fetchChats, fetchChat, updateChatLastMessage } from '../../features/chat/chatSlice';
 
-const ChatsList = (props) => {
+const ChatsList = ({ fetchAgain }) => {
   const user = useSelector((state) => state.authReducer.user);
   const chats = useSelector((state) => state.chatReducer.chats);
   const selectedChat = useSelector((state) => state.chatReducer.selectedChat);
@@ -41,7 +38,7 @@ const ChatsList = (props) => {
 
   useEffect(() => {
     getAllChats();
-  }, [props.fetchAgain]);
+  }, [fetchAgain]);
 
   useEffect(() => {
     allOnlineUsers();
@@ -69,6 +66,24 @@ const ChatsList = (props) => {
     setIsGroupChatModalOpen(true);
   };
 
+  // Open chat item menu.
+  const handleChatItemMenuClick = useCallback((event, chatId) => {
+    event.stopPropagation();
+
+    menuAnchorElsRef.current[chatId] = event.currentTarget; // Set ref immediately.
+    setOpenMenuChatId(chatId); // Now this will render the menu right away.
+  }, []);
+
+  // Close chat item menu.
+  const handleChatItemMenuClose = useCallback((event) => {
+    // Safely stop propagation if event exists
+    if (event?.stopPropagation) {
+      event.stopPropagation();
+    }
+
+    setOpenMenuChatId(null);
+  }, []);
+
   // Get all chats of the current user from DB.
   const getAllChats = async () => {
     try {
@@ -80,18 +95,16 @@ const ChatsList = (props) => {
   };
 
   // Get one specific chat of the current user from DB.
-  const getOneChat = async (chatId) => {
+  const getOneChat = useCallback(async (chatId) => {
     try {
       await dispatch(fetchChat(chatId)).unwrap();
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [dispatch]);
 
   // Hide one specific chat from the current user's chat list.
-  const hideChat = async (event, chatId) => {
-    event.stopPropagation();
-
+  const hideChat = useCallback(async (chatId) => {
     try {
       const response = await axios.put('/api/chat/hide', {
         chatId: chatId,
@@ -108,14 +121,12 @@ const ChatsList = (props) => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [dispatch, handleChatItemMenuClose, user._id]);
 
   // Delete one specific chat from the current user's chat list.
   // This is a "soft deletion" of the chat (basically, we permanently hide this chat from ourselfs without means to unhide it).
   // All correspondence from this chat will still be available to our collocutor unless he "deletes" the chat for himself (and vice versa).
-  const deleteChat = async (event, chatId) => {
-    event.stopPropagation();
-
+  const deleteChat = useCallback(async (chatId) => {
     try {
       await axios.put('/api/chat/delete', {
         chatId: chatId,
@@ -131,24 +142,11 @@ const ChatsList = (props) => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [dispatch, handleChatItemMenuClose, user._id]);
 
   // Get all online users.
   const allOnlineUsers = () => {
     setOnline(usersOnline);
-  };
-
-  // Open chat item menu.
-  const handleChatItemMenuClick = (event, chatId) => {
-    event.stopPropagation();
-
-    menuAnchorElsRef.current[chatId] = event.currentTarget; // Set ref immediately.
-    setOpenMenuChatId(chatId); // Now this will render the menu right away.
-  };
-
-  // Close chat item menu.
-  const handleChatItemMenuClose = () => {
-    setOpenMenuChatId(null);
   };
 
   // Sort current user's chatlist in descensing order (newest chats first) based of recent activity in chat.
@@ -247,162 +245,21 @@ const ChatsList = (props) => {
             {chatsWithTransformedMessages.map((chat) => {
               const fullSender = !chat.isGroupChat ? getFullSender(user, chat.users) : null;
 
-              // Skip rendering if private chat and collocutor is deleted (chat corrupted).
-              if (!chat.isGroupChat && !fullSender) {
-                return null;
-              }
-
               return (
-                <Box
-                  component='div'
-                  id='chat-item'
+                <ChatItem
                   key={chat._id}
-                  sx={{
-                    alignItems: 'center',
-                    backgroundColor: 'white',
-                    border: '0.1rem solid lightgray',
-                    borderRadius: '0.5rem',
-                    color: 'black',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    // height: '6.5rem',
-                    marginBottom: '1rem',
-                    padding: '1rem 1rem 1rem 2rem',
-                    ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
-                  }}
-                  onClick={(event) => {
-                    // Ignore clicks inside the menu or its button.
-                    if (event.target.closest('#chat-item-menu-button') || event.target.closest('#chat-item-menu')) {
-                      return;
-                    }
-
-                    getOneChat(chat._id);
-                  }}
-                >
-                  <Box component='div' sx={{ display: 'flex' }}>
-                    <Box component='div' sx={{ display: 'flex', marginRight: `${chat.isGroupChat && '2.5rem'}` }}>
-                      <Avatar
-                        src={
-                          !chat.isGroupChat && fullSender?.avatar
-                            ? fullSender.avatar
-                            : 'https://img.icons8.com/parakeet-line/48/group.png'
-                        }
-                        sx={{ fontSize: '2rem' }}
-                      />
-
-                      {!chat.isGroupChat && <OnlineStatus online={online} chat={chat} />}
-                    </Box>
-
-                    <Box component='div' sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography sx={{ fontSize: '1.4rem', fontWeight: '600' }}>
-                        {!chat.isGroupChat
-                          ? fullSender
-                            ? fullSender.username
-                            : 'Deleted User.' // Fallback if fullSender is 'null'.
-                          : chat.chatName}
-                      </Typography>
-
-                      <Typography
-                        component='div'
-                        id='last-message'
-                        sx={{
-                          fontSize: '1.4rem',
-                          fontWeight: '400',
-                          maxWidth: '100%',
-                          overflowWrap: 'break-word',
-                          wordBreak: 'break-word',
-                          whiteSpace: 'pre-wrap',
-                        }}
-                      >
-                        {chat.lastMessage ? (
-                          <>
-                            {chat.lastMessage.sender._id === user._id ? 'You' : chat.lastMessage.sender.username}:{' '}{chat.transformedLastMessage}
-                          </>
-                        ) : (
-                          <span style={{ color: 'darkred' }}>No messages.</span>
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {!chat.isGroupChat && (
-                    <Box component='div' sx={{ display: 'flex', alignSelf: 'flex-start' }}>
-                      <Tooltip
-                        title='Options'
-                        arrow
-                        enterDelay={100}
-                        enterNextDelay={100}
-                        placement='top'
-                        slotProps={{
-                          tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
-                          arrow: { sx: { color: 'rgb(93, 109, 126)' } },
-                        }}
-                      >
-                        <Box
-                          component='button'
-                          id='chat-item-menu-button'
-                          aria-controls={openMenuChatId === chat._id ? 'chat-item-menu' : undefined}
-                          aria-haspopup='true'
-                          aria-expanded={openMenuChatId === chat._id ? 'true' : undefined}
-                          sx={{
-                            alignItems: 'center',
-                            backgroundColor: 'white',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            height: '1.5rem',
-                            width: '3rem',
-                            border: 'none',
-                            ':hover': { cursor: 'pointer' },
-                          }}
-                          onClick={(event) => handleChatItemMenuClick(event, chat._id)}
-                        >
-                          <MoreHorizRoundedIcon />
-                        </Box>
-                      </Tooltip>
-
-                      {menuAnchorElsRef.current[chat._id] && (
-                        <Menu
-                          id='chat-item-menu'
-                          anchorEl={menuAnchorElsRef.current[chat._id]}
-                          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                          open={openMenuChatId === chat._id}
-                          slotProps={{
-                            list: {
-                              'aria-labelledby': 'chat-item-menu-button',
-                            },
-                          }}
-                          transformOrigin={{
-                            horizontal: 'right',
-                            vertical: 'top',
-                          }}
-                          onClose={handleChatItemMenuClose}
-                        >
-                          <MenuList disablePadding sx={{ width: '12rem' }}>
-                            <MenuItem
-                              divider
-                              sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                              onClick={(event) => hideChat(event, chat._id)}
-                            >
-                              <ListItemIcon>
-                                <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
-                              </ListItemIcon>
-                            </MenuItem>
-
-                            <MenuItem
-                              sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                              onClick={(event) => deleteChat(event, chat._id)}
-                            >
-                              <ListItemIcon>
-                                <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Delete
-                              </ListItemIcon>
-                            </MenuItem>
-                          </MenuList>
-                        </Menu>
-                      )}
-                    </Box>
-                  )}
-                </Box>
+                  chat={chat}
+                  deleteChat={deleteChat}
+                  fullSender={fullSender}
+                  getOneChat={getOneChat}
+                  handleChatItemMenuClick={handleChatItemMenuClick}
+                  handleChatItemMenuClose={handleChatItemMenuClose}
+                  hideChat={hideChat}
+                  menuAnchorEl={menuAnchorElsRef.current[chat._id]}
+                  online={online}
+                  openMenuChatId={openMenuChatId}
+                  user={user}
+                />
               );
             })}
           </Stack>
