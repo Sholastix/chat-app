@@ -5,15 +5,11 @@ import { Component } from 'react';
 import ErrorPage from '../ErrorPage/ErrorPage';
 
 class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-    };
-  }
+  state = {
+    hasError: false,
+    error: null,
+    errorInfo: null,
+  };
 
   static getDerivedStateFromError(error) {
     // Update state to trigger fallback UI.
@@ -21,26 +17,28 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log error to a service like Sentry (optional).
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    this.setState({ errorInfo });
+    // Optional: Report to monitoring service (like "Sentry").
+    console.error(error, errorInfo);
+
+    // Only set 'errorInfo' once to avoid redundant updates.
+    if (!this.state.errorInfo) {
+      this.setState({ errorInfo });
+    }
   }
 
   render() {
     const { hasError, error, errorInfo } = this.state;
     const { fallback, children } = this.props;
 
-    if (hasError) {
-      if (fallback) {
-        // Allow fallback to be a Component or a function.
-        return typeof fallback === 'function' ? fallback({ error, errorInfo }) : fallback;
-      }
+    if (!hasError) return children;
 
-      // Default fallback.
-      return <ErrorPage />
+    if (fallback) {
+      // Allow fallback to be a React Component or a function.
+      return typeof fallback === 'function' ? fallback({ error, errorInfo }) : fallback;
     }
 
-    return children;
+    // Default fallback UI.
+    return <ErrorPage />;
   }
 }
 
