@@ -4,6 +4,9 @@ import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 const ErrorPage = () => (
   <Box
     component='div'
+    role='alert'
+    aria-label='error message'
+    aria-live='assertive'
     sx={{
       alignItems: 'center',
       backgroundColor: 'rgb(93, 109, 126)',
