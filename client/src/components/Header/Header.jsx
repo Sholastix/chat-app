@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState, useCallback, useMemo } from 'react';
+import { Fragment, lazy, Suspense, useEffect, useState, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import debounce from 'lodash.debounce';
@@ -25,9 +25,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import Settings from '@mui/icons-material/Settings';
 
 // Components.
-import LeftDrawer from '../ModalWindows/LeftDrawer/LeftDrawer';
-import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
-import SettingsModal from '../ModalWindows/SettingsModal/SettingsModal';
+import Spinner from '../Spinner/Spinner';
+
+// Components (lazy-loaded).
+const LeftDrawer = lazy(() => import('../ModalWindows/LeftDrawer/LeftDrawer'));
+const ProfileModal = lazy(() => import('../ModalWindows/ProfileModal/ProfileModal'));
+const SettingsModal = lazy(() => import('../ModalWindows/SettingsModal/SettingsModal'));
 
 // Socket.IO
 import { socket } from '../../socket/socket';
@@ -351,12 +354,24 @@ const Header = () => {
           </Menu>
         </div>
       </Box>
-
-      <LeftDrawer isLeftDrawerOpen={isLeftDrawerOpen} setIsLeftDrawerOpen={setIsLeftDrawerOpen} />
-
-      <ProfileModal isProfileModalOpen={isProfileModalOpen} setIsProfileModalOpen={setIsProfileModalOpen} user={user} />
-
-      <SettingsModal isSettingsModalOpen={isSettingsModalOpen} setIsSettingsModalOpen={setIsSettingsModalOpen} />
+      
+      {isLeftDrawerOpen && (
+        <Suspense fallback={<Spinner />}>
+          <LeftDrawer isLeftDrawerOpen={isLeftDrawerOpen} setIsLeftDrawerOpen={setIsLeftDrawerOpen} />
+        </Suspense>
+      )}
+      
+      {isProfileModalOpen && (
+        <Suspense fallback={<Spinner />}>
+          <ProfileModal isProfileModalOpen={isProfileModalOpen} setIsProfileModalOpen={setIsProfileModalOpen} user={user} />
+        </Suspense>
+      )}
+      
+      {isSettingsModalOpen && (
+        <Suspense fallback={<Spinner />}>
+          <SettingsModal isSettingsModalOpen={isSettingsModalOpen} setIsSettingsModalOpen={setIsSettingsModalOpen} />
+        </Suspense>
+      )}
     </Fragment>
   );
 };
