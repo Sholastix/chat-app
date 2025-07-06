@@ -37,9 +37,7 @@ import { fetchChat, resetChatState } from '../../features/chat/chatSlice';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+  const user = useSelector((state) => state.authReducer.user);
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
@@ -47,33 +45,14 @@ const Header = () => {
   // STATE.
   const [anchorUserMenu, setAnchorUserMenu] = useState(null);
   const [anchorNotificationsMenu, setAnchorNotificationsMenu] = useState(null);
-  const [notifications, setNotifications] = useState([]);
-  // The 'notificationRefresh' variable is the catalyst for triggering a update to notifications counter in UI.
-  const [notificationRefresh, setNotificationRefresh] = useState(false);
-
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
-  const userId = authState.user._id;
+  const userId = user?._id;
 
-  // Change 'notificationAlert' STATE.
-  useEffect(() => {
-    socket.on('notification', () => {
-      setNotificationRefresh((prev) => !prev);
-    });
-
-    return () => {
-      socket.off('notification');
-    };
-  }, [socket]);
-
-  // Trigger re-fetch for notifications counter in UI.
-  useEffect(() => {
-    fetchNotifications();
-  }, [notificationRefresh]);
-
-  // Fetch notifications from the backend when the component mounts
+    // Fetch notifications from the backend when the component mounts.
   const fetchNotifications = async () => {
     try {
       if (userId) {
@@ -88,6 +67,24 @@ const Header = () => {
       console.error(err);
     }
   };
+
+  // Change 'notificationAlert' STATE.
+  useEffect(() => {
+    const handleNotification = () => {
+      fetchNotifications();
+    };
+
+    socket.on('notification', handleNotification);
+
+    return () => {
+      socket.off('notification', handleNotification);
+    };
+  }, [userId]);
+
+  // Trigger fetching for notifications counter in UI when user enters the app.
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const handleNotificationItemClick = async (notificationId, messageId) => {
     try {
@@ -111,40 +108,24 @@ const Header = () => {
 
   // Open user menu.
   const handleUserMenuClick = (event) => {
-    try {
-      setAnchorUserMenu(event.currentTarget);
-    } catch (error) {
-      console.error(err);
-    }
+    setAnchorUserMenu(event.currentTarget);
   };
 
   // Close user menu.
   const handleUserMenuClose = () => {
-    try {
-      setAnchorUserMenu(null);
-    } catch (err) {
-      console.error(err);
-    }
+    setAnchorUserMenu(null);
   };
 
   // Open user's profile modal window in user's menu.
   const handleProfileModalOpen = () => {
-    try {
-      setIsProfileModalOpen(true);
-      setAnchorUserMenu(null);
-    } catch (err) {
-      console.error(err);
-    }
+    setIsProfileModalOpen(true);
+    setAnchorUserMenu(null);
   };
 
   // Open user's settings modal window in user's menu.
   const handleSettingsModalOpen = () => {
-    try {
-      setIsSettingsModalOpen(true);
-      setAnchorUserMenu(null);
-    } catch (err) {
-      console.error(err);
-    }
+    setIsSettingsModalOpen(true);
+    setAnchorUserMenu(null);
   };
 
   // Notifications menu.
@@ -152,20 +133,12 @@ const Header = () => {
 
   // Notifications list open.
   const handleNotificationsMenuClick = (event) => {
-    try {
-      setAnchorNotificationsMenu(event.currentTarget);
-    } catch (error) {
-      console.error(err);
-    }
+    setAnchorNotificationsMenu(event.currentTarget);
   };
 
   // Notifications list close.
   const handleNotificationsMenuClose = () => {
-    try {
-      setAnchorNotificationsMenu(null);
-    } catch (error) {
-      console.error(err);
-    }
+    setAnchorNotificationsMenu(null);
   };
 
   // Sign out user.
@@ -334,9 +307,9 @@ const Header = () => {
               ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' },
             }}
           >
-            <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} />
+            <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={user?.avatar} />
 
-            <Typography sx={{ fontSize: '1.4rem' }}>{authState.user.username}</Typography>
+            <Typography sx={{ fontSize: '1.4rem' }}>{user?.username}</Typography>
           </Button>
 
           <Menu
@@ -360,7 +333,7 @@ const Header = () => {
           >
             <MenuList disablePadding>
               <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-                <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={authState.user.avatar} /> Profile
+                <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={user.avatar} /> Profile
               </MenuItem>
 
               <Divider />
@@ -386,7 +359,7 @@ const Header = () => {
       <ProfileModal
         isProfileModalOpen={isProfileModalOpen}
         setIsProfileModalOpen={setIsProfileModalOpen}
-        user={authState.user}
+        user={user}
       />
 
       <SettingsModal isSettingsModalOpen={isSettingsModalOpen} setIsSettingsModalOpen={setIsSettingsModalOpen} />
