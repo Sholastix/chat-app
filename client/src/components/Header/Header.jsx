@@ -1,6 +1,7 @@
-import { useState, useEffect, Fragment } from 'react';
+import { Fragment, useEffect, useState, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import debounce from 'lodash.debounce';
 import {
   Avatar,
   Badge,
@@ -52,41 +53,44 @@ const Header = () => {
 
   const userId = user?._id;
 
-    // Fetch notifications from the backend when the component mounts.
-  const fetchNotifications = async () => {
+  // Fetch notifications from the backend when the component mounts.
+  const fetchNotifications = useCallback(async () => {
     try {
       if (userId) {
         const response = await axios.get(`/api/chat/notifications/${userId}`);
 
         // Filtering all notifications and return only notifications with 'isRead === false' status.
-        const filteredResponse = response.data.filter((element) => !element.isRead);
+        const unreadNotifications = response.data.filter((element) => !element.isRead);
 
-        setNotifications(filteredResponse);
+        setNotifications(unreadNotifications);
       }
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [userId]);
+
+  const fetchNotificationsDebounced = useMemo(() => debounce(fetchNotifications, 300), [fetchNotifications]);
 
   // Change 'notificationAlert' STATE.
   useEffect(() => {
     const handleNotification = () => {
-      fetchNotifications();
+      fetchNotificationsDebounced();
     };
 
     socket.on('notification', handleNotification);
 
     return () => {
       socket.off('notification', handleNotification);
+      fetchNotificationsDebounced.cancel();
     };
-  }, [userId]);
+  }, [fetchNotificationsDebounced]);
 
   // Trigger fetching for notifications counter in UI when user enters the app.
   useEffect(() => {
     fetchNotifications();
   }, []);
 
-  const handleNotificationItemClick = async (notificationId, messageId) => {
+  const handleNotificationItemClick = useCallback(async (notificationId, messageId) => {
     try {
       // Mark notification as 'read'.
       await axios.put(`/api/chat/notifications/${notificationId}/read`);
@@ -101,48 +105,48 @@ const Header = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [dispatch]);
 
   // User menu.
   const openUserMenu = Boolean(anchorUserMenu);
 
   // Open user menu.
-  const handleUserMenuClick = (event) => {
+  const handleUserMenuClick = useCallback((event) => {
     setAnchorUserMenu(event.currentTarget);
-  };
+  }, []);
 
   // Close user menu.
-  const handleUserMenuClose = () => {
+  const handleUserMenuClose = useCallback(() => {
     setAnchorUserMenu(null);
-  };
+  }, []);
 
   // Open user's profile modal window in user's menu.
-  const handleProfileModalOpen = () => {
+  const handleProfileModalOpen = useCallback(() => {
     setIsProfileModalOpen(true);
     setAnchorUserMenu(null);
-  };
+  }, []);
 
   // Open user's settings modal window in user's menu.
-  const handleSettingsModalOpen = () => {
+  const handleSettingsModalOpen = useCallback(() => {
     setIsSettingsModalOpen(true);
     setAnchorUserMenu(null);
-  };
+  }, []);
 
   // Notifications menu.
   const openNotificationsMenu = Boolean(anchorNotificationsMenu);
 
   // Notifications list open.
-  const handleNotificationsMenuClick = (event) => {
+  const handleNotificationsMenuClick = useCallback((event) => {
     setAnchorNotificationsMenu(event.currentTarget);
-  };
+  }, []);
 
   // Notifications list close.
-  const handleNotificationsMenuClose = () => {
+  const handleNotificationsMenuClose = useCallback(() => {
     setAnchorNotificationsMenu(null);
-  };
+  }, []);
 
   // Sign out user.
-  const logOut = () => {
+  const logOut = useCallback(() => {
     try {
       // // Manually resets 'chat' STATE. Redundant because we handling 'chat' STATE reset inside the chatSlice by listening to the 'signout' action.
       // dispatch(resetChatState());
@@ -157,7 +161,7 @@ const Header = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [dispatch]);
 
   return (
     <Fragment>
@@ -171,11 +175,11 @@ const Header = () => {
         }}
       >
         <Tooltip
-          title='Search user by username'
+          title="Search user by username"
           arrow
           enterDelay={500}
           enterNextDelay={500}
-          placement='bottom-end'
+          placement="bottom-end"
           slotProps={{
             tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
             arrow: { sx: { color: 'rgb(93, 109, 126)' } },
@@ -196,16 +200,16 @@ const Header = () => {
           </Button>
         </Tooltip>
 
-        <Typography component='div' sx={{ fontFamily: 'Georgia', fontSize: '3rem' }}>
+        <Typography component="div" sx={{ fontFamily: 'Georgia', fontSize: '3rem' }}>
           ChitChat
         </Typography>
 
         <div>
           <IconButton
-            id='notifications-button'
-            aria-label='notifications'
+            id="notifications-button"
+            aria-label="notifications"
             aria-controls={openNotificationsMenu ? 'notifications-menu' : undefined}
-            aria-haspopup='true'
+            aria-haspopup="true"
             aria-expanded={openNotificationsMenu ? 'true' : undefined}
             onClick={handleNotificationsMenuClick}
           >
@@ -226,7 +230,7 @@ const Header = () => {
           </IconButton>
 
           <Menu
-            id='notifications-menu'
+            id="notifications-menu"
             anchorEl={anchorNotificationsMenu}
             open={openNotificationsMenu}
             slotProps={{
@@ -245,8 +249,8 @@ const Header = () => {
             onClose={handleNotificationsMenuClose}
           >
             <MenuList
-              id='menu-list'
-              component='div'
+              id="menu-list"
+              component="div"
               disablePadding
               sx={{
                 alignContent: 'center',
@@ -259,31 +263,25 @@ const Header = () => {
               }}
             >
               {notifications.length === 0 && (
-                <Box component='div' sx={{ fontSize: '1.4rem' }}>
+                <Box component="div" sx={{ fontSize: '1.4rem' }}>
                   No new messages
                 </Box>
               )}
 
               {notifications.map((notification) => (
                 <MenuItem
-                  id='menu-item'
+                  id="menu-item"
                   divider
                   key={notification._id}
                   sx={{ height: '5rem', width: '30rem' }}
                   onClick={() => handleNotificationItemClick(notification._id, notification.messageId)}
                 >
-                  <Box
-                    component='div'
-                    sx={{ display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}
-                  >
-                    <Typography
-                      component='div'
-                      sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}
-                    >
+                  <Box component="div" sx={{ display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
+                    <Typography component="div" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
                       {notification.content + ':'}
                     </Typography>
 
-                    <Typography component='div' sx={{ fontSize: '1.4rem' }}>
+                    <Typography component="div" sx={{ fontSize: '1.4rem' }}>
                       {notification.messageId?.content || 'Message not found.'}
                     </Typography>
                   </Box>
@@ -293,7 +291,7 @@ const Header = () => {
           </Menu>
 
           <Button
-            id='user-menu-button'
+            id="user-menu-button"
             aria-controls={openUserMenu ? 'user-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={openUserMenu ? 'true' : undefined}
@@ -313,7 +311,7 @@ const Header = () => {
           </Button>
 
           <Menu
-            id='user-menu'
+            id="user-menu"
             anchorEl={anchorUserMenu}
             open={openUserMenu}
             slotProps={{
@@ -356,11 +354,7 @@ const Header = () => {
 
       <LeftDrawer isLeftDrawerOpen={isLeftDrawerOpen} setIsLeftDrawerOpen={setIsLeftDrawerOpen} />
 
-      <ProfileModal
-        isProfileModalOpen={isProfileModalOpen}
-        setIsProfileModalOpen={setIsProfileModalOpen}
-        user={user}
-      />
+      <ProfileModal isProfileModalOpen={isProfileModalOpen} setIsProfileModalOpen={setIsProfileModalOpen} user={user} />
 
       <SettingsModal isSettingsModalOpen={isSettingsModalOpen} setIsSettingsModalOpen={setIsSettingsModalOpen} />
     </Fragment>
