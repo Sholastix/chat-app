@@ -1,31 +1,14 @@
-import { lazy, Suspense, useEffect, useState, useCallback, useMemo } from 'react';
+import { lazy, memo, Suspense, useEffect, useState, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import debounce from 'lodash.debounce';
-import {
-  Avatar,
-  Badge,
-  Box,
-  Button,
-  Divider,
-  IconButton,
-  ListItemIcon,
-  Menu,
-  MenuList,
-  MenuItem,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-
-// MUI Icons.
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import Logout from '@mui/icons-material/Logout';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import SearchIcon from '@mui/icons-material/Search';
-import Settings from '@mui/icons-material/Settings';
+import { Box, Typography } from '@mui/material';
 
 // Components.
+import SearchButton from './SearchButton';
 import Spinner from '../Spinner/Spinner';
+import NotificationsMenu from './NotificationsMenu';
+import UserMenu from './UserMenu';
 
 // Components (lazy-loaded).
 const LeftDrawer = lazy(() => import('../ModalWindows/LeftDrawer/LeftDrawer'));
@@ -38,13 +21,12 @@ import { socket } from '../../socket/socket';
 // Functions.
 import { signout } from '../../features/auth/authSlice';
 import { fetchChat } from '../../features/chat/chatSlice';
-
-const Header = () => {
+const Header = memo(() => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const user = useSelector((state) => state.authReducer.user);
-  const userId = useSelector((state) => state.authReducer.user?._id);
-  const username = useSelector((state) => state.authReducer.user?.username);
-  const avatar = useSelector((state) => state.authReducer.user?.avatar);
+  const userId = user?._id;
+  const username = user?.username;
+  const avatar = user?.avatar;
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
@@ -94,22 +76,25 @@ const Header = () => {
     if (userId) fetchNotifications();
   }, [userId, fetchNotifications]);
 
-  const handleNotificationItemClick = useCallback(async (notificationId, messageId) => {
-    try {
-      // Mark notification as 'read'.
-      await axios.put(`/api/chat/notifications/${notificationId}/read`);
+  const handleNotificationItemClick = useCallback(
+    async (notificationId, messageId) => {
+      try {
+        // Mark notification as 'read'.
+        await axios.put(`/api/chat/notifications/${notificationId}/read`);
 
-      // Remove the marked notification from the UI.
-      setNotifications((prevNotifications) => prevNotifications.filter((element) => element._id !== notificationId));
+        // Remove the marked notification from the UI.
+        setNotifications((prevNotifications) => prevNotifications.filter((element) => element._id !== notificationId));
 
-      const chatId = messageId.chat;
+        const chatId = messageId.chat;
 
-      // Redirect to chat from notification.
-      dispatch(fetchChat(chatId));
-    } catch (err) {
-      console.error(err);
-    }
-  }, [dispatch]);
+        // Redirect to chat from notification.
+        dispatch(fetchChat(chatId));
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [dispatch]
+  );
 
   // User menu.
   const openUserMenu = Boolean(anchorUserMenu);
@@ -175,196 +160,52 @@ const Header = () => {
           width: '100vw',
         }}
       >
-        <Tooltip
-          title="Search user by username"
-          arrow
-          enterDelay={500}
-          enterNextDelay={500}
-          placement="bottom-end"
-          slotProps={{
-            tooltip: { sx: { backgroundColor: 'rgb(93, 109, 126)', color: 'white', fontSize: '1.2rem' } },
-            arrow: { sx: { color: 'rgb(93, 109, 126)' } },
-          }}
-        >
-          <Button
-            sx={{
-              color: 'black',
-              margin: '0.5rem 1rem',
-              padding: '0.5rem 2rem',
-              textTransform: 'none',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' },
-            }}
-            onClick={() => setIsLeftDrawerOpen(true)}
-          >
-            <SearchIcon sx={{ fontSize: '3rem', marginRight: '0.5rem' }} />
-            <Typography sx={{ fontSize: '1.6rem', display: { xs: 'none', sm: 'flex' } }}>Search User</Typography>
-          </Button>
-        </Tooltip>
+        <SearchButton onOpen={() => setIsLeftDrawerOpen(true)} />
 
         <Typography component="div" sx={{ fontFamily: 'Georgia', fontSize: '3rem' }}>
           ChitChat
         </Typography>
 
         <div>
-          <IconButton
-            id="notifications-button"
-            aria-label="notifications"
-            aria-controls={openNotificationsMenu ? 'notifications-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={openNotificationsMenu ? 'true' : undefined}
-            onClick={handleNotificationsMenuClick}
-          >
-            <Badge
-              badgeContent={notifications.length ? notifications.length : 0}
-              max={99}
-              color="primary"
-              sx={{
-                '& .MuiBadge-badge': {
-                  backgroundColor: 'rgb(93, 109, 126)',
-                  fontSize: '1.2rem',
-                  fontWeight: 'bold',
-                },
-              }}
-            >
-              <NotificationsOutlinedIcon sx={{ color: 'black', fontSize: '3rem' }} />
-            </Badge>
-          </IconButton>
+          <NotificationsMenu
+            anchorNotificationsMenu={anchorNotificationsMenu}
+            handleNotificationItemClick={handleNotificationItemClick}
+            handleNotificationsMenuClick={handleNotificationsMenuClick}
+            handleNotificationsMenuClose={handleNotificationsMenuClose}
+            notifications={notifications}
+            openNotificationsMenu={openNotificationsMenu}
+          />
 
-          <Menu
-            id="notifications-menu"
-            anchorEl={anchorNotificationsMenu}
-            open={openNotificationsMenu}
-            slotProps={{
-              list: {
-                'aria-labelledby': 'notifications-button',
-              },
-            }}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            onClose={handleNotificationsMenuClose}
-          >
-            <MenuList
-              id="menu-list"
-              component="div"
-              disablePadding
-              sx={{
-                alignContent: 'center',
-                height: 'fit-content',
-                maxHeight: '35rem',
-                minHeight: '5rem',
-                overflowY: `${notifications.length === 0 ? 'hidden' : 'auto'}`,
-                padding: '0rem 1rem',
-                scrollbarWidth: 'thin',
-              }}
-            >
-              {notifications.length === 0 && (
-                <Box component="div" sx={{ fontSize: '1.4rem' }}>
-                  No new messages
-                </Box>
-              )}
-
-              {notifications.map((notification) => (
-                <MenuItem
-                  id="menu-item"
-                  divider
-                  key={notification._id}
-                  sx={{ height: '5rem', width: '30rem' }}
-                  onClick={() => handleNotificationItemClick(notification._id, notification.messageId)}
-                >
-                  <Box component="div" sx={{ display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
-                    <Typography component="div" sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
-                      {notification.content + ':'}
-                    </Typography>
-
-                    <Typography component="div" sx={{ fontSize: '1.4rem' }}>
-                      {notification.messageId?.content || 'Message not found.'}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-
-          <Button
-            id="user-menu-button"
-            aria-controls={openUserMenu ? 'user-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={openUserMenu ? 'true' : undefined}
-            onClick={handleUserMenuClick}
-            endIcon={<KeyboardArrowDownIcon />}
-            sx={{
-              color: 'black',
-              margin: '0.5rem 1rem',
-              padding: '0.5rem 2rem',
-              textTransform: 'none',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' },
-            }}
-          >
-            <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={avatar} />
-
-            <Typography sx={{ fontSize: '1.4rem' }}>{username}</Typography>
-          </Button>
-
-          <Menu
-            id="user-menu"
-            anchorEl={anchorUserMenu}
-            open={openUserMenu}
-            slotProps={{
-              list: {
-                'aria-labelledby': 'user-menu-button',
-              },
-            }}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              horizontal: 'right',
-              vertical: 'top',
-            }}
-            onClose={handleUserMenuClose}
-          >
-            <MenuList disablePadding>
-              <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-                <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={avatar} /> Profile
-              </MenuItem>
-
-              <Divider />
-
-              <MenuItem onClick={handleSettingsModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-                <ListItemIcon>
-                  <Settings sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Settings
-                </ListItemIcon>
-              </MenuItem>
-
-              <MenuItem onClick={logOut} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-                <ListItemIcon>
-                  <Logout sx={{ fontSize: '2rem', marginRight: '0.5rem' }} /> Logout
-                </ListItemIcon>
-              </MenuItem>
-            </MenuList>
-          </Menu>
+          <UserMenu
+            anchorUserMenu={anchorUserMenu}
+            avatar={avatar}
+            handleProfileModalOpen={handleProfileModalOpen}
+            handleSettingsModalOpen={handleSettingsModalOpen}
+            handleUserMenuClick={handleUserMenuClick}
+            handleUserMenuClose={handleUserMenuClose}
+            logOut={logOut}
+            openUserMenu={openUserMenu}
+            username={username}
+          />
         </div>
       </Box>
-      
+
       {isLeftDrawerOpen && (
         <Suspense fallback={<Spinner />}>
           <LeftDrawer isLeftDrawerOpen={isLeftDrawerOpen} setIsLeftDrawerOpen={setIsLeftDrawerOpen} />
         </Suspense>
       )}
-      
+
       {isProfileModalOpen && (
         <Suspense fallback={<Spinner />}>
-          <ProfileModal isProfileModalOpen={isProfileModalOpen} setIsProfileModalOpen={setIsProfileModalOpen} user={user} />
+          <ProfileModal
+            isProfileModalOpen={isProfileModalOpen}
+            setIsProfileModalOpen={setIsProfileModalOpen}
+            user={user}
+          />
         </Suspense>
       )}
-      
+
       {isSettingsModalOpen && (
         <Suspense fallback={<Spinner />}>
           <SettingsModal isSettingsModalOpen={isSettingsModalOpen} setIsSettingsModalOpen={setIsSettingsModalOpen} />
@@ -372,6 +213,6 @@ const Header = () => {
       )}
     </>
   );
-};
+});
 
 export default Header;
