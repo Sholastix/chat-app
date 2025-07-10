@@ -1,4 +1,4 @@
-import { Fragment, lazy, Suspense, useEffect, useState, useCallback, useMemo } from 'react';
+import { lazy, Suspense, useEffect, useState, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import debounce from 'lodash.debounce';
@@ -37,11 +37,14 @@ import { socket } from '../../socket/socket';
 
 // Functions.
 import { signout } from '../../features/auth/authSlice';
-import { fetchChat, resetChatState } from '../../features/chat/chatSlice';
+import { fetchChat } from '../../features/chat/chatSlice';
 
 const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const user = useSelector((state) => state.authReducer.user);
+  const userId = useSelector((state) => state.authReducer.user?._id);
+  const username = useSelector((state) => state.authReducer.user?.username);
+  const avatar = useSelector((state) => state.authReducer.user?.avatar);
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
@@ -53,8 +56,6 @@ const Header = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
-
-  const userId = user?._id;
 
   // Fetch notifications from the backend when the component mounts.
   const fetchNotifications = useCallback(async () => {
@@ -90,8 +91,8 @@ const Header = () => {
 
   // Trigger fetching for notifications counter in UI when user enters the app.
   useEffect(() => {
-    fetchNotifications();
-  }, []);
+    if (userId) fetchNotifications();
+  }, [userId, fetchNotifications]);
 
   const handleNotificationItemClick = useCallback(async (notificationId, messageId) => {
     try {
@@ -151,9 +152,6 @@ const Header = () => {
   // Sign out user.
   const logOut = useCallback(() => {
     try {
-      // // Manually resets 'chat' STATE. Redundant because we handling 'chat' STATE reset inside the chatSlice by listening to the 'signout' action.
-      // dispatch(resetChatState());
-
       // Resets 'auth' STATE and (because we connected 'signout' action to chatSlice) triggers 'chat' STATE reset via extraReducers too.
       dispatch(signout());
 
@@ -167,7 +165,7 @@ const Header = () => {
   }, [dispatch]);
 
   return (
-    <Fragment>
+    <>
       <Box
         sx={{
           alignItems: 'center',
@@ -308,9 +306,9 @@ const Header = () => {
               ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' },
             }}
           >
-            <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={user?.avatar} />
+            <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={avatar} />
 
-            <Typography sx={{ fontSize: '1.4rem' }}>{user?.username}</Typography>
+            <Typography sx={{ fontSize: '1.4rem' }}>{username}</Typography>
           </Button>
 
           <Menu
@@ -334,7 +332,7 @@ const Header = () => {
           >
             <MenuList disablePadding>
               <MenuItem onClick={handleProfileModalOpen} sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}>
-                <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={user.avatar} /> Profile
+                <Avatar sx={{ fontSize: '2rem', marginRight: '0.5rem' }} src={avatar} /> Profile
               </MenuItem>
 
               <Divider />
@@ -372,7 +370,7 @@ const Header = () => {
           <SettingsModal isSettingsModalOpen={isSettingsModalOpen} setIsSettingsModalOpen={setIsSettingsModalOpen} />
         </Suspense>
       )}
-    </Fragment>
+    </>
   );
 };
 
