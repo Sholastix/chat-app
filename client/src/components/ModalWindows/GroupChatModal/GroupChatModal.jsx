@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -26,7 +26,7 @@ import UserListItem from '../../UserListItem/UserListItem';
 // Functions.
 import { createGroupChat } from '../../../features/chat/chatSlice';
 
-const GroupChatModal = (props) => {
+const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
   const dispatch = useDispatch();
 
   // STATE.
@@ -36,13 +36,24 @@ const GroupChatModal = (props) => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
 
+  const [addUserAlert, setAddUserAlert] = useState(false);
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
   const [addUsersInputError, setAddUsersInputError] = useState(false);
   const [addUsersHelperText, setAddUsersHelperText] = useState('');
 
-  // STATE for 'Alert' Component.
-  const [addUserAlert, setAddUserAlert] = useState(false);
+  // Abstracts repeated reset logic.
+  const resetState = useCallback(() => {
+    setGroupChatName('');
+    setSelectedUsers([]);
+    setSearch('');
+    setSearchLoading(false);
+    setSearchResult([]);
+    setGroupChatNameInputError(false);
+    setGroupChatNameInputHelperText('');
+    setAddUsersInputError(false);
+    setAddUsersHelperText('');
+  }, []);
 
   // 'Close' function for 'Alert' Component.
   const handleCloseAddUserAlert = useCallback((event, reason) => {
@@ -54,61 +65,45 @@ const GroupChatModal = (props) => {
   }, []);
 
   // Close modal window.
-  const handleGroupChatModalClose = () => {
-    props.setIsGroupChatModalOpen(false);
-    setGroupChatName('');
-    setSelectedUsers([]);
-    setSearch('');
-    setSearchLoading(false);
-    setSearchResult([]);
-
-    setGroupChatNameInputError(false);
-    setGroupChatNameInputHelperText('');
-    setAddUsersInputError(false);
-    setAddUsersHelperText('');
-  };
+  const handleGroupChatModalClose = useCallback(() => {
+    setIsGroupChatModalOpen(false);
+    resetState();
+  }, [resetState, setIsGroupChatModalOpen]);
 
   // Search for users to add to a group chat.
-  const handleSearch = async (query) => {
+  const handleSearch = useCallback(async (query) => {
+    setSearch(query);
+    
+    if (!query) return setSearchResult([]); // avoids unnecessary API call.
+
     try {
-      setSearch(query);
-
-      if (query.length > 0) {
-        setSearchLoading(true);
-
-        const { data } = await axios.get(`/api/users?search=${query}`);
-
-        setSearchLoading(false);
-        setSearchResult(data);
-      } else {
-        setSearchResult([]);
-      }
+      setSearchLoading(true);
+      const { data } = await axios.get(`/api/users?search=${query}`);
+      setSearchResult(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setSearchLoading(false);
     }
-  };
+  }, []);
 
   // Add user to group chat.
-  const handleAddUser = (userToAdd) => {
-    try {
-      if (selectedUsers.includes(userToAdd)) {
+  const handleAddUser = useCallback((userToAdd) => {
+    setSelectedUsers((prev) => {
+      const alreadyAdded = prev.some((user) => user._id === userToAdd._id);
+
+      if (alreadyAdded) {
         setAddUserAlert(true);
-
-        setTimeout(() => {
-          setAddUserAlert(false);
-        }, 5000);
-
-        return;
+        setTimeout(() => setAddUserAlert(false), 5000);
+        return prev; // Don't update state if user already exists.
       }
 
-      setSelectedUsers([...selectedUsers, userToAdd]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+      return [...prev, userToAdd];
+    });
+  }, []);
 
   // Remove user from group chat.
-  const handleRemoveUser = (userToRemove) => {
+  const handleRemoveUser = useCallback((userToRemove) => {
     try {
       const filteredSelectedUsers = selectedUsers.filter((user) => {
         return user._id !== userToRemove._id;
@@ -118,14 +113,14 @@ const GroupChatModal = (props) => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   // Create new group chat.
-  const handleSubmit = async (event) => {
+  const handleSubmit = useCallback(async (event) => {
     try {
       event.preventDefault();
 
-      if (!groupChatName || groupChatName === '') {
+      if (!groupChatName.trim()) {
         setGroupChatNameInputError(true);
         setGroupChatNameInputHelperText('Please enter something.');
         return;
@@ -137,21 +132,21 @@ const GroupChatModal = (props) => {
         return;
       }
 
-      dispatch(
+      await dispatch(
         createGroupChat({
-          chatName: groupChatName,
+          chatName: groupChatName.trim(),
           users: JSON.stringify(selectedUsers),
         })
-      );
+      ).unwrap();
 
       handleGroupChatModalClose();
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [groupChatName, selectedUsers, dispatch, handleGroupChatModalClose]);
 
   return (
-    <Dialog open={props.isGroupChatModalOpen} onClose={handleGroupChatModalClose}>
+    <Dialog open={isGroupChatModalOpen} onClose={handleGroupChatModalClose}>
       <DialogTitle sx={{ marginTop: '2rem', textAlign: 'center' }}>
         <IconButton
           aria-label='close'
@@ -164,7 +159,11 @@ const GroupChatModal = (props) => {
         <Typography sx={{ marginBottom: '2rem', fontSize: '2rem' }}>Create Group Chat</Typography>
 
         {addUserAlert && (
-          <Alert handleFunction={handleCloseAddUserAlert} severityType={'warning'} message={'User already added.'} />
+          <Alert 
+            handleFunction={handleCloseAddUserAlert} 
+            severityType={'warning'} 
+            message={'User already added.'}
+          />
         )}
       </DialogTitle>
 
@@ -230,7 +229,11 @@ const GroupChatModal = (props) => {
             }}
           >
             {selectedUsers?.map((user) => (
-              <UserBadgeItem key={user._id} user={user} handleFunction={() => handleRemoveUser(user)} />
+              <UserBadgeItem 
+                key={user._id} 
+                user={user} 
+                handleFunction={() => handleRemoveUser(user)} 
+              />
             ))}
           </Stack>
 
@@ -259,7 +262,11 @@ const GroupChatModal = (props) => {
               }}
             >
               {searchResult?.map((user) => (
-                <UserListItem key={user._id} user={user} handleFunction={() => handleAddUser(user)} />
+                <UserListItem 
+                  key={user._id} 
+                  user={user} 
+                  handleFunction={() => handleAddUser(user)} 
+                />
               ))}
             </Stack>
           )}
@@ -289,4 +296,4 @@ const GroupChatModal = (props) => {
   );
 };
 
-export default GroupChatModal;
+export default memo(GroupChatModal);
