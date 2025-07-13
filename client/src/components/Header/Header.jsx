@@ -22,7 +22,7 @@ import { socket } from '../../socket/socket';
 import { signout } from '../../features/auth/authSlice';
 import { fetchChat } from '../../features/chat/chatSlice';
 
-const Header = memo(() => {
+const Header = () => {
   // This hook accepts a selector function as its parameter. Function receives Redux STATE as argument.
   const user = useSelector((state) => state.authReducer.user);
   const userId = user?._id;
@@ -135,6 +135,11 @@ const Header = memo(() => {
     setAnchorNotificationsMenu(null);
   }, []);
 
+  // Search menu open.
+  const handleSearchButtonModalOpen = useCallback(() => {
+    setIsLeftDrawerOpen(true);
+  }, []);
+
   // Sign out user.
   const logOut = useCallback(() => {
     try {
@@ -161,7 +166,7 @@ const Header = memo(() => {
           width: '100vw',
         }}
       >
-        <SearchButton onOpen={() => setIsLeftDrawerOpen(true)} />
+        <SearchButton onOpen={handleSearchButtonModalOpen} />
 
         <Typography component='div' sx={{ fontFamily: 'Georgia', fontSize: '3rem' }}>
           ChitChat
@@ -214,9 +219,6 @@ const Header = memo(() => {
       )}
     </>
   );
-});
+};
 
-// For debugging purposes.
-Header.displayName = 'Header';
-
-export default Header;
+export default memo(Header);

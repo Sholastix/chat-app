@@ -186,7 +186,4 @@ const ChatItem = ({
   );
 };
 
-// For debugging purposes.
-ChatItem.displayName = 'ChatItem';
-
 export default memo(ChatItem);

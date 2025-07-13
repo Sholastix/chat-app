@@ -4,7 +4,7 @@ import { Button, Tooltip, Typography } from '@mui/material';
 // MUI Icons.
 import SearchIcon from '@mui/icons-material/Search';
 
-const SearchButton = memo(({ onOpen }) => (
+const SearchButton = ({ onOpen }) => (
   <Tooltip
     title='Search user by username'
     arrow
@@ -30,9 +30,6 @@ const SearchButton = memo(({ onOpen }) => (
       <Typography sx={{ fontSize: '1.6rem', display: { xs: 'none', sm: 'flex' } }}>Search User</Typography>
     </Button>
   </Tooltip>
-));
+);
 
-// For debugging purposes.
-SearchButton.displayName = 'SearchButton';
-
-export default SearchButton;
+export default memo(SearchButton);

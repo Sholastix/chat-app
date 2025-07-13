@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, memo, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
 
@@ -38,7 +38,4 @@ const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   );
 };
 
-// For debugging purposes.
-ChatBox.displayName = 'ChatBox';
-
-export default ChatBox;
+export default memo(ChatBox);

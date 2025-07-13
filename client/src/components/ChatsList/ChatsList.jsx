@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Box, Button, Stack, Typography } from '@mui/material';
@@ -280,4 +280,4 @@ const ChatsList = ({ fetchAgain }) => {
   );
 };
 
-export default ChatsList;
+export default memo(ChatsList);
