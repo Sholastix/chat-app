@@ -36,8 +36,8 @@ const ChatItem = ({
 
   return (
     <Box
-      component="div"
-      id="chat-item"
+      component='div'
+      id='chat-item'
       key={chat._id}
       sx={{
         alignItems: 'center',
@@ -54,8 +54,8 @@ const ChatItem = ({
       }}
       onClick={handleChatClick}
     >
-      <Box component="div" sx={{ display: 'flex' }}>
-        <Box component="div" sx={{ display: 'flex', marginRight: `${chat.isGroupChat && '2.5rem'}` }}>
+      <Box component='div' sx={{ display: 'flex' }}>
+        <Box component='div' sx={{ display: 'flex', marginRight: `${chat.isGroupChat && '2.5rem'}` }}>
           <Avatar
             src={
               !chat.isGroupChat && fullSender?.avatar
@@ -67,14 +67,14 @@ const ChatItem = ({
           {!chat.isGroupChat && <OnlineStatus online={online} chat={chat} />}
         </Box>
 
-        <Box component="div" sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Box component='div' sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography sx={{ fontSize: '1.4rem', fontWeight: '600' }}>
             {!chat.isGroupChat ? fullSender?.username || 'Deleted User.' : chat.chatName}
           </Typography>
 
           <Typography
-            component="div"
-            id="last-message"
+            component='div'
+            id='last-message'
             sx={{
               fontSize: '1.4rem',
               fontWeight: '400',
@@ -97,13 +97,13 @@ const ChatItem = ({
       </Box>
 
       {!chat.isGroupChat && (
-        <Box component="div" sx={{ display: 'flex', alignSelf: 'flex-start' }}>
+        <Box component='div' sx={{ display: 'flex', alignSelf: 'flex-start' }}>
           <Tooltip
-            title="Options"
+            title='Options'
             arrow
             enterDelay={100}
             enterNextDelay={100}
-            placement="top"
+            placement='top'
             slotProps={{
               tooltip: {
                 sx: {
@@ -116,10 +116,10 @@ const ChatItem = ({
             }}
           >
             <Box
-              component="button"
-              id="chat-item-menu-button"
+              component='button'
+              id='chat-item-menu-button'
               aria-controls={isMenuOpen ? 'chat-item-menu' : undefined}
-              aria-haspopup="true"
+              aria-haspopup='true'
               aria-expanded={isMenuOpen ? 'true' : undefined}
               sx={{
                 alignItems: 'center',
@@ -142,7 +142,7 @@ const ChatItem = ({
 
           {menuAnchorEl && (
             <Menu
-              id="chat-item-menu"
+              id='chat-item-menu'
               anchorEl={menuAnchorEl}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               open={isMenuOpen}

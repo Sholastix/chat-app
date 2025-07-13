@@ -82,4 +82,7 @@ const UserMenu = memo(
   )
 );
 
+// For debugging purposes.
+UserMenu.displayName = 'UserMenu';
+
 export default UserMenu;

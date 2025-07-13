@@ -1,5 +1,7 @@
 import { memo } from 'react';
 import { Button, Tooltip, Typography } from '@mui/material';
+
+// MUI Icons.
 import SearchIcon from '@mui/icons-material/Search';
 
 const SearchButton = memo(({ onOpen }) => (
@@ -29,5 +31,8 @@ const SearchButton = memo(({ onOpen }) => (
     </Button>
   </Tooltip>
 ));
+
+// For debugging purposes.
+SearchButton.displayName = 'SearchButton';
 
 export default SearchButton;

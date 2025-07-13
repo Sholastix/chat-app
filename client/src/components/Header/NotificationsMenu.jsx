@@ -66,7 +66,7 @@ const NotificationsMenu = memo(
             height: 'fit-content',
             maxHeight: '35rem',
             minHeight: '5rem',
-            overflowY: `${notifications.length === 0 ? 'hidden' : 'auto'}`,
+            overflowY: notifications.length === 0 ? 'hidden' : 'auto',
             padding: '0rem 1rem',
             scrollbarWidth: 'thin',
           }}
@@ -101,5 +101,8 @@ const NotificationsMenu = memo(
     </>
   )
 );
+
+// For debugging purposes.
+NotificationsMenu.displayName = 'NotificationsMenu';
 
 export default NotificationsMenu;
