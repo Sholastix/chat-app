@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Box, Button, Drawer, Divider, TextField, Typography } from '@mui/material';
@@ -14,7 +14,7 @@ import ListLoading from '../../ListLoading/ListLoading';
 // Functions.
 import { createPrivateChat } from '../../../features/chat/chatSlice';
 
-const LeftDrawer = (props) => {
+const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
   const chatState = useSelector((state) => {
     return state.chatReducer;
   });
@@ -29,62 +29,73 @@ const LeftDrawer = (props) => {
   const [inputError, setInputError] = useState(false);
   const [inputHelperText, setInputHelperText] = useState('');
 
+  // Memoized reset state function for reuse.
+  const resetSearchState = useCallback(() => {
+    setInputError(false);
+    setInputHelperText('');
+    setSearch('');
+    setSearchResult([]);
+  }, []);
+
   // 'Close' event for 'LeftDrawer' Component.
-  const handleLeftDrawerClose = () => {
+  const handleLeftDrawerClose = useCallback(() => {
     try {
-      props.setIsLeftDrawerOpen(false);
-      setInputError(false);
-      setInputHelperText('');
-      setSearch('');
-      setSearchResult([]);
+      setIsLeftDrawerOpen(false);
+      resetSearchState();
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [setIsLeftDrawerOpen, resetSearchState]);
 
   // Search user in database.
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     try {
-      if (!search || search === '') {
+      if (!search.trim()) {
         setInputError(true);
         setInputHelperText('Please enter something.');
         setSearchResult([]);
-
         return;
       }
 
       setSearchLoading(true);
 
       // Return users from database accordingly to search parameters.
-      const { data } = await axios.get(`/api/users?search=${search}`);
+      const { data } = await axios.get(`/api/users?search=${encodeURIComponent(search)}`);
 
-      setInputError(false);
-      setInputHelperText('');
-      setSearchLoading(false);
-      setSearch('');
+      resetSearchState();
       setSearchResult(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setSearchLoading(false);
     }
-  };
+  }, [search, resetSearchState]);
 
-  // Access to chat.
-  const chatAccess = async (userId) => {
+  // Add chat to chats list.
+  const chatAccess = useCallback(async (userId) => {
     try {
       dispatch(createPrivateChat(userId));
 
-      props.setIsLeftDrawerOpen(false);
-      setInputError(false);
-      setInputHelperText('');
-      setSearch('');
-      setSearchResult([]);
+      setIsLeftDrawerOpen(false);
+      resetSearchState();
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [dispatch, setIsLeftDrawerOpen, resetSearchState]);
+
+  // Memoized render for search list.
+  const renderedResults = useMemo(() => {
+    return searchResult?.map((user) => (
+      <UserListItem 
+        key={user._id} 
+        user={user} 
+        handleFunction={() => chatAccess(user._id)} 
+      />
+    ));
+  }, [searchResult, chatAccess]);
 
   return (
-    <Drawer anchor='left' open={props.isLeftDrawerOpen} onClose={handleLeftDrawerClose}>
+    <Drawer anchor='left' open={isLeftDrawerOpen} onClose={handleLeftDrawerClose}>
       <Box
         role='presentation'
         overflow='auto'
@@ -142,19 +153,10 @@ const LeftDrawer = (props) => {
           </Button>
         </Box>
 
-        {searchLoading ? (
-          <ListLoading />
-        ) : (
-          searchResult?.map((user) => (
-            <UserListItem key={user._id} user={user} handleFunction={() => chatAccess(user._id)} />
-          ))
-        )}
+        {searchLoading ? <ListLoading /> : renderedResults}
 
         {chatState.loading && (
-          <Box
-            component='div'
-            sx={{ marginTop: '2rem' }}
-          >
+          <Box component='div' sx={{ marginTop: '2rem' }} >
             <Spinner />
           </Box>
         )}
