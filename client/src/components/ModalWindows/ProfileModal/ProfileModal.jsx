@@ -1,28 +1,27 @@
 import { Link as ReactRouterLink } from 'react-router-dom';
+import { memo, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Avatar, Box, Dialog, DialogTitle, DialogContent, IconButton, Link, Typography } from '@mui/material';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
 
-const ProfileModal = (props) => {
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+const ProfileModal = ({ isProfileModalOpen, setIsProfileModalOpen, user }) => {
+  // Get only auth user directly from auth STATE.
+  const authUser = useSelector((state) => state.authReducer.user);
+
+  // Memoize auth user ID to prevent unnecessary recomputations.
+  const authUserId = useMemo(() => authUser?._id, [authUser]);
 
   // Close profile modal window.
-  const handleProfileModalClose = () => {
-    try {
-      props.setIsProfileModalOpen(false);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const handleProfileModalClose = useCallback(() => {
+    setIsProfileModalOpen(false);
+  }, [setIsProfileModalOpen]);
 
   return (
     <Dialog 
       aria-labelledby='modal-user-menu-profile'
-      open={props.isProfileModalOpen} 
+      open={isProfileModalOpen} 
       onClose={handleProfileModalClose} 
     >
       <Box
@@ -43,7 +42,7 @@ const ProfileModal = (props) => {
           id='modal-user-menu-profile'
           sx={{ textAlign: 'center', fontSize: '3rem' }}
         >
-          {props.user.username}
+          {user.username}
         </DialogTitle>
 
         <IconButton
@@ -60,7 +59,7 @@ const ProfileModal = (props) => {
             sx={{ display: 'flex', justifyContent: 'center' }}
           >
             <Avatar
-              src={props.user.avatar}
+              src={user.avatar}
               sx={{ height: '15rem', marginBottom: '2rem', width: '15rem' }}
             />
           </Typography>
@@ -69,10 +68,10 @@ const ProfileModal = (props) => {
             component='div'
             sx={{ fontSize: '2rem', marginBottom: '3rem', textAlign: 'center' }}
           >
-            {props.user.email}
+            {user.email}
           </Typography>
 
-          {props.user._id === authState.user._id ? (
+          {user._id === authUserId ? (
             <Link
               component={ReactRouterLink}
               to='/profile'
@@ -92,4 +91,4 @@ const ProfileModal = (props) => {
   );
 };
 
-export default ProfileModal;
+export default memo(ProfileModal);
