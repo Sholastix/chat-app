@@ -1,22 +1,19 @@
+import { memo, useCallback } from 'react';
 import { Box, Dialog, DialogTitle, IconButton } from '@mui/material';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
 
-const SettingsModal = (props) => {
+const SettingsModal = ({ isSettingsModalOpen, setIsSettingsModalOpen }) => {
   // Close 'Settings' modal window.
-  const handleSettingsModalClose = () => {
-    try {
-      props.setIsSettingsModalOpen(false);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const handleSettingsModalClose = useCallback(() => {
+    setIsSettingsModalOpen(false);
+  }, [setIsSettingsModalOpen]);
 
   return (
     <Dialog
       aria-labelledby='modal-user-menu-settings'
-      open={props.isSettingsModalOpen}
+      open={isSettingsModalOpen}
       onClose={handleSettingsModalClose}
     >
       <Box
@@ -63,4 +60,4 @@ const SettingsModal = (props) => {
   );
 };
 
-export default SettingsModal;
+export default memo(SettingsModal);
