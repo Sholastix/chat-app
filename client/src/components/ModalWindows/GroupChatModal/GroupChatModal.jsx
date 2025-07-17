@@ -115,6 +115,17 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
     }
   }, []);
 
+  // New stable handlers for 'UserBadgeItem' and 'UserListItem' Components to avoid inline arrow functions:
+  const handleAddUserMemo = useCallback(
+    (user) => () => handleAddUser(user),
+    [handleAddUser]
+  );
+
+  const handleRemoveUserMemo = useCallback(
+    (user) => () => handleRemoveUser(user),
+    [handleRemoveUser]
+  );
+    
   // Create new group chat.
   const handleSubmit = useCallback(async (event) => {
     try {
@@ -231,8 +242,8 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
             {selectedUsers?.map((user) => (
               <UserBadgeItem 
                 key={user._id} 
-                user={user} 
-                handleFunction={() => handleRemoveUser(user)} 
+                user={user}
+                handleFunction={handleRemoveUserMemo(user)}
               />
             ))}
           </Stack>
@@ -264,8 +275,8 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
               {searchResult?.map((user) => (
                 <UserListItem 
                   key={user._id} 
-                  user={user} 
-                  handleFunction={() => handleAddUser(user)} 
+                  user={user}
+                  handleFunction={handleAddUserMemo(user)}
                 />
               ))}
             </Stack>

@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { Avatar, Box, Typography } from '@mui/material';
 
-const UserListItem = (props) => {
+const UserListItem = ({ user, handleFunction }) => {
   return (
     <Box
       sx={{
@@ -14,9 +15,9 @@ const UserListItem = (props) => {
         padding: '1rem 2rem',
         ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
       }}
-      onClick={props.handleFunction}
+      onClick={handleFunction}
     >
-      <Avatar src={props.user.avatar} sx={{ marginRight: '2rem' }} />
+      <Avatar src={user.avatar} sx={{ marginRight: '2rem' }} />
 
       <Box
         sx={{
@@ -26,15 +27,15 @@ const UserListItem = (props) => {
         }}
       >
         <Typography component='div' sx={{ fontSize: '1.4rem' }}>
-          {props.user.username}
+          {user.username}
         </Typography>
 
         <Typography component='div' sx={{ fontSize: '1.2rem' }}>
-          <strong>Email:</strong> {props.user.email}
+          <strong>Email:</strong> {user.email}
         </Typography>
       </Box>
     </Box>
   );
 };
 
-export default UserListItem;
+export default memo(UserListItem);

@@ -83,16 +83,20 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
     }
   }, [dispatch, setIsLeftDrawerOpen, resetSearchState]);
 
+  const handleChatAccessMemo = useCallback((userId) => () => {
+    chatAccess(userId);
+  }, [chatAccess]);
+
   // Memoized render for search list.
   const renderedResults = useMemo(() => {
     return searchResult?.map((user) => (
       <UserListItem 
         key={user._id} 
         user={user} 
-        handleFunction={() => chatAccess(user._id)} 
+        handleFunction={handleChatAccessMemo(user._id)}
       />
     ));
-  }, [searchResult, chatAccess]);
+  }, [searchResult, handleChatAccessMemo]);
 
   return (
     <Drawer anchor='left' open={isLeftDrawerOpen} onClose={handleLeftDrawerClose}>

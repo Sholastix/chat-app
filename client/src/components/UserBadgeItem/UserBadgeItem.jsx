@@ -1,9 +1,10 @@
+import { memo } from 'react';
 import { Box, Typography } from '@mui/material';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
 
-const UserBadgeItem = (props) => {
+const UserBadgeItem = ({ user, handleFunction }) => {
   return (
     <Box
       sx={{
@@ -17,14 +18,14 @@ const UserBadgeItem = (props) => {
         padding: '0.5rem',
         ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
       }}
-      onClick={props.handleFunction}
+      onClick={handleFunction}
     >
       <Typography component="div" sx={{ fontSize: '1.2rem' }}>
-        {props.user.username}
+        {user.username}
       </Typography>
       <CloseIcon sx={{ marginLeft: '0.3rem', fontSize: '1.4rem' }} />
     </Box>
   );
 };
 
-export default UserBadgeItem;
+export default memo(UserBadgeItem);
