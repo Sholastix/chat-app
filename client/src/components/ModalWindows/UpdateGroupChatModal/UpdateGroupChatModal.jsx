@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -27,17 +27,23 @@ import UserListItem from '../../UserListItem/UserListItem';
 import { addUserToGroupChat, removeUserFromGroupChat, renameGroupChat } from '../../../features/chat/chatSlice';
 
 const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen, fetchAgain, setFetchAgain }) => {
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+  // Get exact propertie's value directly from auth STATE.
+  const authUser = useSelector((state) => state.authReducer.user);
+  const chatLoading = useSelector((state) => state.chatReducer.loading);
+  const selectedChat = useSelector((state) => state.chatReducer.selectedChat);
 
-  const chatState = useSelector((state) => {
-    return state.chatReducer;
-  });
+  // Early return for missing data.
+  if (!authUser || !selectedChat || !selectedChat.groupAdmin) return null;
+
+  // Memoize properties values to prevent unnecessary recomputations.
+  const authUserId = useMemo(() => authUser._id, [authUser]);
+  const chatId = useMemo(() => selectedChat._id, [selectedChat]);
+  const groupAdminId = useMemo(() => selectedChat.groupAdmin._id, [selectedChat]);
+  const selectedUsers = useMemo(() => selectedChat.users, [selectedChat]);
 
   const dispatch = useDispatch();
 
-  const [groupChatName, setGroupChatName] = useState(chatState.selectedChat.chatName);
+  const [groupChatName, setGroupChatName] = useState(selectedChat.chatName);
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
@@ -48,9 +54,19 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
   const [groupChatNameInputError, setGroupChatNameInputError] = useState(false);
   const [groupChatNameInputHelperText, setGroupChatNameInputHelperText] = useState('');
 
-  const chatId = useMemo(() => chatState.selectedChat._id, [chatState.selectedChat]);
-  const groupAdminId = useMemo(() => chatState.selectedChat.groupAdmin._id, [chatState.selectedChat]);
-  const selectedUsers = useMemo(() => chatState.selectedChat.users, [chatState.selectedChat]);
+  // Timeout refs for cleanup.
+  const addUserTimeout = useRef(null);
+  const rightsTimeout = useRef(null);
+  const selfRemoveTimeout = useRef(null);
+
+  // Cleanup on unmount.
+  useEffect(() => {
+    return () => {
+      clearTimeout(addUserTimeout.current);
+      clearTimeout(rightsTimeout.current);
+      clearTimeout(selfRemoveTimeout.current);
+    };
+  }, []);
 
   // 'Close' functions for 'Alert' Component.
   const handleCloseAddUserAlert = useCallback((event, reason) => {
@@ -80,13 +96,13 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
   // Close modal window.
   const handleUpdateGroupChatModalClose = useCallback(() => {
     setIsUpdateGroupChatModalOpen(false);
-    setGroupChatName(chatState.selectedChat.chatName);
+    setGroupChatName(selectedChat.chatName);
     setSearch('');
     setSearchLoading(false);
     setSearchResult([]);
     setGroupChatNameInputError(false);
     setGroupChatNameInputHelperText('');
-  }, [chatState.selectedChat.chatName, setIsUpdateGroupChatModalOpen]);
+  }, [selectedChat.chatName, setIsUpdateGroupChatModalOpen]);
 
   // Search for users to add to a group chat.
   const handleSearch = useCallback(async (query) => {
@@ -116,13 +132,9 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
 
     try {
       // Check if currently logged user is group admin.
-      if (groupAdminId !== authState.user._id) {
+      if (groupAdminId !== authUserId) {
         setAdminRightsAlert(true);
-
-        setTimeout(() => {
-          setAdminRightsAlert(false);
-        }, 5000);
-
+        rightsTimeout.current = setTimeout(() => setAdminRightsAlert(false), 5000);
         return;
       }
 
@@ -143,30 +155,22 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
     } catch (err) {
       console.error(err);
     }
-  }, [authState.user._id, groupAdminId, groupChatName, dispatch, chatId, fetchAgain, setFetchAgain]);
+  }, [authUserId, groupAdminId, groupChatName, dispatch, chatId, fetchAgain, setFetchAgain]);
 
   // Add user to group chat.
   const handleAddUser = useCallback(async (userToAdd) => {
     try {
       // Check if currently logged user is group admin.
-      if (groupAdminId !== authState.user._id) {
+      if (groupAdminId !== authUserId) {
         setAdminRightsAlert(true);
-
-        setTimeout(() => {
-          setAdminRightsAlert(false);
-        }, 5000);
-
+        rightsTimeout.current = setTimeout(() => setAdminRightsAlert(false), 5000);
         return;
       }
 
       // Check if user which we want to add already in group.
       if (selectedUsers.some((user) => user._id === userToAdd._id)) {
         setAddUserAlert(true);
-
-        setTimeout(() => {
-          setAddUserAlert(false);
-        }, 5000);
-
+        addUserTimeout.current = setTimeout(() => setAddUserAlert(false), 5000);
         return;
       }
 
@@ -181,30 +185,22 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
     } catch (err) {
       console.error(err);
     }
-  }, [authState.user._id, groupAdminId, selectedUsers, dispatch, chatId, fetchAgain, setFetchAgain]);
+  }, [authUserId, groupAdminId, selectedUsers, dispatch, chatId, fetchAgain, setFetchAgain]);
 
   // Remove user from group chat.
   const handleRemoveUser = useCallback((userToRemove) => {
     try {
       // Check if currently logged user is group admin.
-      if (groupAdminId !== authState.user._id) {
+      if (groupAdminId !== authUserId) {
         setAdminRightsAlert(true);
-
-        setTimeout(() => {
-          setAdminRightsAlert(false);
-        }, 5000);
-
+        rightsTimeout.current = setTimeout(() => setAdminRightsAlert(false), 5000);
         return;
       }
 
       // Checking if the group admin is trying to remove himself.
       if (groupAdminId === userToRemove._id) {
         setAdminSelfRemove(true);
-
-        setTimeout(() => {
-          setAdminSelfRemove(false);
-        }, 5000);
-
+        selfRemoveTimeout.current = setTimeout(() => setAdminSelfRemove(false), 5000);
         return;
       }
 
@@ -212,7 +208,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
         removeUserFromGroupChat({
           chatId: chatId,
           userId: userToRemove._id,
-          currentUserId: authState.user._id,
+          currentUserId: authUserId,
         })
       );
 
@@ -220,7 +216,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
     } catch (err) {
       console.error(err);
     }
-  }, [authState.user._id, groupAdminId, dispatch, chatId, fetchAgain, setFetchAgain]);
+  }, [authUserId, groupAdminId, dispatch, chatId, fetchAgain, setFetchAgain]);
 
   // New stable handlers for 'UserBadgeItem' and 'UserListItem' Components to avoid inline arrow functions:
   const handleAddUserMemo = useCallback(
@@ -237,13 +233,9 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
   const handleLeaveGroupChat = useCallback((userToRemove) => {
     try {
       // Checking if the group admin is trying to remove himself.
-      if (groupAdminId === authState.user._id && userToRemove._id === authState.user._id) {
+      if (groupAdminId === userToRemove._id) {
         setAdminSelfRemove(true);
-
-        setTimeout(() => {
-          setAdminSelfRemove(false);
-        }, 5000);
-
+        selfRemoveTimeout.current = setTimeout(() => setAdminSelfRemove(false), 5000);
         return;
       }
 
@@ -251,7 +243,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
         removeUserFromGroupChat({
           chatId: chatId,
           userId: userToRemove._id,
-          currentUserId: authState.user._id,
+          currentUserId: authUserId,
         })
       );
 
@@ -259,7 +251,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
     } catch (err) {
       console.error(err);
     }
-  }, [authState.user._id, groupAdminId, dispatch, chatId, fetchAgain, setFetchAgain]);
+  }, [authUserId, groupAdminId, dispatch, chatId, fetchAgain, setFetchAgain]);
 
   return (
     <Dialog open={isUpdateGroupChatModalOpen} onClose={handleUpdateGroupChatModalClose}>
@@ -338,7 +330,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
               }}
             />
 
-            {chatState.loading ? (
+            {chatLoading ? (
               <Box
                 component='div'
                 sx={{
@@ -351,7 +343,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
               </Box>
             ) : (
               <Button
-                type='submit'
+                type='button'
                 variant='outlined'
                 sx={{
                   borderColor: 'lightgray',
@@ -452,7 +444,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
               textTransform: 'none',
               ':hover': { backgroundColor: 'rgb(230, 46, 46)', color: 'white' },
             }}
-            onClick={() => handleLeaveGroupChat(authState.user)}
+            onClick={() => handleLeaveGroupChat(authUser)}
           >
             Leave Chat
           </Button>
