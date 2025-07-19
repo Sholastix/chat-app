@@ -8,7 +8,10 @@ const Spinner = () => {
       component='img'
       src={spinner}
       alt='LOADING...'
+      draggable='false'
+      role='img'
       sx={{
+        display: 'block',
         height: '5rem',
         width: '5rem',
       }}
