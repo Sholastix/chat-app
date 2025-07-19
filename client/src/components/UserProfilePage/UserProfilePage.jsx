@@ -41,6 +41,7 @@ const SettingsModal = () => {
   // Set initial values.
   const getInitialValues = () => {
     try {
+      setPicture(authUser.avatar); 
       setPicturePreview(authUser.avatar);
       setUsername(authUser.username);
       setUsernameInputError(false);
@@ -98,6 +99,9 @@ const SettingsModal = () => {
       } else {
         setUploadPictureAlert(true);
 
+        // Reset input vale for 'select' field.
+        fileInputRef.current.value = null;
+
         setTimeout(() => {
           setUploadPictureAlert(false);
         }, 5000);
@@ -117,7 +121,8 @@ const SettingsModal = () => {
     try {
       event.preventDefault();
 
-      if (picture === '') {
+      // If no picture URL (either existing or newly uploaded) - then enable ALERT.
+      if (!picture || typeof picture !== 'string' || picture.trim() === '') {
         setUploadPictureAlert(true);
 
         setTimeout(() => {
