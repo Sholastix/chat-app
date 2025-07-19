@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Fragment } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, FormControl, FormLabel, IconButton, TextField, Typography } from '@mui/material';
@@ -14,9 +14,9 @@ import Spinner from '../Spinner/Spinner';
 import { updateUser } from '../../features/auth/authSlice';
 
 const SettingsModal = () => {
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+  const authLoading = useSelector((state) => state.authReducer.loading);
+  const authUser = useSelector((state) => state.authReducer.user);
+  const authUserId = useSelector((state) => state.authReducer.user._id);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -25,25 +25,24 @@ const SettingsModal = () => {
   const [picture, setPicture] = useState('');
   const [pictureLoading, setPictureLoading] = useState(false);
   const [picturePreview, setPicturePreview] = useState('');
-  const [username, setUsername] = useState('');
-
-  // STATE for alerts.
   const [uploadPictureAlert, setUploadPictureAlert] = useState(false);
+  const [username, setUsername] = useState('');
   const [usernameInputError, setUsernameInputError] = useState(false);
   const [usernameInputHelperText, setUsernameInputHelperText] = useState('');
 
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    !authState.loading && getInitialValues();
-  }, [authState.user]);
+    if (!authLoading) { 
+      getInitialValues();
+    }
+  }, [authLoading, authUser]);
 
   // Set initial values.
   const getInitialValues = () => {
     try {
-      setPicturePreview(authState.user.avatar);
-      setUsername(authState.user.username);
-
+      setPicturePreview(authUser.avatar);
+      setUsername(authUser.username);
       setUsernameInputError(false);
       setUsernameInputHelperText('');
     } catch (err) {
@@ -86,9 +85,14 @@ const SettingsModal = () => {
         })
           .then((res) => res.json())
           .then((data) => {
-            console.log('PICTURE_URL: ', data.url.toString());
-            setPicture(data.url.toString());
-            setPicturePreview(data.url.toString());
+            const url = data.url.toString();
+            console.log('PICTURE_URL: ', url);
+            setPicture(url);
+            setPicturePreview(url);
+            setPictureLoading(false);
+          })
+          .catch((err) => {
+            console.error(err);
             setPictureLoading(false);
           });
       } else {
@@ -104,6 +108,7 @@ const SettingsModal = () => {
       }
     } catch (err) {
       console.error(err);
+      setPictureLoading(false);
     }
   };
 
@@ -128,7 +133,7 @@ const SettingsModal = () => {
         return;
       }
 
-      const id = authState.user._id;
+      const id = authUserId;
 
       dispatch(updateUser({ id, picture, username }));
       navigate('/chat');
@@ -143,15 +148,18 @@ const SettingsModal = () => {
       event.preventDefault();
 
       getInitialValues();
-      fileInputRef.current.value = null;
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null;
+      }
     } catch (err) {
       console.error(err);
     }
   };
 
   return (
-    <Fragment>
-      {authState.loading ? (
+    <>
+      {authLoading ? (
         <Box
           component='div'
           sx={{
@@ -193,6 +201,7 @@ const SettingsModal = () => {
             }}
           >
             <IconButton
+              aria-label='go back'
               sx={{
                 alignSelf: 'flex-start',
                 display: 'flex',
@@ -204,7 +213,7 @@ const SettingsModal = () => {
             </IconButton>
 
             <Typography
-              component="div"
+              component='div'
               sx={{
                 fontSize: '3rem',
                 fontFamily: 'Roboto',
@@ -228,6 +237,7 @@ const SettingsModal = () => {
                 component='img'
                 src={picturePreview}
                 alt='avatar'
+                draggable='false'
                 sx={{
                   alignSelf: 'center',
                   borderRadius: '50%',
@@ -284,7 +294,7 @@ const SettingsModal = () => {
             <Box display='flex'>
               <Button
                 type='submit'
-                variant="outlined"
+                variant='outlined'
                 sx={{
                   borderColor: 'lightgray',
                   color: 'black',
@@ -302,7 +312,7 @@ const SettingsModal = () => {
 
               <Button
                 type='button'
-                variant="outlined"
+                variant='outlined'
                 sx={{
                   borderColor: 'lightgray',
                   color: 'black',
@@ -321,7 +331,7 @@ const SettingsModal = () => {
           </Box>
         </Box>
       )}
-    </Fragment>
+    </>
   );
 };
 
