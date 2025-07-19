@@ -1,16 +1,16 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 
-const ScrollToBottomButton = (props) => {
+const ScrollToBottomButton = ({ scrollbarPosition, scrollToBottom }) => {
   const [isScrollToBottomButtonVisible, setIsScrollToBottomButtonVisible] = useState(false);
 
   useEffect(() => {
     toggleScrollToBottomButtonVisibility();
-  });
+  }, [scrollbarPosition]);
 
   // Conditionally show or hide 'scrollToBottom' button.
   const toggleScrollToBottomButtonVisibility = () => {
-    if (props.scrollbarPosition && props.scrollbarPosition < 95) {
+    if (scrollbarPosition != null && scrollbarPosition < 95) {
       setIsScrollToBottomButtonVisible(true);
     } else {
       setIsScrollToBottomButtonVisible(false);
@@ -18,10 +18,12 @@ const ScrollToBottomButton = (props) => {
   };
 
   return (
-    <Fragment>
+    <>
       {isScrollToBottomButtonVisible && (
         <Box
           component='button'
+          aria-label='scroll to bottom'
+          type='button'
           sx={{
             alignSelf: 'flex-end',
             backgroundColor: 'rgb(93, 109, 126)',
@@ -29,7 +31,7 @@ const ScrollToBottomButton = (props) => {
             borderRadius: '50%',
             height: '4rem',
             margin: '2rem',
-            opacity: '0.5',
+            opacity: 0.5,
             position: 'fixed',
             right: '1rem',
             top: '83%',
@@ -37,10 +39,10 @@ const ScrollToBottomButton = (props) => {
             ':hover': {
               boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
               cursor: 'pointer',
-              opacity: '1',
+              opacity: 1,
             },
           }}
-          onClick={props.scrollToBottom}
+          onClick={scrollToBottom}
         >
           <Box
             component='p'
@@ -48,13 +50,14 @@ const ScrollToBottomButton = (props) => {
               color: 'white',
               fontSize: '2.5rem',
               paddingBottom: '0.5rem',
+              userSelect: 'none'
             }}
           >
             &#x2193;
           </Box>
         </Box>
       )}
-    </Fragment>
+    </>
   );
 };
 
