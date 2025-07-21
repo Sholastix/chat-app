@@ -8,10 +8,10 @@ export const checkPassword = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
 export const checkEmail = async (email) => {
   try {
     const user = await axios.get(`/api/user/email/${email}`);
-
     return user.data === null ? true : false;
   } catch (err) {
     console.error(err);
+    return false;
   }
 };
 
@@ -19,9 +19,9 @@ export const checkEmail = async (email) => {
 export const checkUsername = async (username) => {
   try {
     const user = await axios.get(`/api/user/username/${username}`);
-
     return user.data === null ? true : false;
   } catch (err) {
     console.error(err);
+    return false;
   }
 };

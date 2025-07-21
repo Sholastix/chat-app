@@ -2,7 +2,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 // ONLY FOR DEVELOPMENT.
 import { DevTool } from '@hookform/devtools';
 
@@ -14,40 +13,15 @@ import Spinner from '../../../components/Spinner/Spinner';
 
 // Functions.
 import { signin } from '../authSlice';
-import { checkEmail, checkPassword } from '../../../helpers/checkCredentials';
+import { signinSchema } from '../../../validation/userValidation';
 
 const Signin = () => {
   // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
   // This hook accepts a selector function as its parameter. Selector function receives Redux STATE as argument.
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+  const authState = useSelector((state) => state.authReducer);
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
-
-  // Validation schema for 'Signup' component.
-  const signinSchema = yup.object({
-    email: yup
-      .string()
-      .required('Email is required.')
-      .email('Please enter a valid email.')
-      // If function 'checkEmail' return 'true' - test passed successfully, if 'false' - message 'This email is already taken.' will be displayed.
-      .test('Unique email.', 'User with this email not found.', async () => {
-        const email = form.getValues('email');
-
-        if (email && email !== '') {
-          const result = await checkEmail(email);
-
-          return result === false ? true : false;
-        }
-      }),
-    password: yup
-      .string()
-      .required('Password is required.')
-      .min(5, 'Password must be at least 5 characters long.')
-      .matches(checkPassword, { message: 'Password must contain letters and numbers.' }),
-  });
 
   const form = useForm({
     defaultValues: {
@@ -57,6 +31,7 @@ const Signin = () => {
 
     // Connect Yup schema.
     resolver: yupResolver(signinSchema),
+    mode: 'onTouched'
   });
 
   const { register, handleSubmit, formState, control } = form;
@@ -64,7 +39,7 @@ const Signin = () => {
 
   // Redirect if user signed in.
   if (!authState.loading && authState.isAuthenticated) {
-    return <Navigate to="/chat" replace={true} />;
+    return <Navigate to='/chat' replace={true} />;
   }
 
   const onSubmit = async (formData) => {
@@ -81,7 +56,7 @@ const Signin = () => {
   };
 
   const onError = (errors) => {
-    console.log('FORM_ERRORS:', errors);
+    console.warn('FORM_ERRORS:', errors);
   };
 
   return (
