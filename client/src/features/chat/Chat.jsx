@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 
@@ -18,9 +18,8 @@ import { useAuthGuard } from '../../hooks/useAuthGuard';
 import { onlineUsers } from './chatSlice';
 
 const Chat = () => {
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+  const authUser = useSelector((state) => state.authReducer.user);
+  const authLoading = useSelector((state) => state.authReducer.loading);
 
   const dispatch = useDispatch();
 
@@ -32,14 +31,14 @@ const Chat = () => {
 
   useEffect(() => {
     // Wait for user info.
-    if (!authState.user) {
+    if (!authUser) {
       return;
     }
 
     // User connects to the app.
     if (!socket.connected) {
       socket.connect();
-      socket.emit('user_add', authState.user);
+      socket.emit('user_add', authUser);
     }
     
     socket.on('connected', (data) => {
@@ -64,12 +63,12 @@ const Chat = () => {
       // // Disconnect socket on 'Chat' unmount (OPTIONAL).
       // socket.disconnect();
     };
-  }, [authState.user, dispatch]);
+  }, [authUser, dispatch]);
 
   return (
-    <Fragment>
-      {!authState.loading && authState.user ? (
-        <Box component="div" sx={{ width: '100vw' }}>
+    <>
+      {!authLoading && authUser ? (
+        <Box component='div' sx={{ width: '100vw' }}>
           <Header />
           <Box
             component="div"
@@ -98,7 +97,7 @@ const Chat = () => {
           <Spinner />
         </Box>
       )}
-    </Fragment>
+    </>
   );
 };
 
