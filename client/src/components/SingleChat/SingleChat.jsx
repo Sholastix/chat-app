@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Fragment } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Box, FormControl, IconButton, TextField, Tooltip, Typography } from '@mui/material';
@@ -9,13 +9,15 @@ import messageSound from '../../assets/sounds/messageSound.mp3';
 // MUI Icons.
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Components.
-import ProfileModal from '../ModalWindows/ProfileModal/ProfileModal';
 import ScrollableChatWindow from '../ScrollableChatWindow/ScrollableChatWindow';
 import Spinner from '../Spinner/Spinner';
-import UpdateGroupChatModal from '../ModalWindows/UpdateGroupChatModal/UpdateGroupChatModal';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+
+// Components (lazy-loaded).
+const ProfileModal = lazy(() => import('../ModalWindows/ProfileModal/ProfileModal'));
+const UpdateGroupChatModal = lazy(() => import('../ModalWindows/UpdateGroupChatModal/UpdateGroupChatModal'));
 
 // Socket.IO
 import { socket } from '../../socket/socket';
@@ -25,14 +27,17 @@ import { getSender, getFullSender, truncateText } from '../../helpers/chatLogic'
 import { resetSelectedChatState, onlineUsers } from '../../features/chat/chatSlice';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+  const authUser = useSelector((state) => state.authReducer.user);
+  const authUserId = authUser?._id;
+  const authUserUsername = authUser?.username;
 
-  const chatState = useSelector((state) => {
-    return state.chatReducer;
-  });
-
+  const chatLoading = useSelector((state) => state.chatReducer.loading);
+  const selectedChat = useSelector((state) => state.chatReducer.selectedChat);
+  const selectedChatId = selectedChat?._id;
+  const selectedChatIsGroupChat = selectedChat?.isGroupChat;
+  const selectedChatUsers = selectedChat?.users;
+  const selectedChatName = selectedChat?.chatName;
+  
   const dispatch = useDispatch();
 
   // STATE.
@@ -54,7 +59,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       dispatch(onlineUsers(data));
     });
 
-    // Listen for typing event
+    // Listen for typing event.
     socket.on('typing', (username) => {
       setIsTyping(true);
       setTypingUser(username);
@@ -175,28 +180,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     fetchLastOnline();
 
     socket.emit('room_join',
-      chatState.selectedChat?._id,
-      chatState.selectedChat?.users,
-      authState.user.username,
-      authState.user._id
+      selectedChatId,
+      selectedChatUsers,
+      authUserUsername,
+      authUserId,
     );
 
     // Update 'lastOnline' status on connect/disconnect.
     socket.on('last_online_update', ({ userId, lastOnline }) => {
-      const selectedUsers = chatState.selectedChat?.users;
-      const loggedInUser = authState.user;
-
-      if (!selectedUsers || selectedUsers.length < 2 || !loggedInUser?._id) {
+      if (!selectedChatUsers || selectedChatUsers.length < 2 || !authUser?._id) {
         return;
       }
 
       // Defining our collocutor.
-      const collocutor = getFullSender(loggedInUser, selectedUsers);
+      const collocutor = getFullSender(authUser, selectedChatUsers);
 
       if (collocutor?._id === userId) {
         if (lastOnline === null) {
           setLastOnline('Online');
-
           return;
         }
 
@@ -216,16 +217,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     return () => {
       socket.off('last_online_update');
     };
-  }, [chatState.selectedChat]);
+  }, [selectedChat]);
 
   // Fetch 'lastOnline' status for our collocutor in private chat.
   const fetchLastOnline = async () => {
     try {
-      if (!chatState.selectedChat || chatState.selectedChat.isGroupChat) {
+      if (!selectedChat || selectedChatIsGroupChat) {
         return;
       }
 
-      const collocutor = getFullSender(authState.user, chatState.selectedChat.users);
+      const collocutor = getFullSender(authUser, selectedChatUsers);
       const { data } = await axios.get(`/api/user/${collocutor._id}`);
 
       if (data?.lastOnline) {
@@ -254,7 +255,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setNewMessage('');
       setFetchAgain(!fetchAgain);
 
-      socket.emit('room_leave', chatState.selectedChat._id, authState.user.username, authState.user._id);
+      socket.emit('room_leave', selectedChatId, authUserUsername, authUserId);
     } catch (err) {
       console.error(err);
     }
@@ -271,7 +272,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }
 
       // Emit typing event to the server (to the specific room) when the user is typing.
-      socket.emit('typing', chatState.selectedChat._id, authState.user.username);
+      socket.emit('typing', selectedChatId, authUserUsername);
     } catch (err) {
       console.error(err);
     }
@@ -280,13 +281,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
   const fetchMessages = async () => {
     try {
-      if (!chatState.selectedChat) {
+      if (!selectedChat) {
         return;
       }
 
       setMessageLoading(true);
 
-      const { data } = await axios.get(`/api/chat/messages/${chatState.selectedChat._id}`);
+      const { data } = await axios.get(`/api/chat/messages/${selectedChatId}`);
 
       setMessages(data);
       setMessageLoading(false);
@@ -300,12 +301,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       if (newMessage.trim().length > 0) {
         const { data } = await axios.post('/api/chat/message', {
-          chatId: chatState.selectedChat._id,
+          chatId: selectedChatId,
           messageContent: newMessage,
           replyTo: quotedMessage?._id || null,
         });
 
-        socket.emit('message_send', chatState.selectedChat._id, data);
+        socket.emit('message_send', selectedChatId, data);
         setMessages([...messages, data]);
         setNewMessage('');
         setQuotedMessage(null);
@@ -336,8 +337,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   return (
-    <Fragment>
-      {chatState.loading ? (
+    <>
+      {chatLoading ? (
         <Box
           component='div'
           sx={{
@@ -350,7 +351,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         >
           <Spinner />
         </Box>
-      ) : chatState.selectedChat ? (
+      ) : selectedChat ? (
         <Box component='div' sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
           <Box
             component='div'
@@ -376,11 +377,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               <ArrowBackIcon sx={{ fontSize: '3rem' }} />
             </IconButton>
 
-            {!chatState.selectedChat.isGroupChat ? (
-              <Fragment>
+            {!selectedChatIsGroupChat ? (
+              <>
                 <Box component='div' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <Typography component='div' sx={{ display: 'flex', fontSize: '2.5rem' }}>
-                    {getSender(authState.user, chatState.selectedChat.users)}
+                    {getSender(authUser, selectedChatUsers)}
                   </Typography>
 
                   <Typography
@@ -399,16 +400,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 >
                   <VisibilityIcon sx={{ fontSize: '2rem' }} />
                 </IconButton>
-
-                <ProfileModal
-                  isProfileModalOpen={isProfileModalOpen}
-                  setIsProfileModalOpen={setIsProfileModalOpen}
-                  user={getFullSender(authState.user, chatState.selectedChat.users)}
-                />
-              </Fragment>
+                
+                {isProfileModalOpen && (
+                  <Suspense fallback={<Spinner />}>
+                    <ProfileModal
+                      isProfileModalOpen={isProfileModalOpen}
+                      setIsProfileModalOpen={setIsProfileModalOpen}
+                      user={getFullSender(authUser, selectedChatUsers)}
+                    />
+                  </Suspense>
+                )}
+              </>
             ) : (
-              <Fragment>
-                {chatState.selectedChat.chatName}
+              <>
+                {selectedChatName}
 
                 <IconButton
                   sx={{ marginLeft: '1rem' }}
@@ -418,14 +423,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 >
                   <VisibilityIcon sx={{ fontSize: '2rem' }} />
                 </IconButton>
-
-                <UpdateGroupChatModal
-                  isUpdateGroupChatModalOpen={isUpdateGroupChatModalOpen}
-                  setIsUpdateGroupChatModalOpen={setIsUpdateGroupChatModalOpen}
-                  fetchAgain={fetchAgain}
-                  setFetchAgain={setFetchAgain}
-                />
-              </Fragment>
+                
+                {isUpdateGroupChatModalOpen && (
+                  <Suspense fallback={<Spinner />}>
+                    <UpdateGroupChatModal
+                      isUpdateGroupChatModalOpen={isUpdateGroupChatModalOpen}
+                      setIsUpdateGroupChatModalOpen={setIsUpdateGroupChatModalOpen}
+                      fetchAgain={fetchAgain}
+                      setFetchAgain={setFetchAgain}
+                    />
+                  </Suspense>
+                )}
+              </>
             )}
           </Box>
 
@@ -456,7 +465,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <ScrollableChatWindow
                 isTyping={isTyping}
-                chatId={chatState.selectedChat._id}
+                chatId={selectedChatId}
                 messages={messages}
                 setMessages={setMessages}
                 setQuotedMessage={setQuotedMessage}
@@ -571,7 +580,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           <Typography sx={{ fontSize: '3rem' }}>Please select collocutor from chats list.</Typography>
         </Box>
       )}
-    </Fragment>
+    </>
   );
 };
 
