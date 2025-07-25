@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Box, FormControl, IconButton, TextField, Tooltip, Typography } from '@mui/material';
@@ -41,7 +41,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const dispatch = useDispatch();
 
   // STATE.
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
   const [lastOnline, setLastOnline] = useState();
   const [messages, setMessages] = useState([]);
   const [messageLoading, setMessageLoading] = useState(false);
@@ -49,103 +51,131 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [quotedMessage, setQuotedMessage] = useState(null);
   const [typingUser, setTypingUser] = useState('');
 
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isUpdateGroupChatModalOpen, setIsUpdateGroupChatModalOpen] = useState(false);
-
   const typingTimeoutRef = useRef(null);
 
+  // Show online users.
+  const handleUsersOnline = useCallback((data) => {
+    dispatch(onlineUsers(data));
+  }, [dispatch]);
+
+  // Showing typing indicator based on 'typing' event.
+  const handleTypingIndicator = useCallback((username) => {
+    setIsTyping(true);
+    setTypingUser(username);
+
+    // Clear any existing timeout if typing has resumed.
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set a new timeout to hide the typing indicator after 3 seconds.
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      setTypingUser('');
+    }, 3000);
+  }, []);
+
+  // Add new message to chat.
+  const handleMessageReceived = useCallback((data) => {
+    // Incoming message will have pop-up sound (only if the chat window is unfocused or hidden).
+    if (!document.hasFocus() || document.visibilityState === 'hidden') {
+      messageNotificationSound();
+    }
+      
+    setMessages((prevMessages) => [...prevMessages, data]);
+    setIsTyping(false);
+    setTypingUser('');
+  }, []);
+
+  // Mark one message as read.
+  const handleMarkOneMessageAsRead = useCallback(({ messageId }) => {
+    setMessages((prevMessages) =>
+      prevMessages.map((msg) => (msg._id === messageId ? { ...msg, isRead: true } : msg))
+    );
+  }, []);
+
+  // Mark all messages as read.
+  const handleMarkAllMessagesAsRead = useCallback((updatedMessage) => {
+    setMessages((prevMessages) =>
+      prevMessages.map((msg) => (msg._id === updatedMessage._id ? { ...msg, isRead: true } : msg))
+    );
+  }, []);
+
+  // Insert edited message in chat.
+  const handleEditedMessage = useCallback((editedMessage) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg._id === editedMessage._id
+          ? {
+              ...msg,
+              content: editedMessage.content,
+              isEdited: editedMessage.isEdited,
+              updatedAt: editedMessage.updatedAt,
+            }
+          : msg
+      )
+    );
+  }, []);
+
+  // Hide chat message.
+  const handleHideMessage = useCallback((hiddenMessage) => {
+    setMessages((prevMessages) =>
+      prevMessages.map((msg) =>
+        msg._id === hiddenMessage._id
+          ? hiddenMessage
+          : msg
+      )
+    );
+  }, []);
+
+  // Unhide chat message.
+  const handleUnhideMessage = useCallback((unhiddenMessage) => {
+    setMessages((prevMessages) =>
+      prevMessages.map((msg) =>
+        msg._id === unhiddenMessage._id
+          ? unhiddenMessage
+          : msg
+      )
+    );
+  }, []);
+
+  // Delete message from chat. 
+  const handleDeleteMessage = useCallback((deletedMessage) => {
+    setMessages((prevMessages) =>
+      prevMessages.map((msg) =>
+        msg._id === deletedMessage._id
+          ? {
+              ...msg,
+              isDeleted: deletedMessage.isDeleted,
+            }
+          : msg
+      )
+    );
+  }, []);
+
   useEffect(() => {
-    socket.on('users_online', (data) => {
-      dispatch(onlineUsers(data));
-    });
-
-    // Listen for typing event.
-    socket.on('typing', (username) => {
-      setIsTyping(true);
-      setTypingUser(username);
-
-      // Clear any existing timeout if typing has resumed.
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-
-      // Set a new timeout to hide the typing indicator after 3 seconds.
-      typingTimeoutRef.current = setTimeout(() => {
-        setIsTyping(false);
-        setTypingUser('');
-      }, 3000);
-    });
-
-    socket.on('mark_one_message_as_read', ({ messageId }) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) => (msg._id === messageId ? { ...msg, isRead: true } : msg))
-      );
-    });
-
-    socket.on('mark_all_messages_as_read', (updatedMessage) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) => (msg._id === updatedMessage._id ? { ...msg, isRead: true } : msg))
-      );
-    });
-
-    socket.on('message_edited', (editedMessage) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg._id === editedMessage._id
-            ? {
-                ...msg,
-                content: editedMessage.content,
-                isEdited: editedMessage.isEdited,
-                updatedAt: editedMessage.updatedAt,
-              }
-            : msg
-        )
-      );
-    });
-
-    socket.on('message_hidden', (hiddenMessage) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg._id === hiddenMessage._id
-            ? hiddenMessage
-            : msg
-        )
-      );
-    });
-
-    socket.on('message_unhidden', (unhiddenMessage) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg._id === unhiddenMessage._id
-            ? unhiddenMessage
-            : msg
-        )
-      );
-    });
-
-    socket.on('message_deleted', (deletedMessage) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg._id === deletedMessage._id
-            ? {
-                ...msg,
-                isDeleted: deletedMessage.isDeleted,
-              }
-            : msg
-        )
-      );
-    });
-
+    socket.on('users_online', handleUsersOnline);
+    socket.on('typing', handleTypingIndicator);
+    socket.on('message_received', handleMessageReceived);
+    socket.on('mark_one_message_as_read', handleMarkOneMessageAsRead);
+    socket.on('mark_all_messages_as_read', handleMarkAllMessagesAsRead);
+    socket.on('message_edited', handleEditedMessage);
+    socket.on('message_hidden', handleHideMessage);
+    socket.on('message_unhidden', handleUnhideMessage);
+    socket.on('message_deleted', handleDeleteMessage);
+    
     window.addEventListener('keydown', cancelQuotedMessage);
-
+    
     return () => {
-      socket.off('typing');
-      socket.off('mark_one_message_as_read');
-      socket.off('mark_all_messages_as_read');
-      socket.off('message_edited');
-      socket.off('message_hidden');
-      socket.off('message_unhidden');
-      socket.off('message_deleted');
+      socket.off('users_online', handleUsersOnline);
+      socket.off('typing', handleTypingIndicator);
+      socket.off('message_received', handleMessageReceived);
+      socket.off('mark_one_message_as_read', handleMarkOneMessageAsRead);
+      socket.off('mark_all_messages_as_read', handleMarkAllMessagesAsRead);
+      socket.off('message_edited', handleEditedMessage);
+      socket.off('message_hidden', handleHideMessage);
+      socket.off('message_unhidden', handleUnhideMessage);
+      socket.off('message_deleted', handleDeleteMessage);
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -155,69 +185,23 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     };
   }, []);
 
-  useEffect(() => {
-    socket.on('message_received', async (data) => {
-      // Incoming message will have pop-up sound (only if the chat window is unfocused or hidden).
-      if (!document.hasFocus() || document.visibilityState === 'hidden') {
-        messageNotificationSound();
-      }
-      
-      setMessages((prevMessages) => [...prevMessages, data]);
-      setIsTyping(false);
-      setTypingUser('');
-    });
-
-    return () => {
-      socket.off('message_received');
-    };
-  });
-
-  // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
-  useEffect(() => {
-    fetchMessages();
-
-    // Fetch online status at first chat select.
-    fetchLastOnline();
-
-    socket.emit('room_join',
-      selectedChatId,
-      selectedChatUsers,
-      authUserUsername,
-      authUserId,
-    );
-
-    // Update 'lastOnline' status on connect/disconnect.
-    socket.on('last_online_update', ({ userId, lastOnline }) => {
-      if (!selectedChatUsers || selectedChatUsers.length < 2 || !authUser?._id) {
+  // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
+  const fetchMessages = async () => {
+    try {
+      if (!selectedChat) {
         return;
       }
 
-      // Defining our collocutor.
-      const collocutor = getFullSender(authUser, selectedChatUsers);
+      setMessageLoading(true);
 
-      if (collocutor?._id === userId) {
-        if (lastOnline === null) {
-          setLastOnline('Online');
-          return;
-        }
+      const { data } = await axios.get(`/api/chat/messages/${selectedChatId}`);
 
-        // Formatting date for display in UI.
-        const formattedDate = new Date(lastOnline).toLocaleString(navigator.language, {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        });
-
-        setLastOnline(`Last online: ${formattedDate}`);
-      }
-    });
-
-    return () => {
-      socket.off('last_online_update');
-    };
-  }, [selectedChat]);
+      setMessages(data);
+      setMessageLoading(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Fetch 'lastOnline' status for our collocutor in private chat.
   const fetchLastOnline = async () => {
@@ -248,6 +232,49 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
+  // Update 'lastOnline' status on connect/disconnect.
+  const handleLastOnlineUpdate = useCallback(({ userId, lastOnline }) => {
+    if (!selectedChatUsers || selectedChatUsers.length < 2 || !authUser?._id) {
+      return;
+    }
+
+    // Defining our collocutor.
+    const collocutor = getFullSender(authUser, selectedChatUsers);
+
+    if (collocutor?._id === userId) {
+      if (lastOnline === null) {
+        setLastOnline('Online');
+        return;
+      }
+
+      // Formatting date for display in UI.
+      const formattedDate = new Date(lastOnline).toLocaleString(navigator.language, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+      });
+
+        setLastOnline(`Last online: ${formattedDate}`);
+      }
+  }, []);
+
+  useEffect(() => {
+    // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
+    fetchMessages();
+    // Fetch online status at first chat select.
+    fetchLastOnline();
+
+    socket.emit('room_join', selectedChatId, selectedChatUsers, authUserUsername, authUserId);
+    
+    socket.on('last_online_update', handleLastOnlineUpdate);
+
+    return () => {
+      socket.off('last_online_update', handleLastOnlineUpdate);
+    };
+  }, [selectedChat]);
+
   // Reset STATE for selected chat.
   const resetSelectedChat = () => {
     try {
@@ -273,24 +300,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       // Emit typing event to the server (to the specific room) when the user is typing.
       socket.emit('typing', selectedChatId, authUserUsername);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
-  const fetchMessages = async () => {
-    try {
-      if (!selectedChat) {
-        return;
-      }
-
-      setMessageLoading(true);
-
-      const { data } = await axios.get(`/api/chat/messages/${selectedChatId}`);
-
-      setMessages(data);
-      setMessageLoading(false);
     } catch (err) {
       console.error(err);
     }
