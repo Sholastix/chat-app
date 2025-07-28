@@ -59,6 +59,9 @@ const fetchLinkPreview = async (req, res) => {
   }
 };
 
+const userMessageTimestamps = {};
+const MESSAGE_THROTTLE_MS = 1000;
+
 // Send message.
 const sendMessage = async (req, res) => {
   try {
@@ -72,6 +75,18 @@ const sendMessage = async (req, res) => {
       console.log('\nERROR: Invalid data passed into the request.');
       return res.status(400).json({ error: 'Invalid data passed into the request.' });
     }
+
+    // Throttle сheck (simple in-memory).
+    const now = Date.now();
+    const lastSent = userMessageTimestamps[userId] || 0;
+
+    if (now - lastSent < MESSAGE_THROTTLE_MS) {
+      console.warn('You are sending messages too quickly. Please wait a moment.');
+      return res.status(429).json({ error: 'You are sending messages too quickly. Please wait a moment.' });
+    }
+
+    // Update last sent time.
+    userMessageTimestamps[userId] = now;
 
     // Create new message.
     const message = await MessageModel.create({

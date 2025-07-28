@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Box, FormControl, IconButton, TextField, Tooltip, Typography } from '@mui/material';
@@ -52,6 +52,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typingUser, setTypingUser] = useState('');
 
   const typingTimeoutRef = useRef(null);
+  const lastSendRef = useRef(0);
+  const MESSAGE_THROTTLE_MS = 1000;
 
   // Show online users.
   const handleUsersOnline = useCallback((data) => {
@@ -153,6 +155,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     );
   }, []);
 
+  // Cancel quoted message by pressing 'Escape' button.
+  const cancelQuotedMessage = useCallback((event) => {
+    if (event.key === 'Escape') {
+      setQuotedMessage(null);
+    }
+  }, []);
+
   useEffect(() => {
     socket.on('users_online', handleUsersOnline);
     socket.on('typing', handleTypingIndicator);
@@ -183,32 +192,40 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       window.removeEventListener('keydown', cancelQuotedMessage);
     };
-  }, []);
+  }, [
+    handleUsersOnline,
+    handleTypingIndicator,
+    handleMessageReceived,
+    handleMarkOneMessageAsRead,
+    handleMarkAllMessagesAsRead,
+    handleEditedMessage,
+    handleHideMessage,
+    handleUnhideMessage,
+    handleDeleteMessage,
+    cancelQuotedMessage,
+  ]);
 
   // Fetch all messages for specific chat (maybe later we will put this logic in REDUX).
   const fetchMessages = async () => {
     try {
-      if (!selectedChat) {
-        return;
-      }
-
+      if (!selectedChatId) return;
+      
       setMessageLoading(true);
 
       const { data } = await axios.get(`/api/chat/messages/${selectedChatId}`);
 
       setMessages(data);
-      setMessageLoading(false);
     } catch (err) {
       console.error(err);
+    } finally {
+      setMessageLoading(false);
     }
   };
 
   // Fetch 'lastOnline' status for our collocutor in private chat.
   const fetchLastOnline = async () => {
     try {
-      if (!selectedChat || selectedChatIsGroupChat) {
-        return;
-      }
+      if (!selectedChatId || selectedChatIsGroupChat) return;
 
       const collocutor = getFullSender(authUser, selectedChatUsers);
       const { data } = await axios.get(`/api/user/${collocutor._id}`);
@@ -234,9 +251,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   // Update 'lastOnline' status on connect/disconnect.
   const handleLastOnlineUpdate = useCallback(({ userId, lastOnline }) => {
-    if (!selectedChatUsers || selectedChatUsers.length < 2 || !authUser?._id) {
-      return;
-    }
+    if (!selectedChatUsers || selectedChatUsers.length < 2 || !authUser?._id) return;
 
     // Defining our collocutor.
     const collocutor = getFullSender(authUser, selectedChatUsers);
@@ -258,13 +273,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
         setLastOnline(`Last online: ${formattedDate}`);
       }
-  }, []);
+  }, [authUser, selectedChatUsers]);
 
   useEffect(() => {
     // Fetch all messages for specific chat every time when STATE of 'selected chat' property changed.
     fetchMessages();
     // Fetch online status at first chat select.
     fetchLastOnline();
+
+    if (!selectedChatId) return;
 
     socket.emit('room_join', selectedChatId, selectedChatUsers, authUserUsername, authUserId);
     
@@ -273,7 +290,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     return () => {
       socket.off('last_online_update', handleLastOnlineUpdate);
     };
-  }, [selectedChat]);
+  }, [
+    selectedChatId,
+    selectedChatUsers,
+    authUserUsername,
+    authUserId,
+    handleLastOnlineUpdate,
+  ]);
 
   // Reset STATE for selected chat.
   const resetSelectedChat = () => {
@@ -282,7 +305,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setNewMessage('');
       setFetchAgain(!fetchAgain);
 
-      socket.emit('room_leave', selectedChatId, authUserUsername, authUserId);
+      if (selectedChatId) {
+        socket.emit('room_leave', selectedChatId, authUserUsername, authUserId);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -294,9 +319,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setNewMessage(event.target.value);
 
       // Logic for typing indication.
-      if (!socket.connected) {
-        return;
-      }
+      if (!socket.connected) return;
 
       // Emit typing event to the server (to the specific room) when the user is typing.
       socket.emit('typing', selectedChatId, authUserUsername);
@@ -307,6 +330,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   // Send message (maybe later we will put this logic in REDUX).
   const sendMessage = async () => {
+    const now = Date.now();
+
+    if (now - lastSendRef.current < MESSAGE_THROTTLE_MS) {
+      console.warn('You are sending messages too quickly. Please wait a moment.');
+      return;
+    }
+
+    lastSendRef.current = now;
+
     try {
       if (newMessage.trim().length > 0) {
         const { data } = await axios.post('/api/chat/message', {
@@ -316,19 +348,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         });
 
         socket.emit('message_send', selectedChatId, data);
-        setMessages([...messages, data]);
+        setMessages((prevMessages) => [...prevMessages, data]);
         setNewMessage('');
         setQuotedMessage(null);
       }
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  // Cancel quoted message by pressing 'Escape' button.
-  const cancelQuotedMessage = (event) => {
-    if (event.key === 'Escape') {
-      setQuotedMessage(null);
     }
   };
 
@@ -339,7 +364,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       // Here we lowering initial sound's volume to 50% of it's initial value.
       sound.volume = 0.5;
-      sound.play();
+      sound.play().catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -422,7 +447,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </>
             ) : (
               <>
-                {selectedChatName}
+                <Box component='div' sx={{ color: 'black' }}>
+                  {selectedChatName}
+                </Box>
 
                 <IconButton
                   sx={{ marginLeft: '1rem' }}
@@ -593,4 +620,4 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   );
 };
 
-export default SingleChat;
+export default memo(SingleChat);
