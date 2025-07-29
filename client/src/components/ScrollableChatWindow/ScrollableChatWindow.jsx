@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, Fragment } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import {
   Avatar,
@@ -50,16 +50,25 @@ import {
 } from '../../helpers/chatLogic';
 import { updateChatLastMessage } from '../../features/chat/chatSlice';
 
+// Custom throttle implementation to increase scroll performance.
+const throttle = (callback, delay) => {
+  let lastCall = 0;
 
-const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuotedMessage, typingUser }) => {
-  const authState = useSelector((state) => {
-    return state.authReducer;
-  });
+  return (...args) => {
+    const now = Date.now();
+
+    if (now - lastCall >= delay) {
+      lastCall = now;
+      callback(...args);
+    }
+  };
+};
+
+const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessage, typingUser }) => {
+  // Current user's ID.
+  const userId = useSelector((state) => state.authReducer.user._id);
 
   const dispatch = useDispatch();
-
-  // Current user's ID.
-  const userId = authState.user._id;
 
   // STATE.
   const [scrollbarPosition, setScrollbarPosition] = useState(0);
@@ -70,7 +79,39 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
 
   const menuAnchorElsRef = useRef({});
   const chatEndRef = useRef(null);
+  // Create throttled version of scroll handler using custom throttle function.
+  const throttledScrollHandler = useRef(null);
 
+  useEffect(() => {
+    throttledScrollHandler.current = throttle((event) => {
+      const { scrollTop, scrollHeight, clientHeight } = event.target;
+      // Calculate the scrollbar position in percentage.
+      const position = Math.ceil((scrollTop / (scrollHeight - clientHeight)) * 100);
+
+      setScrollbarPosition(position);
+    }, 100); // Throttled at 100ms interval (approx 10 fps).
+  }, []);
+
+  // Use the throttled version in scroll handler.
+  const handleScroll = (event) => {
+    const handler = throttledScrollHandler.current;
+
+    if (handler) {
+      handler(event)
+    };
+
+    // throttledScrollHandler.current?.(event); // short version, but less readable.
+  };
+
+  // Auto-scrolling chat to the end.
+  const scrollToBottom = () => {
+    try {
+      chatEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
   useEffect(() => {
     scrollToBottom();
 
@@ -92,22 +133,6 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
       }
     });
   }, [messages]);
-
-  // Calculate the scrollbar position in percentage.
-  const handleScroll = (event) => {
-    const { scrollTop, scrollHeight, clientHeight } = event.target;
-    const position = Math.ceil((scrollTop / (scrollHeight - clientHeight)) * 100);
-    setScrollbarPosition(position);
-  };
-
-  // Auto-scrolling chat to the end.
-  const scrollToBottom = () => {
-    try {
-      chatEndRef.current?.scrollIntoView({ behavior: 'instant' });
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // Removing anything except www + full domain name in request URL which dispays in link preview.
   const shortRequestUrl = (messageId) => {
@@ -357,7 +382,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                   maxWidth: { xs: '80%', sm: '70%', md: '60%' },
                 }}
               >
-                <Fragment>
+                <>
                   <Box
                     component='span'
                     sx={{
@@ -457,7 +482,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                       </Box>
                     )}
                   </Box>
-                </Fragment>
+                </>
               </Box>
             ) : (
               <Box
@@ -523,7 +548,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                     </Box>
                   </Box>
                 ) : (
-                  <Fragment>
+                  <>
                     <Box
                       component='span'
                       sx={{
@@ -725,7 +750,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                             )}
 
                             {message.sender._id === userId && !message.hiddenBy.includes(userId) && (
-                              <Fragment>
+                              <>
                                 <MenuItem
                                   divider
                                   sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
@@ -744,7 +769,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                                     <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Delete
                                   </ListItemIcon>
                                 </MenuItem>
-                              </Fragment>
+                              </>
                             )}
                           </MenuList>
                         </Menu>
@@ -829,7 +854,7 @@ const ScrollableChatWindow = ({ isTyping, chatId, messages, setMessages, setQuot
                         </Box>
                       )}
                     </Box>
-                  </Fragment>
+                  </>
                 )}
               </Box>
             )}
