@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import {
@@ -93,7 +93,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
   }, []);
 
   // Use the throttled version in scroll handler.
-  const handleScroll = (event) => {
+  const handleScroll = useCallback((event) => {
     const handler = throttledScrollHandler.current;
 
     if (handler) {
@@ -101,16 +101,16 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
     }
 
     // throttledScrollHandler.current?.(event); // short version, but less readable.
-  };
+  }, []);
 
   // Auto-scrolling chat to the end.
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     try {
       chatEndRef.current?.scrollIntoView({ behavior: 'instant' });
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -206,10 +206,10 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
   };
 
   // Cancel the message editing.
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setMessageBeingEdited(null);
     setNewMessageContent('');
-  };
+  }, []);
 
   // Hide existing message in chat.
   const handleHideMessage = async (message) => {
@@ -300,6 +300,9 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
         const isThisLastMessageInChat = isLastMessageInChat(messages, index);
         const isThisNewDay = isNewDay(messages, message, index);
         const isThisSameTime = isSameTime(messages, message, index);
+
+        const rawContent = message.hiddenBy.includes(userId) ? 'This message has been hidden.' : message.content;
+        const sanitizedContent = useMemo(() => linkifyAndSanitize(rawContent), [rawContent]);
 
         return (
           <div key={message._id}>
@@ -604,11 +607,7 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                             <Box
                               component='span'
                               sx={{ display: 'inline' }}
-                              dangerouslySetInnerHTML={{
-                                __html: linkifyAndSanitize(
-                                  message.hiddenBy.includes(userId) ? 'This message has been hidden.' : message.content
-                                ),
-                              }}
+                              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                             />
 
                             {message.isEdited && (
