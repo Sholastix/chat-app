@@ -280,6 +280,15 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
     }
   };
 
+  // Compute the sanitized content for all messages together.
+  const sanitizedMessages = useMemo(() => {
+    return messages.map((message) => 
+      linkifyAndSanitize(
+        message.hiddenBy.includes(userId) ? 'This message has been hidden.' : message.content
+      )
+    );
+  }, [messages, userId]);
+
   return (
     <Box
       component='div'
@@ -602,13 +611,10 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                             }}
                           >
                             <Box
+                              key={message.id}
                               component='span'
                               sx={{ display: 'inline' }}
-                              dangerouslySetInnerHTML={{
-                                __html: linkifyAndSanitize(
-                                  message.hiddenBy.includes(userId) ? 'This message has been hidden.' : message.content
-                                ),
-                              }}
+                              dangerouslySetInnerHTML={{ __html: sanitizedMessages[index] }}
                             />
 
                             {message.isEdited && (
