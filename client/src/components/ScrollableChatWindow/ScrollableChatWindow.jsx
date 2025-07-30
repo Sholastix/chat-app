@@ -301,9 +301,6 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
         const isThisNewDay = isNewDay(messages, message, index);
         const isThisSameTime = isSameTime(messages, message, index);
 
-        const rawContent = message.hiddenBy.includes(userId) ? 'This message has been hidden.' : message.content;
-        const sanitizedContent = useMemo(() => linkifyAndSanitize(rawContent), [rawContent]);
-
         return (
           <div key={message._id}>
             {isThisNewDay && (
@@ -607,7 +604,11 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                             <Box
                               component='span'
                               sx={{ display: 'inline' }}
-                              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+                              dangerouslySetInnerHTML={{
+                                __html: linkifyAndSanitize(
+                                  message.hiddenBy.includes(userId) ? 'This message has been hidden.' : message.content
+                                ),
+                              }}
                             />
 
                             {message.isEdited && (
