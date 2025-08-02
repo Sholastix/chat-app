@@ -10,9 +10,7 @@ const SingleChat = lazy(() => import('../SingleChat/SingleChat'));
 
 const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   // Get 'selectedChat' from chat STATE.
-  const { selectedChat } = useSelector((state) => {
-    return state.chatReducer;
-  });
+  const selectedChat = useSelector((state) => state.chatReducer.selectedChat);
 
   return (
     <Box

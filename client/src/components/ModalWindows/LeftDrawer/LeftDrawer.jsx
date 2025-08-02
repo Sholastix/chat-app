@@ -15,9 +15,7 @@ import ListLoading from '../../ListLoading/ListLoading';
 import { createPrivateChat } from '../../../features/chat/chatSlice';
 
 const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
-  const chatState = useSelector((state) => {
-    return state.chatReducer;
-  });
+  const chatLoading = useSelector((state) => state.chatReducer.loading);
 
   const dispatch = useDispatch();
 
@@ -159,7 +157,7 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
 
         {searchLoading ? <ListLoading /> : renderedResults}
 
-        {chatState.loading && (
+        {chatLoading && (
           <Box component='div' sx={{ marginTop: '2rem' }} >
             <Spinner />
           </Box>

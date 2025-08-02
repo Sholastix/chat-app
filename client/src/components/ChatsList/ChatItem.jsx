@@ -30,9 +30,7 @@ const ChatItem = ({
   };
 
   // Skip rendering if private chat and collocutor is deleted (chat corrupted).
-  if (!chat.isGroupChat && !fullSender) {
-    return null;
-  }
+  if (!chat.isGroupChat && !fullSender) return null;
 
   return (
     <Box

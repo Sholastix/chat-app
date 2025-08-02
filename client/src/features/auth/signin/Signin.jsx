@@ -18,7 +18,9 @@ import { signinSchema } from '../../../validation/userValidation';
 const Signin = () => {
   // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
   // This hook accepts a selector function as its parameter. Selector function receives Redux STATE as argument.
-  const authState = useSelector((state) => state.authReducer);
+  const authError = useSelector((state) => state.authReducer.error);
+  const authLoading = useSelector((state) => state.authReducer.loading);
+  const isAuthenticated = useSelector((state) => state.authReducer.isAuthenticated);
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
@@ -38,7 +40,7 @@ const Signin = () => {
   const { errors } = formState;
 
   // Redirect if user signed in.
-  if (!authState.loading && authState.isAuthenticated) {
+  if (!authLoading && isAuthenticated) {
     return <Navigate to='/chat' replace={true} />;
   }
 
@@ -61,7 +63,7 @@ const Signin = () => {
 
   return (
     <div>
-      {!authState.loading ? (
+      {!authLoading ? (
         <div className={styles.container}>
           <div className={styles.header}>Chitchat App</div>
 
@@ -95,7 +97,7 @@ const Signin = () => {
             </div>
             {errors.password?.message && <p className={styles.errorMessage}>{errors.password?.message}</p>}
             {formState.submitCount > 0 &&
-            authState.error === 'Request failed with status code 401' &&
+            authError === 'Request failed with status code 401' &&
             !errors.password?.message ? (
               <p className={styles.errorMessage}>Incorrect password.</p>
             ) : null}

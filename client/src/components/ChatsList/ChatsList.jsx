@@ -151,9 +151,7 @@ const ChatsList = ({ fetchAgain }) => {
 
   // Sort current user's chatlist in descensing order (newest chats first) based of recent activity in chat.
   const sortedChats = useMemo(() => {
-    if (!Array.isArray(chats) || chats.length === 0) {
-      return [];
-    }
+    if (!Array.isArray(chats) || chats.length === 0) return [];
 
     return [...chats].sort((a, b) => {
       const dateA = new Date(a.lastMessage?.createdAt || a.updatedAt || a.createdAt);
@@ -173,9 +171,7 @@ const ChatsList = ({ fetchAgain }) => {
 
   // Precompute memoized transformed messages *outside* JSX and inside the Component body.
   const chatsWithTransformedMessages = useMemo(() => {
-    if (!chats) {
-      return [];
-    }
+    if (!chats) return [];
 
     return sortedChats.map((chat) => {
       const transformedLastMessage = chat.lastMessage?.content

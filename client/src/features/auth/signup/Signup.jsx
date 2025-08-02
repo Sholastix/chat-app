@@ -19,7 +19,8 @@ import { signupSchema } from '../../../validation/userValidation';
 const Signup = () => {
   // 'useSelector' hook used to get hold of any STATE that is maintained in the Redux STORE.
   // This hook accepts a selector function as its parameter. Selector function receives Redux STATE as argument.
-  const authState = useSelector((state) => state.authReducer);
+  const authLoading = useSelector((state) => state.authReducer.loading);
+  const isAuthenticated = useSelector((state) => state.authReducer.isAuthenticated);
 
   // This constant will be used to dispatch ACTIONS when we need it.
   const dispatch = useDispatch();
@@ -45,7 +46,7 @@ const Signup = () => {
   }, [isSubmitSuccessful]);
 
   // Redirect if user signed up.
-  if (!authState.loading && authState.isAuthenticated) {
+  if (!authLoading && isAuthenticated) {
     return <Navigate to='/chat' replace={true} />;
   }
 
@@ -70,7 +71,7 @@ const Signup = () => {
 
   return (
     <div>
-      {!authState.loading ? (
+      {!authLoading ? (
         <div className={styles.container}>
           <div className={styles.header}>Chitchat App</div>
 

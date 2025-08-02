@@ -23,6 +23,7 @@ const UserBadgeItem = ({ user, handleFunction }) => {
       <Typography component="div" sx={{ fontSize: '1.2rem' }}>
         {user.username}
       </Typography>
+      
       <CloseIcon sx={{ marginLeft: '0.3rem', fontSize: '1.4rem' }} />
     </Box>
   );

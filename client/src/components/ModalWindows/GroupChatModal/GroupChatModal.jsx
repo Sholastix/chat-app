@@ -57,9 +57,7 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
 
   // 'Close' function for 'Alert' Component.
   const handleCloseAddUserAlert = useCallback((event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+    if (reason === 'clickaway') return;
 
     setAddUserAlert(false);
   }, []);
