@@ -4,12 +4,15 @@ import { Box, Typography } from '@mui/material';
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
 
-const UserBadgeItem = ({ user, handleFunction }) => {
+const UserBadgeItem = ({ groupAdminId, user, handleFunction }) => {
+  // Check who is group admin.
+  const isGroupAdmin = user._id === groupAdminId;
+
   return (
     <Box
       sx={{
         alignItems: 'center',
-        backgroundColor: 'rgb(93, 109, 126)',
+        backgroundColor: isGroupAdmin ? 'rgb(33, 150, 243)' : 'rgb(93, 109, 126)',
         borderRadius: '0.5rem',
         color: 'white',
         cursor: 'pointer',

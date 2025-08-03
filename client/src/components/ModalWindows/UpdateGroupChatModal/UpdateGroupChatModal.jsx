@@ -385,8 +385,9 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
           <Stack sx={{ flexDirection: 'row', flexWrap: 'wrap', width: '37.5rem' }} >
             {selectedUsers.map((user) => (
               <UserBadgeItem 
-                key={user._id} 
-                user={user} 
+                key={user._id}
+                groupAdminId={groupAdminId}
+                user={user}
                 handleFunction={handleRemoveUserMemo(user)}
               />
             ))}
