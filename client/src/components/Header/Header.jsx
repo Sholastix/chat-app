@@ -158,6 +158,7 @@ const Header = () => {
   return (
     <>
       <Box
+        component="div"
         sx={{
           alignItems: 'center',
           border: '0.5rem solid rgb(235, 235, 235)',
@@ -166,13 +167,17 @@ const Header = () => {
           width: '100vw',
         }}
       >
-        <SearchButton onOpen={handleSearchButtonModalOpen} />
-
-        <Typography component='div' sx={{ fontFamily: 'Georgia', fontSize: '3rem' }}>
-          ChitChat
-        </Typography>
-
         <div>
+          <SearchButton onOpen={handleSearchButtonModalOpen} />
+        </div>
+
+        <Typography sx={{ fontFamily: 'Georgia', fontSize: { xs: '2rem', sm: '3rem' } }}>ChitChat</Typography>
+
+        <Box
+          component='div'
+          id='CHECK'
+          sx={{ display: 'flex' }}
+        >
           <NotificationsMenu
             anchorNotificationsMenu={anchorNotificationsMenu}
             handleNotificationItemClick={handleNotificationItemClick}
@@ -193,7 +198,7 @@ const Header = () => {
             openUserMenu={openUserMenu}
             username={username}
           />
-        </div>
+        </Box>
       </Box>
 
       {isLeftDrawerOpen && (

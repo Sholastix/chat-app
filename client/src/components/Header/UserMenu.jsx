@@ -28,7 +28,7 @@ const UserMenu = ({
       sx={{
         color: 'black',
         margin: '0.5rem 1rem',
-        padding: '0.5rem 2rem',
+        padding: { xs: '0.5rem', sm: '0.5rem 2rem' },
         textTransform: 'none',
         ':hover': { backgroundColor: 'rgb(235, 235, 235)', color: 'black' },
       }}
