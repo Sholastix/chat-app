@@ -690,7 +690,10 @@ const ScrollableChatWindow = ({ isTyping, messages, setMessages, setQuotedMessag
                               {!message.hiddenBy.includes(userId) && (
                                 <MenuItem
                                   sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                                  onClick={() => setQuotedMessage(message)}
+                                  onClick={() => {
+                                    setQuotedMessage(message)
+                                    handleMessageItemMenuClose();
+                                  }}
                                 >
                                   <ListItemIcon>
                                     <ReplyIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Reply
