@@ -206,12 +206,9 @@ const ChatsList = ({ fetchAgain }) => {
           display: 'flex',
           justifyContent: 'space-between',
           height: '5rem',
-          padding: '1rem',
           width: '100%',
         }}
       >
-        <Typography sx={{ fontSize: '2rem' }}>ChatsList</Typography>
-
         <Button
           endIcon={<AddIcon sx={{ color: 'black' }} />}
           sx={{ backgroundColor: 'rgb(235, 235, 235)', borderRadius: '0.5rem' }}
@@ -232,7 +229,6 @@ const ChatsList = ({ fetchAgain }) => {
           overflowX: 'hidden',
           overflowY: 'auto',
           marginTop: '1rem',
-          padding: '1rem',
           width: '100%',
         }}
       >

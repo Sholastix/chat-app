@@ -158,13 +158,13 @@ const Header = () => {
   return (
     <>
       <Box
-        component="div"
+        component='div'
         sx={{
           alignItems: 'center',
-          border: '0.5rem solid rgb(235, 235, 235)',
           display: 'flex',
+          height: '7vh',
           justifyContent: 'space-between',
-          width: '100vw',
+          width: '100%',
         }}
       >
         <div>
@@ -173,11 +173,7 @@ const Header = () => {
 
         <Typography sx={{ fontFamily: 'Georgia', fontSize: { xs: '2rem', sm: '3rem' } }}>ChitChat</Typography>
 
-        <Box
-          component='div'
-          id='CHECK'
-          sx={{ display: 'flex' }}
-        >
+        <Box component='div' sx={{ display: 'flex' }}>
           <NotificationsMenu
             anchorNotificationsMenu={anchorNotificationsMenu}
             handleNotificationItemClick={handleNotificationItemClick}

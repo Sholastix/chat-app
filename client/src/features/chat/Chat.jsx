@@ -68,15 +68,15 @@ const Chat = () => {
   return (
     <>
       {!authLoading && authUser ? (
-        <Box component='div' sx={{ width: '100vw' }}>
+        <Box component='div' sx={{ height: '100vh', width: '100vw' }}>
           <Header />
           <Box
-            component="div"
+            component='div'
             sx={{
               backgroundColor: 'rgb(93, 109, 126)',
               display: 'flex',
               justifyContent: 'space-between',
-              height: '92.61vh',
+              height: '93vh',
               padding: '1rem',
               width: '100vw',
             }}

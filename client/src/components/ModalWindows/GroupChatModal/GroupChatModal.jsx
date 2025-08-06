@@ -284,7 +284,7 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
         <DialogActions>
           <Button
             type='submit'
-            variant="outlined"
+            variant='outlined'
             sx={{
               borderColor: 'lightgray',
               color: 'black',

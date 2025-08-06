@@ -30,11 +30,11 @@ const ScrollToBottomButton = ({ scrollbarPosition, scrollToBottom }) => {
             border: 'none',
             borderRadius: '50%',
             height: '4rem',
-            margin: '2rem',
+            margin: '0rem 2rem 2rem 2rem',
             opacity: 0.5,
             position: 'fixed',
             right: '1rem',
-            top: '83%',
+            top: '80%',
             width: '4rem',
             ':hover': {
               boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
