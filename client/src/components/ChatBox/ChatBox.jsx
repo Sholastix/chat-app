@@ -19,8 +19,9 @@ const ChatBox = ({ fetchAgain, setFetchAgain }) => {
         borderRadius: '0.5rem',
         display: { xs: selectedChat ? 'flex' : 'none', md: 'flex' },
         fontSize: '3rem',
+        margin: { xs: '0.5rem', md: '0.5rem 0.5rem 0.5rem 0.25rem' },
         padding: '1rem',
-        width: { xs: '100%', md: '74%' },
+        width: { xs: '100%', md: '75%' },
       }}
     >
       {/* Must remember - lazy loading will not work without condition (as 'selectedChat === true' in our case) */}

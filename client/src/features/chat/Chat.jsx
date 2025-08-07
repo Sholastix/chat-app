@@ -75,9 +75,7 @@ const Chat = () => {
             sx={{
               backgroundColor: 'rgb(93, 109, 126)',
               display: 'flex',
-              justifyContent: 'space-between',
               height: '93vh',
-              padding: '1rem',
               width: '100vw',
             }}
           >

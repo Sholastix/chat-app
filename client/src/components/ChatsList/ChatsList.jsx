@@ -194,6 +194,7 @@ const ChatsList = ({ fetchAgain }) => {
         boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
         display: { xs: selectedChat ? 'none' : 'flex', md: 'flex' },
         flexDirection: 'column',
+        margin: { xs: '0.5rem', md: '0.5rem 0.25rem 0.5rem 0.5rem' },
         padding: '1rem',
         width: { xs: '100%', md: '25%' },
       }}
