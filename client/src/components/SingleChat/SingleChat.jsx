@@ -234,7 +234,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         // Formatting date for display in UI.
         const formattedDate = new Date(data.lastOnline).toLocaleString(navigator.language, {
           year: 'numeric',
-          month: 'long',
+          month: 'short',
           day: 'numeric',
           hour: 'numeric',
           minute: 'numeric',
@@ -419,8 +419,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   </Typography>
 
                   <Typography
-                    component="p"
-                    sx={{ fontSize: '1.4rem', color: `${lastOnline && lastOnline === 'Online' ? 'green' : 'darkred'}` }}
+                    component='p'
+                    sx={{
+                      fontSize: { xs: '1.2rem', sm: '1.4rem' },
+                      color: lastOnline && lastOnline === 'Online' ? 'green' : 'darkred' 
+                    }}
                   >
                     {lastOnline}
                   </Typography>
