@@ -42,25 +42,12 @@ const ProfileModal = ({ isProfileModalOpen, setIsProfileModalOpen, user }) => {
       fullWidth
       sx={{
         '& .MuiDialog-paper': {
-          borderRadius: '0.5rem',
           maxWidth: '100%',
           width: paperWidth,
         },
       }}
     >
-      <Box
-        sx={{
-          backgroundColor: 'white',
-          border: 'none',
-          borderRadius: '0.5rem',
-          left: '50vw',
-          padding: '3rem',
-          position: 'fixed',
-          top: '50vh',
-          transform: 'translate(-50%, -50%)',
-          width: '50rem',
-        }}
-      >
+      {/* <Box sx={{}}> */}
         <DialogTitle
           component='div'
           id='modal-user-menu-profile'
@@ -110,7 +97,7 @@ const ProfileModal = ({ isProfileModalOpen, setIsProfileModalOpen, user }) => {
             </Link>
           ) : null}
         </DialogContent>
-      </Box>
+      {/* </Box> */}
     </Dialog>
   );
 };
