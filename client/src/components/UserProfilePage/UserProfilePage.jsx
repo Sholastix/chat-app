@@ -201,8 +201,9 @@ const SettingsModal = () => {
               borderRadius: '0.5rem',
               display: 'flex',
               flexDirection: 'column',
+              height: { xs: '100%', sm: '50rem' },
               padding: '1rem',
-              width: '50rem',
+              width: { xs: '100%', sm: '50rem' },
             }}
           >
             <IconButton
