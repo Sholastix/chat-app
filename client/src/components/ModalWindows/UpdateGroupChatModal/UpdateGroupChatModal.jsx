@@ -12,7 +12,9 @@ import {
   Stack,
   TextField,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
@@ -253,8 +255,24 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
     }
   }, [authUserId, groupAdminId, dispatch, chatId, fetchAgain, setFetchAgain]);
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const paperWidth = fullScreen ? '100%' : '50rem';
+
   return (
-    <Dialog open={isUpdateGroupChatModalOpen} onClose={handleUpdateGroupChatModalClose}>
+    <Dialog 
+      open={isUpdateGroupChatModalOpen} 
+      onClose={handleUpdateGroupChatModalClose}
+      fullScreen={fullScreen}
+      fullWidth
+      sx={{
+        '& .MuiDialog-paper': {
+          borderRadius: '0.5rem',
+          maxWidth: '100%',
+          width: paperWidth,
+        },
+      }}
+    >
       <DialogTitle sx={{ marginTop: '2rem', textAlign: 'center' }}>
         <IconButton
           aria-label='close'
