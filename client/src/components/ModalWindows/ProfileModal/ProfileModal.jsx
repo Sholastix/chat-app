@@ -1,7 +1,18 @@
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { memo, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { Avatar, Box, Dialog, DialogTitle, DialogContent, IconButton, Link, Typography } from '@mui/material';
+import { 
+  Avatar,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  Link,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 // MUI Icons.
 import CloseIcon from '@mui/icons-material/Close';
@@ -18,11 +29,24 @@ const ProfileModal = ({ isProfileModalOpen, setIsProfileModalOpen, user }) => {
     setIsProfileModalOpen(false);
   }, [setIsProfileModalOpen]);
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const paperWidth = fullScreen ? '100%' : '50rem';
+
   return (
     <Dialog 
       aria-labelledby='modal-user-menu-profile'
       open={isProfileModalOpen} 
-      onClose={handleProfileModalClose} 
+      onClose={handleProfileModalClose}
+      fullScreen={fullScreen}
+      fullWidth
+      sx={{
+        '& .MuiDialog-paper': {
+          borderRadius: '0.5rem',
+          maxWidth: '100%',
+          width: paperWidth,
+        },
+      }}
     >
       <Box
         sx={{
