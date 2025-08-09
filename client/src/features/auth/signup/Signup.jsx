@@ -73,8 +73,6 @@ const Signup = () => {
     <div>
       {!authLoading ? (
         <div className={styles.container}>
-          <div className={styles.header}>Chitchat App</div>
-
           <div className={styles.info}>
             <p className={styles.infoIcon}>&#x1F512;</p>
             <p>Create a new account</p>
@@ -87,7 +85,7 @@ const Signup = () => {
                 className={styles.input}
                 type='text'
                 name='username'
-                placeholder='Enter the username...'
+                placeholder='Username...'
                 {...register('username')}
               />
             </div>
@@ -99,7 +97,7 @@ const Signup = () => {
                 className={styles.input}
                 type='email'
                 name='email'
-                placeholder='Enter the email...'
+                placeholder='Email...'
                 {...register('email')}
               />
             </div>
@@ -111,7 +109,7 @@ const Signup = () => {
                 className={styles.input}
                 type='password'
                 name='password'
-                placeholder='Enter the password...'
+                placeholder='Password...'
                 {...register('password')}
               />
             </div>
@@ -123,7 +121,7 @@ const Signup = () => {
                 className={styles.input}
                 type='password'
                 name='confirmPassword'
-                placeholder='Confirm the password...'
+                placeholder='Confirm password...'
                 {...register('confirmPassword')}
               />
             </div>

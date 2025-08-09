@@ -8,13 +8,6 @@
   width: 100vw;
 }
 
-.header {
-  color: white;
-  cursor: default;
-  font-size: 4.5rem;
-  margin: 5rem 0rem;
-}
-
 .info {
   cursor: default;
   display: flex;
@@ -22,7 +15,7 @@
   align-items: center;
   color: white;
   font-size: 2.5rem;
-  margin: 5rem 2rem;
+  margin-top: 5rem;
 }
 
 .infoIcon {
@@ -86,7 +79,6 @@
 }
 
 .button {
-  /* align-self: flex-end; */
   border: none;
   background-color: white;
   border-radius: 5rem;
@@ -106,7 +98,7 @@
   color: white;
   cursor: default;
   font-size: 1.8rem;
-  margin: 3rem 0rem 20rem 0rem;
+  margin: 0rem 0rem 20rem 0rem;
 }
 
 .link {

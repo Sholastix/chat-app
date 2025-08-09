@@ -65,8 +65,6 @@ const Signin = () => {
     <div>
       {!authLoading ? (
         <div className={styles.container}>
-          <div className={styles.header}>Chitchat App</div>
-
           <div className={styles.info}>
             <p className={styles.infoIcon}>&#x1F512;</p>
             <p>Log into Chitchat</p>
@@ -79,7 +77,7 @@ const Signin = () => {
                 className={styles.input}
                 type='email'
                 name='email'
-                placeholder='Enter the email...'
+                placeholder='Email...'
                 {...register('email')}
               />
             </div>
@@ -91,7 +89,7 @@ const Signin = () => {
                 className={styles.input}
                 type='password'
                 name='password'
-                placeholder='Enter the password...'
+                placeholder='Password...'
                 {...register('password')}
               />
             </div>
