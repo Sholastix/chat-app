@@ -198,7 +198,7 @@ const SettingsModal = () => {
               alignItems: 'center',
               backgroundColor: 'white',
               border: 'none',
-              borderRadius: '0.5rem',
+              borderRadius: { xs: 'none', sm: '0.5rem' },
               display: 'flex',
               flexDirection: 'column',
               height: { xs: '100%', sm: '50rem' },

@@ -385,7 +385,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         >
           <Spinner />
         </Box>
-      ) : selectedChat ? (
+      ) : selectedChat && (
         <Box component='div' sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
           <Box
             component='div'
@@ -605,18 +605,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </IconButton>
             </Tooltip>
           </FormControl>
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            alignItems: 'center',
-            display: 'flex',
-            height: '100%',
-            justifyContent: 'center',
-            width: '100%',
-          }}
-        >
-          <Typography sx={{ fontSize: '3rem' }}>Please select collocutor from chats list.</Typography>
         </Box>
       )}
     </>

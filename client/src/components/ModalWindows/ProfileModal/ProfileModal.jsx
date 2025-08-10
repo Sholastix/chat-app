@@ -42,12 +42,24 @@ const ProfileModal = ({ isProfileModalOpen, setIsProfileModalOpen, user }) => {
       fullWidth
       sx={{
         '& .MuiDialog-paper': {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
           maxWidth: '100%',
+          padding: '2rem',
           width: paperWidth,
         },
       }}
     >
-      {/* <Box sx={{}}> */}
+      <IconButton
+        aria-label='close'
+        onClick={handleProfileModalClose}
+        sx={{ position: 'absolute', right: 8, top: 8 }}
+      >
+        <CloseIcon sx={{ fontSize: '2rem' }} />
+      </IconButton>
+
+      <Box>
         <DialogTitle
           component='div'
           id='modal-user-menu-profile'
@@ -56,33 +68,20 @@ const ProfileModal = ({ isProfileModalOpen, setIsProfileModalOpen, user }) => {
           {user.username}
         </DialogTitle>
 
-        <IconButton
-          aria-label='close'
-          onClick={handleProfileModalClose}
-          sx={{ position: 'absolute', right: 8, top: 8 }}
-        >
-          <CloseIcon sx={{ fontSize: '2rem' }} />
-        </IconButton>
-
-        <DialogContent>
-          <Typography
-            component='div'
-            sx={{ display: 'flex', justifyContent: 'center' }}
-          >
-            <Avatar
-              src={user.avatar}
-              sx={{ height: '15rem', marginBottom: '2rem', width: '15rem' }}
-            />
-          </Typography>
+        <DialogContent sx={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
+          <Avatar
+            src={user.avatar}
+            sx={{ height: '15rem', marginBottom: '2rem', width: '15rem' }}
+          />
 
           <Typography
             component='div'
-            sx={{ fontSize: '2rem', marginBottom: '3rem', textAlign: 'center' }}
+            sx={{ fontSize: '2rem', marginBottom: '3rem' }}
           >
             {user.email}
           </Typography>
 
-          {user._id === authUserId ? (
+          {user._id === authUserId && (
             <Link
               component={ReactRouterLink}
               to='/profile'
@@ -95,9 +94,9 @@ const ProfileModal = ({ isProfileModalOpen, setIsProfileModalOpen, user }) => {
             >
               Edit Profile
             </Link>
-          ) : null}
+          )}
         </DialogContent>
-      {/* </Box> */}
+      </Box>
     </Dialog>
   );
 };

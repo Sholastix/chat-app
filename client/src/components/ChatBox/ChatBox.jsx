@@ -1,6 +1,6 @@
 import { lazy, memo, Suspense } from 'react';
 import { useSelector } from 'react-redux';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 // Components.
 import Spinner from '../Spinner/Spinner';
@@ -25,13 +25,22 @@ const ChatBox = ({ fetchAgain, setFetchAgain }) => {
       }}
     >
       {/* Must remember - lazy loading will not work without condition (as 'selectedChat === true' in our case) */}
-      {selectedChat && (
+      {selectedChat ? (
         <Suspense fallback={<Spinner />}>
-          <SingleChat 
-            fetchAgain={fetchAgain} 
-            setFetchAgain={setFetchAgain} 
-          />
+          <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
         </Suspense>
+      ) : (
+        <Box
+          sx={{
+            alignItems: 'center',
+            display: 'flex',
+            height: '100%',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <Typography sx={{ fontSize: '3rem' }}>Please select collocutor from chats list.</Typography>
+        </Box>
       )}
     </Box>
   );
