@@ -7,6 +7,7 @@ import { Box, Button, Drawer, Divider, TextField, Typography } from '@mui/materi
 import SearchIcon from '@mui/icons-material/Search';
 
 // Components.
+import ConfirmationDialog from '../../ConfirmationDialog/ConfirmationDialog';
 import Spinner from '../../Spinner/Spinner';
 import UserListItem from '../../UserListItem/UserListItem';
 import ListLoading from '../../ListLoading/ListLoading';
@@ -20,12 +21,13 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
   const dispatch = useDispatch();
 
   // STATE.
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [inputError, setInputError] = useState(false);
+  const [inputHelperText, setInputHelperText] = useState('');
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
-
-  const [inputError, setInputError] = useState(false);
-  const [inputHelperText, setInputHelperText] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   // Memoized reset state function for reuse.
   const resetSearchState = useCallback(() => {
@@ -71,99 +73,130 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
 
   // Add chat to chats list.
   const chatAccess = useCallback(async (userId) => {
+    setSelectedUserId(userId);
+    setConfirmationOpen(true);
+  }, []);
+
+  // Confirm action.
+  const handleConfirm = useCallback(() => {
+    if (!selectedUserId) return;
+
     try {
-      dispatch(createPrivateChat(userId));
+      dispatch(createPrivateChat(selectedUserId));
 
       setIsLeftDrawerOpen(false);
       resetSearchState();
     } catch (err) {
       console.error(err);
+    } finally {
+      setConfirmationOpen(false);
+      setSelectedUserId(null);
     }
-  }, [dispatch, setIsLeftDrawerOpen, resetSearchState]);
+  }, [dispatch, selectedUserId, setIsLeftDrawerOpen, resetSearchState]);
 
-  const handleChatAccessMemo = useCallback((userId) => () => {
-    chatAccess(userId);
-  }, [chatAccess]);
+  // Cancel action.
+  const handleCancel = useCallback(() => {
+    setConfirmationOpen(false);
+    setSelectedUserId(null);
+  }, []);
+
+  const handleChatAccessMemo = useCallback(
+    (userId) => () => {
+      chatAccess(userId);
+    },
+    [chatAccess]
+  );
 
   // Memoized render for search list.
   const renderedResults = useMemo(() => {
     return searchResult?.map((user) => (
-      <UserListItem 
-        key={user._id} 
-        user={user} 
-        handleFunction={handleChatAccessMemo(user._id)}
-      />
+      <UserListItem key={user._id} user={user} handleFunction={handleChatAccessMemo(user._id)} />
     ));
   }, [searchResult, handleChatAccessMemo]);
 
   return (
-    <Drawer anchor='left' open={isLeftDrawerOpen} onClose={handleLeftDrawerClose}>
-      <Box
-        role='presentation'
-        overflow='auto'
-        sx={{ padding: '2rem', textAlign: 'center', minWidth: '20vw' }}
-      >
-        <Typography
-          component='div'
-          sx={{ fontSize: '1.6rem' }}
-        >
-          Search user
-        </Typography>
-
-        <Divider sx={{ margin: '2rem 0rem 3rem' }} />
-
+    <>
+      <Drawer anchor='left' open={isLeftDrawerOpen} onClose={handleLeftDrawerClose}>
         <Box
-          component='form'
-          autoComplete='off'
-          noValidate
-          sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}
+          component='div'
+          role='presentation'
+          overflow='auto'
+          sx={{
+            padding: '2rem',
+            textAlign: 'center',
+            minWidth: '20vw',
+            height: '100%',
+          }}
         >
-          <TextField
-            error={inputError}
-            helperText={inputHelperText}
-            label='Username...'
-            variant='outlined'
-            slotProps={{
-              inputLabel: { sx: { fontSize: '1.4rem' } },
-            }}
-            sx={{
-              width: '75%',
-              '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
-              '.MuiInputBase-input': { fontSize: '1.4rem' },
-              '.MuiFormHelperText-contained': { fontSize: '1.2rem' },
-            }}
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-            }}
-          />
+          <Typography component='div' sx={{ fontSize: '1.6rem' }}>
+            Search user
+          </Typography>
 
-          <Button
-            type='button'
-            variant='outlined'
-            sx={{
-              borderColor: 'lightgray',
-              color: 'black',
-              fontSize: '1.4rem',
-              height: '5.3rem',
-              marginLeft: '1rem',
-              ':hover': { backgroundColor: 'rgb(235, 235, 235)' },
-            }}
-            onClick={handleSearch}
+          <Divider sx={{ margin: '2rem 0rem 3rem' }} />
+
+          <Box
+            component='form'
+            autoComplete='off'
+            noValidate
+            sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}
           >
-            <SearchIcon sx={{ fontSize: '3rem' }} />
-          </Button>
-        </Box>
+            <TextField
+              error={inputError}
+              helperText={inputHelperText}
+              label='Username...'
+              variant='outlined'
+              slotProps={{
+                inputLabel: { sx: { fontSize: '1.4rem' } },
+              }}
+              sx={{
+                width: '75%',
+                '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
+                '.MuiInputBase-input': { fontSize: '1.4rem' },
+                '.MuiFormHelperText-contained': { fontSize: '1.2rem' },
+              }}
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+              }}
+            />
 
-        {searchLoading ? <ListLoading /> : renderedResults}
-
-        {chatLoading && (
-          <Box component='div' sx={{ marginTop: '2rem' }} >
-            <Spinner />
+            <Button
+              type='button'
+              variant='outlined'
+              sx={{
+                borderColor: 'lightgray',
+                color: 'black',
+                fontSize: '1.4rem',
+                height: '5.3rem',
+                marginLeft: '1rem',
+                ':hover': { backgroundColor: 'rgb(235, 235, 235)' },
+              }}
+              onClick={handleSearch}
+            >
+              <SearchIcon sx={{ fontSize: '3rem' }} />
+            </Button>
           </Box>
-        )}
-      </Box>
-    </Drawer>
+
+          {searchLoading ? <ListLoading /> : renderedResults}
+
+          {chatLoading && (
+            <Box component='div' sx={{ marginTop: '2rem' }}>
+              <Spinner />
+            </Box>
+          )}
+        </Box>
+      </Drawer>
+
+      <ConfirmationDialog
+        open={confirmationOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        cancelText='Cancel'
+        confirmText='Confirm'
+        title='New contact'
+        message='Do you want to add this contact to the list?'
+      />
+    </>
   );
 };
 
