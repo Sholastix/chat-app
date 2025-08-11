@@ -168,7 +168,7 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
       fullWidth
       sx={{
         '& .MuiDialog-paper': {
-          borderRadius: '0.5rem',
+          borderRadius: { xs: 'none', sm: '0.5rem' },
           maxWidth: '100%',
           width: paperWidth,
         },
@@ -216,7 +216,7 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
             }}
             sx={{
               marginBottom: '2rem',
-              width: '100%',
+              width: { xs: '100%', sm: '37.5rem' },
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
               '.MuiFormHelperText-contained': { fontSize: '1.2rem' },
@@ -237,7 +237,7 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
             }}
             sx={{
               marginBottom: '1rem',
-              width: '100%',
+              width: { xs: '100%', sm: '37.5rem' },
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
               '.MuiFormHelperText-contained': { fontSize: '1.2rem' },
@@ -249,11 +249,7 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
           />
 
           <Stack
-            sx={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              width: '37.5rem',
-            }}
+            sx={{ flexDirection: 'row', flexWrap: 'wrap', width: { xs: '100%', sm: '37.5rem' } }}
           >
             {selectedUsers?.map((user) => (
               <UserBadgeItem 

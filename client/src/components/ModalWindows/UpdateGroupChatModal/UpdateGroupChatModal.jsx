@@ -267,7 +267,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
       fullWidth
       sx={{
         '& .MuiDialog-paper': {
-          borderRadius: '0.5rem',
+          borderRadius: { xs: 'none', sm: '0.5rem' },
           maxWidth: '100%',
           width: paperWidth,
         },
@@ -276,11 +276,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
       <DialogTitle sx={{ marginTop: '2rem', textAlign: 'center' }}>
         <IconButton
           aria-label='close'
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-          }}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
           onClick={handleUpdateGroupChatModalClose}
         >
           <CloseIcon sx={{ fontSize: '2rem' }} />
@@ -323,9 +319,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
         <DialogContent>
           <Box
             component='div'
-            sx={{
-              display: 'flex',
-            }}
+            sx={{ display: 'flex', width: { xs: '100%', sm: '37.5rem' }}}
           >
             <TextField
               error={groupChatNameInputError}
@@ -351,11 +345,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
             {chatLoading ? (
               <Box
                 component='div'
-                sx={{
-                  height: '5.3rem',
-                  margin: '0rem 0rem 2rem 0.5rem',
-                  padding: '0rem 1.6rem',
-                }}
+                sx={{ height: '5.3rem', margin: '0rem 0rem 2rem 0.5rem', padding: '0rem 1.6rem' }}
               >
                 <Spinner />
               </Box>
@@ -389,7 +379,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
             }}
             sx={{
               marginBottom: '1rem',
-              width: '37.5rem',
+              width: { xs: '100%', sm: '37.5rem' },
               '.MuiOutlinedInput-notchedOutline': { fontSize: '1.4rem' },
               '.MuiInputBase-input': { fontSize: '1.4rem' },
               '.MuiFormHelperText-contained': { fontSize: '1.2rem' },
@@ -400,7 +390,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
             }}
           />
 
-          <Stack sx={{ flexDirection: 'row', flexWrap: 'wrap', width: '37.5rem' }} >
+          <Stack sx={{ flexDirection: 'row', flexWrap: 'wrap', width: { xs: '100%', sm: '37.5rem' } }} >
             {selectedUsers.map((user) => (
               <UserBadgeItem 
                 key={user._id}
