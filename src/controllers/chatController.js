@@ -36,6 +36,11 @@ const chat = async (req, res) => {
         $pull: { hiddenBy: userId },
       });
 
+      // Reactivate chat for current user if it was previously deleted.
+      await ChatModel.findByIdAndUpdate(isChat[0]._id, {
+        $pull: { deletedBy: userId },
+      });
+
       // If chat already exists - return it.
       res.json(isChat[0]);
     } else {
@@ -58,37 +63,6 @@ const chat = async (req, res) => {
 };
 
 // Get all chats which currently logged in user is a part of.
-// const fetchChats = async (req, res) => {
-//   try {
-//     // Current logged in user's ID.
-//     const userId = req.userId;
-
-//     const chats = await ChatModel.find({
-//       users: { $elemMatch: { $eq: userId } },
-
-//       // Don't include chats hidden by the user.
-//       hiddenBy: { $ne: userId },
-
-//       // Don't include chats deleted by the user.
-//       deletedBy: { $ne: userId },
-//     })
-//       .populate('users', '-password')
-//       .populate('groupAdmin', '-password')
-//       .populate('lastMessage')
-//       .sort({ updatedAt: -1 }); // Sort from new to old chats.
-
-//     const fullChats = await UserModel.populate(chats, {
-//       path: 'lastMessage.sender',
-//       select: 'username email avatar',
-//     });
-
-//     res.status(200).json(fullChats);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json(`Server error: ${err.message}`);
-//   }
-// };
-
 const fetchChats = async (req, res) => {
   try {
     const userId = req.userId;
@@ -148,12 +122,6 @@ const fetchChats = async (req, res) => {
 const fetchChat = async (req, res) => {
   try {
     const chatId = req.params.chatId;
-
-    // const chat = await ChatModel.findOne({ _id: chatId })
-    //   .populate('users', '-password')
-    //   .populate('groupAdmin', '-password');
-
-    // res.status(200).json(chat);
 
     // Find latest non-deleted message in that chat.
     const lastVisibleMessage = await MessageModel.findOne({
@@ -325,16 +293,27 @@ const deleteChatForUser = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
-    const chat = await ChatModel.findByIdAndUpdate(chatId, { $addToSet: { deletedBy: userId } }, { new: true });
+    // 1. Mark the chat as deleted for current user.
+    const chat = await ChatModel.findByIdAndUpdate(
+      chatId,
+      { $addToSet: { deletedBy: userId } },
+      { new: true }
+    );
 
     if (!chat) {
       throw new Error('Chat not found.');
-    } else {
-      res.status(200).json(chat);
     }
+
+    // 2. Mark all messages from current user in this chat as deleted (globally, for everyone).
+    await MessageModel.updateMany(
+      { chat: chatId, sender: userId },
+      { isDeleted: true }
+    );
+
+    res.status(200).json({ message: 'Chat deleted.', chat });
   } catch (err) {
     console.error(err);
-    res.status(500).json(`Server error: ${err.message}`);
+    res.status(500).json({ error: `Server error: ${err.message}` });
   }
 };
 
