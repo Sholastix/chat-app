@@ -193,7 +193,7 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
         onConfirm={handleConfirm}
         cancelText='Cancel'
         confirmText='Confirm'
-        title='New contact'
+        title='Add new contact'
         message='Do you want to add this contact to the list?'
       />
     </>

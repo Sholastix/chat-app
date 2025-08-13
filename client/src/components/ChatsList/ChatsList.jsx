@@ -8,6 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 // Components.
 import ChatItem from './ChatItem';
+import ConfirmationDialog from '../ConfirmationDialog/ConfirmationDialog';
 import ListLoading from '../ListLoading/ListLoading';
 import Spinner from '../Spinner/Spinner';
 
@@ -30,9 +31,11 @@ const ChatsList = ({ fetchAgain }) => {
   const dispatch = useDispatch();
 
   // STATE.
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
   const [online, setOnline] = useState([]);
   const [openMenuChatId, setOpenMenuChatId] = useState(null);
+  const [selectedChatId, setSelectedChatId] = useState(null);
 
   const menuAnchorElsRef = useRef({});
 
@@ -95,41 +98,55 @@ const ChatsList = ({ fetchAgain }) => {
   };
 
   // Get one specific chat of the current user from DB.
-  const getOneChat = useCallback(async (chatId) => {
-    try {
-      await dispatch(fetchChat(chatId)).unwrap();
-    } catch (err) {
-      console.error(err);
-    }
-  }, [dispatch]);
+  const getOneChat = useCallback(
+    async (chatId) => {
+      try {
+        await dispatch(fetchChat(chatId)).unwrap();
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [dispatch]
+  );
 
   // Hide one specific chat from the current user's chat list.
-  const hideChat = useCallback(async (chatId) => {
-    try {
-      const response = await axios.put('/api/chat/hide', {
-        chatId: chatId,
-        userId: user._id,
-      });
+  const hideChat = useCallback(
+    async (chatId) => {
+      try {
+        const response = await axios.put('/api/chat/hide', {
+          chatId: chatId,
+          userId: user._id,
+        });
 
-      if (response.status === 200) {
-        // Refresh the chat list.
-        await dispatch(fetchChats()).unwrap();
+        if (response.status === 200) {
+          // Refresh the chat list.
+          await dispatch(fetchChats()).unwrap();
+        }
+
+        // Close the menu.
+        handleChatItemMenuClose();
+      } catch (err) {
+        console.error(err);
       }
-
-      // Close the menu.
-      handleChatItemMenuClose();
-    } catch (err) {
-      console.error(err);
-    }
-  }, [dispatch, handleChatItemMenuClose, user._id]);
+    },
+    [dispatch, handleChatItemMenuClose, user._id]
+  );
 
   // Delete one specific chat from the current user's chat list.
   // This is a "soft deletion" of the chat (basically, we permanently hide this chat from ourselfs without means to unhide it).
   // All correspondence from this chat will still be available to our collocutor unless he "deletes" the chat for himself (and vice versa).
   const deleteChat = useCallback(async (chatId) => {
+    setSelectedChatId(chatId);
+    setConfirmationOpen(true);
+  }, []);
+
+  // Confirm action.
+  const handleConfirm = useCallback(async () => {
+    if (!selectedChatId) return;
+
     try {
       await axios.put('/api/chat/delete', {
-        chatId: chatId,
+        chatId: selectedChatId,
         userId: user._id,
         currentUserId: user._id,
       });
@@ -141,8 +158,19 @@ const ChatsList = ({ fetchAgain }) => {
       handleChatItemMenuClose();
     } catch (err) {
       console.error(err);
+    } finally {
+      setConfirmationOpen(false);
+      setSelectedChatId(null);
     }
-  }, [dispatch, handleChatItemMenuClose, user._id]);
+  }, [dispatch, handleChatItemMenuClose, selectedChatId, user._id]);
+
+  // Cancel action.
+  const handleCancel = useCallback(() => {
+    setConfirmationOpen(false);
+    setSelectedChatId(null);
+    // Close the menu.
+    handleChatItemMenuClose();
+  }, []);
 
   // Get all online users.
   const allOnlineUsers = () => {
@@ -186,90 +214,102 @@ const ChatsList = ({ fetchAgain }) => {
   }, [sortedChats]);
 
   return (
-    <Box
-      sx={{
-        alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: '0.5rem',
-        boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
-        display: { xs: selectedChat ? 'none' : 'flex', md: 'flex' },
-        flexDirection: 'column',
-        margin: { xs: '0.5rem', md: '0.5rem 0.25rem 0.5rem 0.5rem' },
-        padding: '1rem',
-        width: { xs: '100%', md: '25%' },
-      }}
-    >
+    <>
       <Box
         sx={{
           alignItems: 'center',
           backgroundColor: 'white',
           borderRadius: '0.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          height: '5rem',
-          width: '100%',
-        }}
-      >
-        <Button
-          endIcon={<AddIcon sx={{ color: 'black' }} />}
-          sx={{ backgroundColor: 'rgb(235, 235, 235)', borderRadius: '0.5rem' }}
-          onClick={handleGroupChatModalOpen}
-        >
-          <Typography sx={{ color: 'black', fontSize: '1.5rem', textTransform: 'none' }}>New Group Chat</Typography>
-        </Button>
-      </Box>
-
-      <Box
-        sx={{
-          alignItems: 'center',
-          backgroundColor: 'white',
-          borderRadius: '0.5rem',
-          display: 'flex',
+          boxShadow: '0 0.5rem 1rem 0 rgba(0, 0, 0, 0.3)',
+          display: { xs: selectedChat ? 'none' : 'flex', md: 'flex' },
           flexDirection: 'column',
-          height: '100%',
-          overflowX: 'hidden',
-          overflowY: 'auto',
-          marginTop: '1rem',
-          width: '100%',
+          margin: { xs: '0.5rem', md: '0.5rem 0.25rem 0.5rem 0.5rem' },
+          padding: '1rem',
+          width: { xs: '100%', md: '25%' },
         }}
       >
-        {chats ? (
-          <Stack sx={{ width: '100%' }}>
-            {chatsWithTransformedMessages.map((chat) => {
-              const fullSender = !chat.isGroupChat ? getFullSender(user, chat.users) : null;
+        <Box
+          sx={{
+            alignItems: 'center',
+            backgroundColor: 'white',
+            borderRadius: '0.5rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            height: '5rem',
+            width: '100%',
+          }}
+        >
+          <Button
+            endIcon={<AddIcon sx={{ color: 'black' }} />}
+            sx={{ backgroundColor: 'rgb(235, 235, 235)', borderRadius: '0.5rem' }}
+            onClick={handleGroupChatModalOpen}
+          >
+            <Typography sx={{ color: 'black', fontSize: '1.5rem', textTransform: 'none' }}>New Group Chat</Typography>
+          </Button>
+        </Box>
 
-              return (
-                <ChatItem
-                  key={chat._id}
-                  chat={chat}
-                  deleteChat={deleteChat}
-                  fullSender={fullSender}
-                  getOneChat={getOneChat}
-                  handleChatItemMenuClick={handleChatItemMenuClick}
-                  handleChatItemMenuClose={handleChatItemMenuClose}
-                  hideChat={hideChat}
-                  menuAnchorEl={menuAnchorElsRef.current[chat._id]}
-                  online={online}
-                  openMenuChatId={openMenuChatId}
-                  user={user}
-                />
-              );
-            })}
-          </Stack>
-        ) : (
-          <ListLoading />
+        <Box
+          sx={{
+            alignItems: 'center',
+            backgroundColor: 'white',
+            borderRadius: '0.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            marginTop: '1rem',
+            width: '100%',
+          }}
+        >
+          {chats ? (
+            <Stack sx={{ width: '100%' }}>
+              {chatsWithTransformedMessages.map((chat) => {
+                const fullSender = !chat.isGroupChat ? getFullSender(user, chat.users) : null;
+
+                return (
+                  <ChatItem
+                    key={chat._id}
+                    chat={chat}
+                    deleteChat={deleteChat}
+                    fullSender={fullSender}
+                    getOneChat={getOneChat}
+                    handleChatItemMenuClick={handleChatItemMenuClick}
+                    handleChatItemMenuClose={handleChatItemMenuClose}
+                    hideChat={hideChat}
+                    menuAnchorEl={menuAnchorElsRef.current[chat._id]}
+                    online={online}
+                    openMenuChatId={openMenuChatId}
+                    user={user}
+                  />
+                );
+              })}
+            </Stack>
+          ) : (
+            <ListLoading />
+          )}
+        </Box>
+
+        {isGroupChatModalOpen && (
+          <Suspense fallback={<Spinner />}>
+            <GroupChatModal
+              isGroupChatModalOpen={isGroupChatModalOpen}
+              setIsGroupChatModalOpen={setIsGroupChatModalOpen}
+            />
+          </Suspense>
         )}
       </Box>
 
-      {isGroupChatModalOpen && (
-        <Suspense fallback={<Spinner />}>
-          <GroupChatModal
-            isGroupChatModalOpen={isGroupChatModalOpen}
-            setIsGroupChatModalOpen={setIsGroupChatModalOpen}
-          />
-        </Suspense>
-      )}
-    </Box>
+      <ConfirmationDialog
+        open={confirmationOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        cancelText='Cancel'
+        confirmText='Confirm'
+        title='Are you sure you want to delete this chat?'
+        message='This deletes chat for you and all your messages for everyone.'
+      />
+    </>
   );
 };
 
