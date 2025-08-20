@@ -154,8 +154,8 @@ const fetchChat = async (req, res) => {
   }
 };
 
-// Create group chat.
-const createGroupChat = async (req, res) => {
+// Create or fetch group chat.
+const groupChat = async (req, res) => {
   try {
     const chatName = req.body.chatName;
 
@@ -185,9 +185,16 @@ const createGroupChat = async (req, res) => {
       // Then populate existed group chat with additional info (without password).
       const fullExistedChat = await ChatModel.findOne({ _id: isChatExists._id })
         .populate('users', '-password')
-        .populate('groupAdmin', '-password');
+        .populate('groupAdmin', '-password')
+        .populate({
+          path: 'lastMessage',
+          populate: {
+            path: 'sender',
+            select: '_id username avatar',
+          },
+        });
 
-      res.json(fullExistedChat);
+      res.status(200).json(fullExistedChat);
     } else {
       // If chat not exist - create it.
       const groupChat = await ChatModel.create({
@@ -317,14 +324,38 @@ const deleteChatForUser = async (req, res) => {
   }
 };
 
+// Get all group chats from DB accordingly to search parameters.
+const searchGroupChats = async (req, res) => {
+  const query = req.query.search;
+
+  if (!query || !query.trim()) {
+    return res.status(400).json({ message: 'Query is required.' });
+  }
+
+  try {
+    // Group chat search by chatName.
+    const groupChats = await ChatModel.find({
+      isGroupChat: true,
+      chatName: { $regex: query, $options: 'i' }
+    });
+
+    // Return group chats.
+    res.status(200).json(groupChats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(`Server error: ${err.message}`);
+  }
+};
+
 module.exports = {
   chat,
   addToGroup,
-  createGroupChat,
   deleteChatForUser,
   fetchChat,
   fetchChats,
+  groupChat,
   hideChatForUser,
   removeFromGroup,
   renameGroupChat,
+  searchGroupChats,
 };

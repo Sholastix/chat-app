@@ -96,14 +96,20 @@ const signin = async (req, res) => {
   }
 };
 
-// Get all users (except currently logged in user) from database accordingly to search parameters.
-const getUsers = async (req, res) => {
+// Get all users (except current user) from DB accordingly to search parameters.
+const searchUsers = async (req, res) => {
+  const query = req.query.search;
+
+  if (!query || !query.trim()) {
+    return res.status(400).json({ message: 'Query is required.' });
+  }
+
   try {
-    const keyword = req.query.search
+    const keyword = query.search
       ? {
           $or: [
-            { username: { $regex: req.query.search, $options: 'i' } },
-            // { email: { $regex: req.query.search, $options: 'i' } },
+            { username: { $regex: query, $options: 'i' } },
+            // { email: { $regex: query, $options: 'i' } },
           ],
         }
       : {};
@@ -111,6 +117,7 @@ const getUsers = async (req, res) => {
     // Find all users except currently logged in user.
     const users = await UserModel.find(keyword).find({ _id: { $ne: req.userId } });
 
+    // Returning found users.
     res.status(200).json(users);
   } catch (err) {
     console.error(err);
@@ -159,7 +166,7 @@ const updateUser = async (req, res) => {
 
 module.exports = {
   getUser,
-  getUsers,
+  searchUsers,
   signin,
   signup,
   updateUser,

@@ -78,7 +78,7 @@ const GroupChatModal = ({ isGroupChatModalOpen, setIsGroupChatModalOpen }) => {
 
     try {
       setSearchLoading(true);
-      const { data } = await axios.get(`/api/users?search=${query}`);
+      const { data } = await axios.get(`/api/users/search?search=${query}`);
       setSearchResult(data);
     } catch (err) {
       console.error(err);

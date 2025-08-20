@@ -118,7 +118,7 @@ const UpdateGroupChatModal = ({ isUpdateGroupChatModalOpen, setIsUpdateGroupChat
     setSearchLoading(true);
     
     try {
-      const { data } = await axios.get(`/api/users?search=${encodeURIComponent(query)}`);
+      const { data } = await axios.get(`/api/users/search?search=${encodeURIComponent(query)}`);
 
       setSearchResult(data);
     } catch (err) {

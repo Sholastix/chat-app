@@ -8,17 +8,18 @@ const authMdw = require('../../middleware/authMdw');
 const {
   chat,
   addToGroup,
-  createGroupChat,
   deleteChatForUser,
   fetchChat,
   fetchChats,
+  groupChat,
   hideChatForUser,
   removeFromGroup,
   renameGroupChat,
+  searchGroupChats,
 } = require('../../controllers/chatController');
 
 // @route: POST /api/chat
-// @desc: Creating or fetching 1-on-1 chat.
+// @desc: Create or fetch 1-on-1 chat.
 // @access: Private.
 router.post('/chat', authMdw, chat);
 
@@ -33,24 +34,29 @@ router.get('/chat', authMdw, fetchChats);
 router.get('/chat/:chatId', authMdw, fetchChat);
 
 // @route: POST /api/chat/group
-// @desc: Create group chat.
+// @desc: Create or fetch group chat.
 // @access: Private.
-router.post('/chat/group', authMdw, createGroupChat);
+router.post('/chat/group', authMdw, groupChat);
 
 // @route: PUT /api/chat/group/rename
 // @desc: Rename existed group chat.
 // @access: Private.
 router.put('/chat/group/rename', authMdw, renameGroupChat);
 
-// @route: PUT /api/chat/group/addtogroup
+// @route: PUT /api/chat/group/add
 // @desc: Add someone to group.
 // @access: Private.
 router.put('/chat/group/add', authMdw, addToGroup);
 
-// @route: PUT /api/chat/group/removefromgroup
+// @route: PUT /api/chat/group/remove
 // @desc: Remove someone from group or leave the group.
 // @access: Private.
 router.put('/chat/group/remove', authMdw, removeFromGroup);
+
+// @route: GET /api/chat/group/search
+// @desc: Get all group chats from DB accordingly to search parameters.
+// @access: Private.
+router.get('/chat/group/search', authMdw, searchGroupChats);
 
 // @route: PUT /api/chat/hide
 // @desc: Hide chat in chat list.

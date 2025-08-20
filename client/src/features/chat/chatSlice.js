@@ -60,6 +60,15 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
   };
 });
 
+// Add existing group chat to chat list.
+export const accessGroupChat = createAsyncThunk('chat/accessGroupChat', async (groupId) => {
+  const allChats = await axios.get('/api/chat');
+  const existedGroupChat = await axios.get(`/api/chat/${groupId}`);
+  const updatedAllChats = [...allChats.data, existedGroupChat.data];
+
+  return updatedAllChats;
+});
+
 // Rename group chat.
 export const renameGroupChat = createAsyncThunk('chat/renameGroupChat', async ({ chatId, chatName }) => {
   const { data } = await axios.put('/api/chat/group/rename', { chatId, chatName });
@@ -191,6 +200,24 @@ const chatSlice = createSlice({
       state.loading = false;
       state.error = action.error.message;
       // state.selectedChat = null;
+    });
+
+    // -------------------------------   ADD EXISTING GROUP CHAT TO THE LIST   -------------------------------
+    builder.addCase(accessGroupChat.pending, (state) => {
+      state.loading = true;
+    });
+
+    builder.addCase(accessGroupChat.fulfilled, (state, action) => {
+      console.log('AP: ', action.payload)
+      state.loading = false;
+      state.error = '';
+      state.chats = action.payload;
+      // state.selectedChat = action.payload;
+    });
+
+    builder.addCase(accessGroupChat.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
     });
 
     // -------------------------------   RENAME GROUP CHAT   -------------------------------

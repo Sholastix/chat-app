@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { Box, Button, Drawer, Divider, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Drawer, Divider, TextField, Typography } from '@mui/material';
 
 // MUI Icons.
 import SearchIcon from '@mui/icons-material/Search';
@@ -13,7 +13,7 @@ import UserListItem from '../../UserListItem/UserListItem';
 import ListLoading from '../../ListLoading/ListLoading';
 
 // Functions.
-import { createPrivateChat } from '../../../features/chat/chatSlice';
+import { accessGroupChat, createPrivateChat } from '../../../features/chat/chatSlice';
 
 const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
   const chatLoading = useSelector((state) => state.chatReducer.loading);
@@ -25,8 +25,10 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
   const [inputError, setInputError] = useState(false);
   const [inputHelperText, setInputHelperText] = useState('');
   const [search, setSearch] = useState('');
+  const [searchGroupChats, setSearchGroupChats] = useState([]);
+  const [searchUsers, setSearchUsers] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [searchResult, setSearchResult] = useState([]);
+  const [selectedGroupChatId, setSelectedGroupChatId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   // Memoized reset state function for reuse.
@@ -34,7 +36,8 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
     setInputError(false);
     setInputHelperText('');
     setSearch('');
-    setSearchResult([]);
+    setSearchGroupChats([]);
+    setSearchUsers([]);
   }, []);
 
   // 'Close' event for 'LeftDrawer' Component.
@@ -53,17 +56,22 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
       if (!search.trim()) {
         setInputError(true);
         setInputHelperText('Please enter something.');
-        setSearchResult([]);
+        setSearchGroupChats([]);
+        setSearchUsers([]);
         return;
       }
 
       setSearchLoading(true);
 
       // Return users from database accordingly to search parameters.
-      const { data } = await axios.get(`/api/users?search=${encodeURIComponent(search)}`);
+      const users = await axios.get(`/api/users/search?search=${encodeURIComponent(search)}`);
+
+      // Return chats from database accordingly to search parameters.
+      const chats = await axios.get(`/api/chat/group/search?search=${encodeURIComponent(search)}`);
 
       resetSearchState();
-      setSearchResult(data);
+      setSearchGroupChats(chats.data ?? []);
+      setSearchUsers(users.data ?? []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -71,48 +79,120 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
     }
   }, [search, resetSearchState]);
 
-  // Add chat to chats list.
+  // Add private chat to chats list.
   const chatAccess = useCallback(async (userId) => {
     setSelectedUserId(userId);
     setConfirmationOpen(true);
   }, []);
 
+  // Add group chat to chats list.
+  const groupChatAccess = useCallback(async (groupId) => {
+    setSelectedGroupChatId(groupId);
+    setConfirmationOpen(true);
+  }, []);
+
   // Confirm action.
   const handleConfirm = useCallback(() => {
-    if (!selectedUserId) return;
+    if (selectedUserId !== null) {
+      try {
+        dispatch(createPrivateChat(selectedUserId));
+        setIsLeftDrawerOpen(false);
+        resetSearchState();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSelectedUserId(null);
+        setConfirmationOpen(false);
+      }
 
-    try {
-      dispatch(createPrivateChat(selectedUserId));
-
-      setIsLeftDrawerOpen(false);
-      resetSearchState();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setConfirmationOpen(false);
-      setSelectedUserId(null);
+      return;
     }
-  }, [dispatch, selectedUserId, setIsLeftDrawerOpen, resetSearchState]);
+
+    if (selectedGroupChatId !== null) {
+      try {
+        dispatch(accessGroupChat(selectedGroupChatId));
+        setIsLeftDrawerOpen(false);
+        resetSearchState();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSelectedGroupChatId(null);
+        setConfirmationOpen(false);
+      }
+    }
+  }, [dispatch, selectedUserId, selectedGroupChatId, setIsLeftDrawerOpen, resetSearchState]);
 
   // Cancel action.
   const handleCancel = useCallback(() => {
-    setConfirmationOpen(false);
+    setSelectedGroupChatId(null);
     setSelectedUserId(null);
+    setConfirmationOpen(false);
   }, []);
 
-  const handleChatAccessMemo = useCallback(
-    (userId) => () => {
-      chatAccess(userId);
-    },
-    [chatAccess]
-  );
+  const handleChatAccessMemo = useCallback((userId) => () => {
+    chatAccess(userId)
+  }, [chatAccess]);
+
+  const handleGroupChatAccessMemo = useCallback((groupId) => () => {
+    groupChatAccess(groupId);
+  }, [groupChatAccess]);
 
   // Memoized render for search list.
   const renderedResults = useMemo(() => {
-    return searchResult?.map((user) => (
-      <UserListItem key={user._id} user={user} handleFunction={handleChatAccessMemo(user._id)} />
-    ));
-  }, [searchResult, handleChatAccessMemo]);
+    return (
+      <>
+        {searchUsers.length > 0 && (
+          <>
+            <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+              Users
+            </Typography>
+
+            {searchUsers.map((user) => (
+              <UserListItem key={user._id} user={user} handleFunction={handleChatAccessMemo(user._id)} />
+            ))}
+          </>
+        )}
+
+        {searchGroupChats.length > 0 && (
+          <>
+            <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold', margin: '3rem 0rem 1rem' }}>
+              Group Chats
+            </Typography>
+
+            {searchGroupChats.map((chat) => (
+              <Box
+                key={chat._id}
+                sx={{
+                  alignItems: 'center',
+                  border: '0.1rem solid lightgray',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  fontSize: '1.4rem',
+                  marginTop: '1rem',
+                  padding: '1rem 2rem',
+                  ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
+                }}
+                onClick={handleGroupChatAccessMemo(chat._id)}
+              >
+                <Avatar src='https://img.icons8.com/parakeet-line/48/group.png' sx={{ marginRight: '2rem' }} />
+
+                <Typography sx={{ fontSize: '1.4rem' }}>
+                  {chat.chatName}
+                </Typography>
+              </Box>
+            ))}
+          </>
+        )}
+
+        {!searchLoading && searchUsers.length === 0 && searchGroupChats.length === 0 && (
+          <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
+            No results found.
+          </Typography>
+        )}
+      </>
+    );
+  }, [searchUsers, searchGroupChats, handleChatAccessMemo, searchLoading, resetSearchState, setIsLeftDrawerOpen]);
 
   return (
     <>
@@ -129,7 +209,7 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
           }}
         >
           <Typography component='div' sx={{ fontSize: '1.6rem' }}>
-            Search user
+            Search user or group chat
           </Typography>
 
           <Divider sx={{ margin: '2rem 0rem 3rem' }} />

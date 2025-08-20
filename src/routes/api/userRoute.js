@@ -6,8 +6,8 @@ const authMdw = require('../../middleware/authMdw');
 const yupMdw = require('../../middleware/yupMdw');
 
 // Functions.
-const { signup, signin, getUser, getUsers, updateUser } = require('../../controllers/userController');
-const { signupSchema, signinSchema } = require('../../validation/userValidation');
+const { getUser, searchUsers, signin, signup, updateUser } = require('../../controllers/userController');
+const { signinSchema, signupSchema } = require('../../validation/userValidation');
 const { checkEmail, checkUsername } = require('../../helpers/checkCredentials');
 
 // -------   PUBLIC   -------
@@ -35,9 +35,9 @@ router.get('/user/email/:email', checkEmail);
 // -------   PRIVATE   -------
 
 // @route: GET /api/users
-// @desc: Get all users (accordingly to search request) from database.
+// @desc: Get all users (except current user) from DB accordingly to search parameters.
 // @access: Private.
-router.get('/users', authMdw, getUsers);
+router.get('/users/search', authMdw, searchUsers);
 
 // @route: GET /api/user/:id
 // @desc: Get specific user from database.
