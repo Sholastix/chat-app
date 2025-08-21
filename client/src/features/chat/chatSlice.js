@@ -208,7 +208,6 @@ const chatSlice = createSlice({
     });
 
     builder.addCase(accessGroupChat.fulfilled, (state, action) => {
-      console.log('AP: ', action.payload)
       state.loading = false;
       state.error = '';
       state.chats = action.payload;

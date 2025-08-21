@@ -84,7 +84,7 @@ const ChatItem = ({
           >
             {chat.lastMessage ? (
               <>
-                {chat.lastMessage.sender._id === user._id ? 'You' : chat.lastMessage.sender.username || 'Deleted'}:{' '}
+                {chat.lastMessage.sender._id === user._id ? 'You' : chat.lastMessage.sender.username || 'Deleted user'}:{' '}
                 {chat.transformedLastMessage}
               </>
             ) : (
@@ -94,92 +94,90 @@ const ChatItem = ({
         </Box>
       </Box>
 
-      {!chat.isGroupChat && (
-        <Box component='div' sx={{ display: 'flex', alignSelf: 'flex-start' }}>
-          <Tooltip
-            title='Options'
-            arrow
-            enterDelay={100}
-            enterNextDelay={100}
-            placement='top'
-            slotProps={{
-              tooltip: {
-                sx: {
-                  backgroundColor: 'rgb(93, 109, 126)',
-                  color: 'white',
-                  fontSize: '1.2rem',
-                },
+      <Box component='div' sx={{ display: 'flex', alignSelf: 'flex-start' }}>
+        <Tooltip
+          title='Options'
+          arrow
+          enterDelay={100}
+          enterNextDelay={100}
+          placement='top'
+          slotProps={{
+            tooltip: {
+              sx: {
+                backgroundColor: 'rgb(93, 109, 126)',
+                color: 'white',
+                fontSize: '1.2rem',
               },
-              arrow: { sx: { color: 'rgb(93, 109, 126)' } },
+            },
+            arrow: { sx: { color: 'rgb(93, 109, 126)' } },
+          }}
+        >
+          <Box
+            component='button'
+            id='chat-item-menu-button'
+            aria-controls={isMenuOpen ? 'chat-item-menu' : undefined}
+            aria-haspopup='true'
+            aria-expanded={isMenuOpen ? 'true' : undefined}
+            sx={{
+              alignItems: 'center',
+              backgroundColor: 'white',
+              display: 'flex',
+              justifyContent: 'center',
+              height: '1.5rem',
+              width: '3rem',
+              border: 'none',
+              ':hover': { cursor: 'pointer' },
+            }}
+            onClick={(event) => {
+              event.stopPropagation();
+              handleChatItemMenuClick(event, chat._id);
             }}
           >
-            <Box
-              component='button'
-              id='chat-item-menu-button'
-              aria-controls={isMenuOpen ? 'chat-item-menu' : undefined}
-              aria-haspopup='true'
-              aria-expanded={isMenuOpen ? 'true' : undefined}
-              sx={{
-                alignItems: 'center',
-                backgroundColor: 'white',
-                display: 'flex',
-                justifyContent: 'center',
-                height: '1.5rem',
-                width: '3rem',
-                border: 'none',
-                ':hover': { cursor: 'pointer' },
-              }}
-              onClick={(event) => {
-                event.stopPropagation();
-                handleChatItemMenuClick(event, chat._id);
-              }}
-            >
-              <MoreHorizRoundedIcon />
-            </Box>
-          </Tooltip>
+            <MoreHorizRoundedIcon />
+          </Box>
+        </Tooltip>
 
-          {menuAnchorEl && (
-            <Menu
-              id='chat-item-menu'
-              anchorEl={menuAnchorEl}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              open={isMenuOpen}
-              onClose={handleChatItemMenuClose}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              slotProps={{
-                list: { 'aria-labelledby': 'chat-item-menu-button' },
-              }}
-            >
-              <MenuList disablePadding sx={{ width: '12rem' }}>
-                <MenuItem
-                  divider
-                  sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    hideChat(chat._id);
-                  }}
-                >
-                  <ListItemIcon>
-                    <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
-                  </ListItemIcon>
-                </MenuItem>
+        {menuAnchorEl && (
+          <Menu
+            id='chat-item-menu'
+            anchorEl={menuAnchorEl}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            open={isMenuOpen}
+            onClose={handleChatItemMenuClose}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            slotProps={{
+              list: { 'aria-labelledby': 'chat-item-menu-button' },
+            }}
+          >
+            <MenuList disablePadding sx={{ width: '12rem' }}>
+              <MenuItem
+                divider
+                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  hideChat(chat._id);
+                }}
+              >
+                <ListItemIcon>
+                  <VisibilityOffOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Hide
+                </ListItemIcon>
+              </MenuItem>
 
-                <MenuItem
-                  sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    deleteChat(chat._id);
-                  }}
-                >
-                  <ListItemIcon>
-                    <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Delete
-                  </ListItemIcon>
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          )}
-        </Box>
-      )}
+              <MenuItem
+                sx={{ fontFamily: 'Georgia', fontSize: '1.4rem' }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  deleteChat(chat._id);
+                }}
+              >
+                <ListItemIcon>
+                  <DeleteOutlinedIcon sx={{ fontSize: '2rem', marginRight: '1rem' }} /> Delete
+                </ListItemIcon>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        )}
+      </Box>
     </Box>
   );
 };

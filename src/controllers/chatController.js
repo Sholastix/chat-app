@@ -13,36 +13,38 @@ const chat = async (req, res) => {
     const collocutorId = req.body.userId;
 
     if (!collocutorId) {
-      console.log("\nERROR: No collocutor's ID in request body.");
-      return res.status(400).json("\nERROR: No collocutor's ID in request body.");
+      console.log('\nERROR: No collocutor\'s ID in request body.');
+      return res.status(400).json('\nERROR: No collocutor\'s ID in request body.');
     }
 
     // Check if 1-on-1 private chat with requested users already exists.
-    let isChat = await ChatModel.find({
+    const isChat = await ChatModel.find({
       isGroupChat: false,
-      $and: [{ users: { $elemMatch: { $eq: userId } } }, { users: { $elemMatch: { $eq: collocutorId } } }],
+      $and: [
+        { users: { $elemMatch: { $eq: userId } } }, 
+        { users: { $elemMatch: { $eq: collocutorId } } },
+      ],
     })
       .populate('users', '-password')
-      .populate('lastMessage');
-
-    isChat = await UserModel.populate(isChat, {
-      path: 'lastMessage.sender',
-      select: 'username email avatar',
-    });
-
-    if (isChat.length > 0) {
-      // Unhide chat for current user if it was previously hidden.
-      await ChatModel.findByIdAndUpdate(isChat[0]._id, {
-        $pull: { hiddenBy: userId },
+      .populate({
+        path: 'lastMessage',
+        populate: {
+          path: 'sender',
+          select: 'username email avatar',
+        },
       });
 
-      // Reactivate chat for current user if it was previously deleted.
+    if (isChat.length > 0) {
+      // Unhide/reactivate (if it was previously hidden/soft-deleted) chat for current user.
       await ChatModel.findByIdAndUpdate(isChat[0]._id, {
-        $pull: { deletedBy: userId },
+        $pull: { 
+          hiddenBy: userId,
+          deletedBy: userId,
+        },
       });
 
       // If chat already exists - return it.
-      res.json(isChat[0]);
+      res.status(200).json(isChat[0]);
     } else {
       // If chat not exist - create it.
       const newChat = await ChatModel.create({
@@ -122,6 +124,19 @@ const fetchChats = async (req, res) => {
 const fetchChat = async (req, res) => {
   try {
     const chatId = req.params.chatId;
+    
+    // This part for group chat only - START.
+    // Maybe later we relocate this part to 'chat' function.
+    const userId = req.userId;
+    
+    // Unhide/reactivate (if it was previously hidden/soft-deleted) group chat for current user.
+    await ChatModel.findByIdAndUpdate(chatId, { 
+      $pull: { 
+        hiddenBy: userId,
+        deletedBy: userId,
+      }
+    });
+    // This part for group chat only - END.
 
     // Find latest non-deleted message in that chat.
     const lastVisibleMessage = await MessageModel.findOne({
