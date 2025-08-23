@@ -62,12 +62,20 @@ export const createGroupChat = createAsyncThunk('chat/createGroupChat', async ({
 
 // Add existing group chat to chat list.
 export const accessGroupChat = createAsyncThunk('chat/accessGroupChat', async (groupId) => {
-  const allChats = await axios.get('/api/chat');
-  const existedGroupChat = await axios.get(`/api/chat/${groupId}`);
-  const updatedAllChats = [...allChats.data, existedGroupChat.data];
+    // Get all chats from the current user's chat list.
+    const { data: chats } = await axios.get('/api/chat');
 
-  return updatedAllChats;
-});
+    // Check if this chat is already in the current user's chat list. if 'YES' - return early.
+    if (chats.some((chat) => chat._id === groupId)) {
+      return chats;
+    }
+
+    // Otherwise, fetch the group chat and add it.
+    const { data: groupChat } = await axios.get(`/api/chat/${groupId}`);
+
+    return [...chats, groupChat];
+  }
+);
 
 // Rename group chat.
 export const renameGroupChat = createAsyncThunk('chat/renameGroupChat', async ({ chatId, chatName }) => {

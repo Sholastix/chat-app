@@ -84,7 +84,7 @@ const ChatItem = ({
           >
             {chat.lastMessage ? (
               <>
-                {chat.lastMessage.sender._id === user._id ? 'You' : chat.lastMessage.sender.username || 'Deleted user'}:{' '}
+                {chat.lastMessage?.sender?._id === user._id ? 'You' : chat.lastMessage?.sender?.username || 'Deleted user'}:{' '}
                 {chat.transformedLastMessage}
               </>
             ) : (
