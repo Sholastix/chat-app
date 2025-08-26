@@ -7,6 +7,7 @@ import { Avatar, Box, Button, Drawer, Divider, TextField, Typography } from '@mu
 import SearchIcon from '@mui/icons-material/Search';
 
 // Components.
+import GroupChatListItem from './GroupChatListItem';
 import ConfirmationDialog from '../../ConfirmationDialog/ConfirmationDialog';
 import Spinner from '../../Spinner/Spinner';
 import UserListItem from '../../UserListItem/UserListItem';
@@ -160,27 +161,7 @@ const LeftDrawer = ({ isLeftDrawerOpen, setIsLeftDrawerOpen }) => {
             </Typography>
 
             {searchGroupChats.map((chat) => (
-              <Box
-                key={chat._id}
-                sx={{
-                  alignItems: 'center',
-                  border: '0.1rem solid lightgray',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  fontSize: '1.4rem',
-                  marginTop: '1rem',
-                  padding: '1rem 2rem',
-                  ':hover': { boxShadow: '0 0.2rem 1rem 0 rgba(0, 0, 0, 0.3)' },
-                }}
-                onClick={handleGroupChatAccessMemo(chat._id)}
-              >
-                <Avatar src='https://img.icons8.com/parakeet-line/48/group.png' sx={{ marginRight: '2rem' }} />
-
-                <Typography sx={{ fontSize: '1.4rem' }}>
-                  {chat.chatName}
-                </Typography>
-              </Box>
+              <GroupChatListItem key={chat._id} chat={chat} handleFunction={handleGroupChatAccessMemo(chat._id)} />
             ))}
           </>
         )}
