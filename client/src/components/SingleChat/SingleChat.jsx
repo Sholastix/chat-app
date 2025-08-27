@@ -570,7 +570,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               }}
               value={newMessage}
               onChange={handleTyping}
-            ></TextField>
+              onKeyDown={(event) => {
+                // Send message by pressing key 'Enter'.
+                // Combination of keys 'Shift + Enter' moves caret to the next line.
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault(); // Prevent newline from being added.
+
+                  sendMessage(); // Send message.
+                }
+              }}
+            />
 
             <Tooltip
               title='Send message'
